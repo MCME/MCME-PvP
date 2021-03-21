@@ -37,7 +37,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
     private boolean pvpRegistered = false;
 
-    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("RedSpawn1",
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("RedSpawn1","RedSpawn2","BlueSpawn2",
             "BlueSpawn1"));
 
     private GameState state;
@@ -96,31 +96,31 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             }
         }//players that didn't join become spectators
 
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.RED_STAINED_GLASS);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().setType(Material.BEACON);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, 1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, 1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.RED_STAINED_GLASS);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().setType(Material.BEACON);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
 
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.BLUE_STAINED_GLASS);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().setType(Material.BEACON);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(0, -1, 1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(1, -1, 1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.BLUE_STAINED_GLASS);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().setType(Material.BEACON);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(0, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(1, -1, 1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
 
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), () -> {
@@ -170,11 +170,13 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     public void End(Map m){
         state = GameState.IDLE;
 
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
-        m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
 
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
-        m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
+        m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
 
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
@@ -293,12 +295,12 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             Player p = e.getEntity();
             if(Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER){
                 GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
-                map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
+                map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
             }
 
             if(p.getInventory().getHelmet().getType() == Material.RED_BANNER){
                 GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
-                map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
+                map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
             }//dying with the banner returns it to spawn
         }
 
@@ -313,46 +315,27 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if (Objects.requireNonNull(e.getClickedBlock()).getType().equals(Material.BEACON)) {
 
                     e.setUseInteractedBlock(Event.Result.DENY);
-
-                    if (Team.getBlue().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.RED_BANNER) {
-                        GearHandler.giveGear(e.getPlayer(),ChatColor.BLUE,SpecialGear.NONE);
-                        Points.getScore(ChatColor.BLUE + "Blue:").setScore(blueScore + 1);
-                        map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
-                        for(Player player : Bukkit.getOnlinePlayers()){
-                            player.sendMessage(ChatColor.BLUE + e.getPlayer().getName() + " has captured the Red flag!");
-                        }
-                    }
-
-                    if (Team.getRed().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER) {
-                        GearHandler.giveGear(e.getPlayer(), ChatColor.RED, SpecialGear.NONE);
-                        Points.getScore(ChatColor.RED + "Red:").setScore(redScore + 1);
-                        map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
-                        for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendMessage(ChatColor.RED + e.getPlayer().getName() + " has captured the Blue flag!");
-                        }
-                    }
-
                 }
 
                 if (e.getClickedBlock().getType() == Material.RED_BANNER) {//BLUE claims red banner
                     if (Team.getBlue().getMembers().contains(p)) {
                         p.getInventory().setHelmet(new ItemStack(Material.RED_BANNER));
-                        map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
+                        map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.BLUE + e.getPlayer().getName() + " has claimed the Red flag!");
                         }
-                        p.sendMessage(ChatColor.BLUE + "You have the enemy flag! Right click on your spawn beacon to capture it and score!");
+                        p.sendMessage(ChatColor.BLUE + "You have the enemy flag! Right click on your spawn flag to capture it and score!");
                     }
                 }
 
                 if (e.getClickedBlock().getType() == Material.BLUE_BANNER) {//RED claims blue banner
                     if (Team.getRed().getMembers().contains(p)) {
                         p.getInventory().setHelmet(new ItemStack(Material.BLUE_BANNER));
-                        map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
+                        map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.RED + e.getPlayer().getName() + " has claimed the Blue flag!");
                         }
-                        p.sendMessage(ChatColor.RED + "You have the enemy flag! Right click on your spawn beacon to capture it and score!");
+                        p.sendMessage(ChatColor.RED + "You have the enemy flag! Right click on your spawn flag to capture it and score!");
                     }
                 }
                 //right clicking the enemy banner puts it on your head
@@ -361,7 +344,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     if (Team.getBlue().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.RED_BANNER) {
                         GearHandler.giveGear(e.getPlayer(),ChatColor.BLUE,SpecialGear.NONE);
                         Points.getScore(ChatColor.BLUE + "Blue:").setScore(blueScore + 1);
-                        map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
+                        map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.BLUE + e.getPlayer().getName() + " has captured the Red flag!");
                         }
@@ -372,7 +355,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     if (Team.getRed().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER) {
                         GearHandler.giveGear(e.getPlayer(),ChatColor.RED,SpecialGear.NONE);
                         Points.getScore(ChatColor.RED + "Red:").setScore(redScore + 1);
-                        map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
+                        map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.RED + e.getPlayer().getName() + " has captured the Blue flag!");
                         }
