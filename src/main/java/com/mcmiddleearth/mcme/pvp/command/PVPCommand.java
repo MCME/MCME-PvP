@@ -467,7 +467,17 @@ public class PVPCommand extends CommandDispatcher<Player>{
 
                 break;
             case "kickPlayer":
-                Logger.getLogger("logger").log(Level.INFO, "kickPlayer received with " + argument);
+                Player kick = Bukkit.getPlayer(argument);
+                if(nextGame != null)
+                    nextGame.playerLeave(kick);
+                if(runningGame != null)
+                    runningGame.playerLeave(kick);
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("ConnectOther");
+                out.writeUTF(argument);
+                out.writeUTF("world");
+                source.sendPluginMessage(PVPPlugin.getPlugin(), "BungeeCord", out.toByteArray());
+                source.sendMessage(ChatColor.GREEN+"Kicked "+argument+" from the PvP server!");
                 break;
             case "rules":
                 switch(argument) {
