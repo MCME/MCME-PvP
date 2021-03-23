@@ -38,6 +38,9 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import sun.java2d.loops.Blit;
 
 import java.io.File;
 import java.util.*;
@@ -67,6 +70,10 @@ public class PVPCommand extends CommandDispatcher<Player>{
         PVPPlugin = PVPPlugin1;
         reloadMaplist();
         register(LiteralArgumentBuilder.<Player>literal("pvp")
+                .then(LiteralArgumentBuilder.<Player>literal("fbt").executes(c->{
+                            doCommand("fbt", (Player) c.getSource());
+                            return 1;
+                        }))
             .then(LiteralArgumentBuilder.<Player>literal("map")
                 .then(LiteralArgumentBuilder.<Player>literal("list").executes(c -> {
                     doCommand("mapList", c.getSource());
@@ -109,7 +116,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     doCommand("kickPlayer", c.getArgument("player", String.class), c.getSource());
                     return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("rules")
-                    .then(RequiredArgumentBuilder.<Player, String>argument("gamemode", new CommandStringArgument("infected", "teamslayer", "teamdeathmatch", "ringbearer", "oneinthequiver", "teamconquest", "deathrun")).executes(c -> {
+                    .then(RequiredArgumentBuilder.<Player, String>argument("gamemode", new CommandStringArgument("infected", "teamslayer", "teamdeathmatch", "ringbearer", "oneinthequiver", "teamconquest", "deathrun", "capturetheflag")).executes(c -> {
                         doCommand("rules", c.getArgument("gamemode", String.class), c.getSource());
                         return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("pipe").executes(c -> {
@@ -158,7 +165,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                             return 1;
                         })))
                 .then(LiteralArgumentBuilder.<Player>literal("gm")
-                    .then(RequiredArgumentBuilder.<Player, String>argument("gm", new CommandStringArgument("FreeForAll", "Infected", "OneInTheQuiver", "Ringbearer", "TeamConquest", "TeamDeathmatch", "TeamSlayer", "DeathRun")).executes(c -> {
+                    .then(RequiredArgumentBuilder.<Player, String>argument("gm", new CommandStringArgument("FreeForAll", "Infected", "OneInTheQuiver", "Ringbearer", "TeamConquest", "TeamDeathmatch", "TeamSlayer", "DeathRun", "CaptureTheFlag")).executes(c -> {
                             doCommand("mapEditorGm", c.getArgument("map", String.class), c.getArgument("gm", String.class), c.getSource());
                             return 1;
                         })))
@@ -207,12 +214,30 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     doCommand("listSpawns", c.getArgument("map", String.class), c.getSource());
                     return 1;
                 }))
+                    .then(LiteralArgumentBuilder.<Player>literal("fbt")
+                            .then(RequiredArgumentBuilder.<Player, String>argument("fbt", new CommandStringArgument("true","false")).executes(c -> {
+                                doCommand("fbt", c.getArgument("map", String.class), c.getArgument("fbt", String.class), c.getSource());
+                                return 1;
+                            })))
             )
         );
     }
 
     private void doCommand(String action, Player source) {
         switch (action) {
+            case "fbt":
+                if(runningGame!=null) {
+                    Map m = PVPCommand.getRunningGame();
+                    if(m != null) {
+                        if (m.getFbt()) {
+                            source.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 2));
+                        }
+                        else source.sendMessage("this map does not support full brightness");
+                    }
+                    else source.sendMessage("no map currently selected");
+                }
+                else source.sendMessage("no game currently running");
+                break;
             case "mapList":
                 for(String m: mapNames)
                     source.sendMessage(ChatColor.GREEN + maps.get(m).getName() + ChatColor.WHITE + " | " + ChatColor.BLUE + maps.get(m).getTitle());
@@ -226,6 +251,15 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     nextGame.getGm().Start(nextGame, parameter);
                     runningGame = nextGame;
                     nextGame = null;
+                    Map m = getRunningGame();
+                    if(m.getFbt()){
+                        for(Player p : Bukkit.getOnlinePlayers()) {
+                            Objects.requireNonNull(p).addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 2));
+                        }
+                    }
+                    else for(Player p : Bukkit.getOnlinePlayers()){
+                        p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                    }
                 }
                 else{
                     source.sendMessage(ChatColor.RED + "Can't start! There's already a game running!");
@@ -433,7 +467,17 @@ public class PVPCommand extends CommandDispatcher<Player>{
 
                 break;
             case "kickPlayer":
-                Logger.getLogger("logger").log(Level.INFO, "kickPlayer received with " + argument);
+                Player kick = Bukkit.getPlayer(argument);
+                if(nextGame != null)
+                    nextGame.playerLeave(kick);
+                if(runningGame != null)
+                    runningGame.playerLeave(kick);
+                ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                out.writeUTF("ConnectOther");
+                out.writeUTF(argument);
+                out.writeUTF("world");
+                source.sendPluginMessage(PVPPlugin.getPlugin(), "BungeeCord", out.toByteArray());
+                source.sendMessage(ChatColor.GREEN+"Kicked "+argument+" from the PvP server!");
                 break;
             case "rules":
                 switch(argument) {
@@ -477,6 +521,9 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     case "deathrun":
                         source.sendMessage(ChatColor.GREEN + "Death Run Rules");
                         source.sendMessage(ChatColor.GRAY + "One death, and lots of runners. Runners have to reach the end goal before the time limit or getting killed by death.");
+                    case "capturetheflag":
+                        source.sendMessage(ChatColor.GREEN + "Capture the Flag Rules");
+                        source.sendMessage(ChatColor.GRAY + "Capture the enemy flag(banner), by right clicking it, and escort it to your base beacon while protecting your own. To capture the enemy flag, right click on it, it will be placed on your head, then with it on your head right click your spawn, and you score 1 point.");
                 }
                 break;
             case "deleteMap":
@@ -569,6 +616,9 @@ public class PVPCommand extends CommandDispatcher<Player>{
             case "setSpawnLoc":
                 MapEditor.PointLocEdit(argument1, argument2, source);
                 break;
+            case "fbt":
+                MapEditor.BrightnessSet(argument1,argument2,source);
+                break;
         }
     }
 
@@ -633,4 +683,5 @@ public class PVPCommand extends CommandDispatcher<Player>{
         CommandNewMapArgument.UpdateOptions();
         CommandMapArgument.UpdateOptions();
     }
+
 }

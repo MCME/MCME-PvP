@@ -147,6 +147,7 @@ public class GearHandler {
         }
         else{
             items[5].addEnchantment(Enchantment.ARROW_INFINITE, 1);
+            p.getInventory().addItem(items[6]);
         }
         
         p.getInventory().addItem(items[4]);

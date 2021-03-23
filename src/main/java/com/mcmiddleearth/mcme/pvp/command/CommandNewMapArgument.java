@@ -20,7 +20,7 @@ public class CommandNewMapArgument implements ArgumentType<String> {
     static Set<String> options;
     Set<String> endings;
     public CommandNewMapArgument() {
-        options = PVPCommand.getMapNames(); endings = new HashSet<>(Lists.newArrayList("-TS", "-TDM", "-IN", "-OITQ", "-TC", "-RB", "-FFA", "-DR"));
+        options = PVPCommand.getMapNames(); endings = new HashSet<>(Lists.newArrayList("-TS", "-TDM", "-IN", "-OITQ", "-TC", "-RB", "-FFA", "-DR", "-CTF"));
     }
 
     @Override

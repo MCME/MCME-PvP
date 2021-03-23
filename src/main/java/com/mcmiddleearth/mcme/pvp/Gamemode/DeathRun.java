@@ -21,6 +21,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -140,6 +142,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if (c == death) {
                 Team.getDeath().add(p);
                 p.teleport(m.getImportantPoints().get("DeathSpawn").toBukkitLoc());
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
             } else {
                 Team.getRunner().add(p);
                 p.teleport(m.getImportantPoints().get("RunnerSpawn").toBukkitLoc());
