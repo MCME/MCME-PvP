@@ -280,7 +280,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){//player respawns
 
-            if(state == GameState.RUNNING){
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 if(Team.getRed().getMembers().contains(e.getPlayer())){
                     e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
                 }
