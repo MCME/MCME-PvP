@@ -432,18 +432,23 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
                 if(e.getClickedBlock().getType().equals(Material.RED_WOOL)){
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 1);
+                    e.getClickedBlock().setType(Material.AIR);
                 }
                 else if(e.getClickedBlock().getType().equals(Material.ORANGE_WOOL)){
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 2);
+                    e.getClickedBlock().setType(Material.AIR);
                 }
                 else if(e.getClickedBlock().getType().equals(Material.GREEN_WOOL)){
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 3);
+                    e.getClickedBlock().setType(Material.AIR);
                 }
                 else if(e.getClickedBlock().getType().equals(Material.BLUE_WOOL)){
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 4);
+                    e.getClickedBlock().setType(Material.AIR);
                 }
                 else if(e.getClickedBlock().getType().equals(Material.PINK_WOOL)){
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 5);
+                    e.getClickedBlock().setType(Material.AIR);
                 }
             }
         }
