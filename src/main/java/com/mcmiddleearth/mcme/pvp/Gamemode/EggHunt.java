@@ -358,7 +358,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
 
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Most Kills: " + killMessage);
+            p.sendMessage(ChatColor.GREEN + "Most Points: " + killMessage);
             p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
             p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
@@ -457,16 +457,16 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){
 
-        if(e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == RUNNING){
+        if(e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING){
 
             if(e.getEntity().getKiller() instanceof Player){
                 int tempDeaths;
-                Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() - 1);
+                Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
 
                 if(playerDeaths.containsKey(e.getEntity().getName())){
                     tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
                     playerDeaths.remove(e.getEntity().getName());
-                    playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths - 1));
+                    playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
                 }
                 else{
                     playerDeaths.put(e.getEntity().getName(), "1");
@@ -475,10 +475,11 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
     }
 
+
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e){
 
-        if(state == RUNNING){
+        if(state == GameState.RUNNING && players.contains(e.getPlayer())){
             Random random = new Random();
 
             e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
