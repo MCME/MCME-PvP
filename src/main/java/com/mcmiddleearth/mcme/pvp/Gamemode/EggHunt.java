@@ -421,72 +421,72 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         return "time in minutes";
     }
 
-    private class Gamepvp implements Listener{
+    private class Gamepvp implements Listener {
 
-//Red Wool = 1 points, Orange Wool = 2 points, Green Wool = 3 points, Blue Wool = 4 points, Pink Wool = 5 points
+    //Red Wool = 1 points, Orange Wool = 2 points, Green Wool = 3 points, Blue Wool = 4 points, Pink Wool = 5 points
 
         @EventHandler
-        public void onPlayerInteract(PlayerInteractEvent e){
+        public void onPlayerInteract(PlayerInteractEvent e) {
 
-            if(state == RUNNING && players.contains(e.getPlayer()) && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            if (state == RUNNING && players.contains(e.getPlayer()) && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
-                if(e.getClickedBlock().getType().equals(Material.RED_WOOL)){
+                if (e.getClickedBlock().getType().equals(Material.RED_WOOL)) {
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 1);
                     e.getClickedBlock().setType(Material.AIR);
                 }
-                else if(e.getClickedBlock().getType().equals(Material.ORANGE_WOOL)){
+                else if (e.getClickedBlock().getType().equals(Material.ORANGE_WOOL)) {
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 2);
                     e.getClickedBlock().setType(Material.AIR);
                 }
-                else if(e.getClickedBlock().getType().equals(Material.GREEN_WOOL)){
+                else if (e.getClickedBlock().getType().equals(Material.GREEN_WOOL)) {
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 3);
                     e.getClickedBlock().setType(Material.AIR);
                 }
-                else if(e.getClickedBlock().getType().equals(Material.BLUE_WOOL)){
+                else if (e.getClickedBlock().getType().equals(Material.BLUE_WOOL)) {
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 4);
                     e.getClickedBlock().setType(Material.AIR);
                 }
-                else if(e.getClickedBlock().getType().equals(Material.PINK_WOOL)){
+                else if (e.getClickedBlock().getType().equals(Material.PINK_WOOL)) {
                     Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 5);
                     e.getClickedBlock().setType(Material.AIR);
                 }
             }
         }
-    }
 
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent e){
 
-        if(e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING){
+        @EventHandler
+        public void onPlayerDeath(PlayerDeathEvent e) {
 
-            if(e.getEntity().getKiller() instanceof Player){
-                int tempDeaths;
-                Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
+            if (e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING) {
 
-                if(playerDeaths.containsKey(e.getEntity().getName())){
-                    tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
-                    playerDeaths.remove(e.getEntity().getName());
-                    playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
-                }
-                else{
-                    playerDeaths.put(e.getEntity().getName(), "1");
+                if (e.getEntity().getKiller() instanceof Player) {
+                    int tempDeaths;
+                    Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
+
+                    if (playerDeaths.containsKey(e.getEntity().getName())) {
+                        tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
+                        playerDeaths.remove(e.getEntity().getName());
+                        playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
+                    }
+                    else {
+                        playerDeaths.put(e.getEntity().getName(), "1");
+                    }
                 }
             }
         }
-    }
 
+        @EventHandler
+        public void onPlayerRespawn(PlayerRespawnEvent e) {
 
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent e){
+            if (state == GameState.RUNNING && players.contains(e.getPlayer())) {
+                Random random = new Random();
 
-        if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-            Random random = new Random();
+                e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
 
-            e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
-
-            healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+                healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+            }
+            Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }
-        Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
     }
 
 
