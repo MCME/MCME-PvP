@@ -228,7 +228,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING){
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 2, 0));
             
                 e.getPlayer().getInventory().clear();

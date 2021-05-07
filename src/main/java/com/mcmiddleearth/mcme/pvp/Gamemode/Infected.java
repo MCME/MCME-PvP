@@ -291,8 +291,8 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         public void onPlayerRespawn(PlayerRespawnEvent e){
             
             final Player p = e.getPlayer();
-            
-            if(state == GameState.RUNNING){
+
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 e.setRespawnLocation(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
                 
                 Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
