@@ -459,8 +459,8 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
-            
-            if(state == GameState.RUNNING){
+
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
 
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
