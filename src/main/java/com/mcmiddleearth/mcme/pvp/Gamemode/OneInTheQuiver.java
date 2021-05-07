@@ -425,7 +425,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING){
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
                 if(!e.getPlayer().getInventory().contains(Material.ARROW, 5)){
                 

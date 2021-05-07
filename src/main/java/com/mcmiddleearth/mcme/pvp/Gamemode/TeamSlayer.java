@@ -354,7 +354,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING){
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
                 int spawn = random.nextInt(3) + 1;
                 if(Team.getRed().getMembers().contains(e.getPlayer())){
