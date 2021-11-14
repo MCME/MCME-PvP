@@ -105,14 +105,14 @@ public class Map {
         }
         sign.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
     }
-    
+    // Adds players to Map if Max amount of players hasn't been reached and the GameState is IDLE or COUNTDOWN, not RUNNING.
     public boolean playerJoin(Player p){
         if(Max <= Curr){
             return false;
         }
         
         gm.getPlayers().add(p);
-        if(gm.getState() == GameState.IDLE){
+        if(gm.getState() == GameState.IDLE || gm.getState() == GameState.COUNTDOWN){
             Curr++;
             
             for(Player pl : Bukkit.getOnlinePlayers()){

@@ -19,6 +19,7 @@
 package com.mcmiddleearth.mcme.pvp.PVP;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.JoinLeaveHandler;
@@ -48,6 +49,7 @@ public class PlayerStat {
     private ArrayList<String> playersKilled = new ArrayList<String>();
     private int Kills = 0;
     private int Deaths = 0;
+    private double KD = 0;
     private int gamesPlayed = 0;
     private int gamesWon = 0;
     private int gamesLost = 0;
@@ -93,6 +95,7 @@ public class PlayerStat {
     public void addDeath(){Deaths++;}
     public void addPlayerKilled(String k){playersKilled.add(k);}
     public void addKill(){Kills++;}
+    public void addKD(){setKD();}
     public void addPlayedGame(){gamesPlayed++;}
     public void addGameWon(){gamesWon++;}
     public void addGameLost(){gamesLost++;};
@@ -196,8 +199,10 @@ public class PlayerStat {
                             }
                         }
                         PlayerStat.getPlayerStats().get(k.getName()).addKill();
+                        PlayerStat.getPlayerStats().get(k.getName()).addKD();
                     }
                     ps.setDeaths(ps.getDeaths()+1);
+                    ps.setKD();
                 }
             }
         }
@@ -214,7 +219,14 @@ public class PlayerStat {
     public void setKills(int kills) {
         Kills = kills;
     }
+    public double getKD() {
+        return KD;
+    }
 
+    public void setKD() {
+        KD = Math.floor(((Kills + 1) / (Deaths + 1)) * 100)/100;
+    }
+    
     public int getDeaths() {
         return Deaths;
     }

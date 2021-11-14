@@ -40,6 +40,7 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -60,6 +61,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         "BlueSpawn2",
         "BlueSpawn3",
     }));
+    
     
     private GameState state;
     
@@ -85,6 +87,13 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     @Override
     public void Start(Map m, int parameter){
+    	players.sort((Player p1, Player p2) -> {
+    		   if (PlayerStat.getPlayerStats().get(p1.getName()).getKD()  > PlayerStat.getPlayerStats().get(p2.getName()).getKD())
+    		     return 1;
+    		   else
+    		     return -1;
+    		   return 0;
+    	});
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
         givenTnt = false;
@@ -107,6 +116,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             pm.registerEvents(pvp, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
+        
         for(Player p : players){
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);

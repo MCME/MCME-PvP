@@ -98,6 +98,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     @Override
     public void Start(Map m, int parameter) {
+    	players.sort((Player p1, Player p2) -> {
+  		   if (PlayerStat.getPlayerStats().get(p1.getName()).getKD()  > PlayerStat.getPlayerStats().get(p2.getName()).getKD())
+  		     return 1;
+  		   else
+  		     return -1;
+  		   return 0;
+  	    });
         super.Start(m, parameter);
         goal = parameter;
         givenTnt = false;

@@ -351,6 +351,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 source.sendMessage(ChatColor.GREEN + "Showing stats for " + source.getDisplayName());
                 source.sendMessage(ChatColor.GRAY + "Kills: " + ps.getKills());
                 source.sendMessage(ChatColor.GRAY + "Deaths: " + ps.getDeaths());
+                source.sendMessage(ChatColor.GRAY + "KD: " + ps.getKD());
                 source.sendMessage(ChatColor.GRAY + "Games Played: " + ps.getGamesPlayed());
                 source.sendMessage(ChatColor.GRAY + "    Won: " + ps.getGamesWon());
                 source.sendMessage(ChatColor.GRAY + "    Lost: " + ps.getGamesLost());

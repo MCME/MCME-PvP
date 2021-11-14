@@ -122,9 +122,12 @@ public class GearHandler {
         p.getInventory().setLeggings(new ItemStack(Material.AIR));
         p.getInventory().setBoots(new ItemStack(Material.AIR));
         
-        if(sg == SpecialGear.RINGBEARER){
+        if(sg == SpecialGear.RINGBEARER && !(getBlueBearer().hasPotionEffect(PotionEffectType.INVISIBILITY)) && getBlueBearer() == p){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
-            
+        }
+        
+        if(sg == SpecialGear.RINGBEARER && !(getRedBearer().hasPotionEffect(PotionEffectType.INVISIBILITY)) && getRedBearer() == p){
+            p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
         }
         
         else if(sg != SpecialGear.INFECTED){
@@ -143,7 +146,7 @@ public class GearHandler {
         }
         
         if(sg == SpecialGear.ONEINTHEQUIVER){
-            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 13);
+            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 60);
         }
         else{
             items[5].addEnchantment(Enchantment.ARROW_INFINITE, 1);
