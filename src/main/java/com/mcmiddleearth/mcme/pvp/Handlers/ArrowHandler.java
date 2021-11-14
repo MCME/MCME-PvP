@@ -45,7 +45,7 @@ public class ArrowHandler implements Listener{
     @EventHandler
     public void ProjectileHitEvent​(Projectile projectile, Block hitBlock) {
     	if(projectile.isOnGround()){
-    	Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), projectile.remove(), 0, 5);
+    	Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), projectile.remove(), 20*5);
         }
     }
 //    public static Runnable despawnArrows = new Runnable(){

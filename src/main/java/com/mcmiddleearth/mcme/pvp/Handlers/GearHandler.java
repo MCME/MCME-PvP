@@ -19,6 +19,7 @@
 package com.mcmiddleearth.mcme.pvp.Handlers;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.Gamemode.Gamemode;
 import com.mcmiddleearth.mcme.pvp.Gamemode.Ringbearer;
 import com.mcmiddleearth.mcme.pvp.Gamemode.TeamConquest;
 import com.mcmiddleearth.mcme.pvp.Gamemode.TeamSlayer;
@@ -122,11 +123,7 @@ public class GearHandler {
         p.getInventory().setLeggings(new ItemStack(Material.AIR));
         p.getInventory().setBoots(new ItemStack(Material.AIR));
         
-        if(sg == SpecialGear.RINGBEARER && !(getBlueBearer().hasPotionEffect(PotionEffectType.INVISIBILITY)) && getBlueBearer() == p){
-            p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
-        }
-        
-        if(sg == SpecialGear.RINGBEARER && !(getRedBearer().hasPotionEffect(PotionEffectType.INVISIBILITY)) && getRedBearer() == p){
+        if(sg == SpecialGear.RINGBEARER && !(p.hasPotionEffect(PotionEffectType.INVISIBILITY))){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
         }
         
