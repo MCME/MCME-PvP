@@ -128,7 +128,6 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
   		     return 1;
   		   else
   		     return -1;
-  		   return 0;
   	    });
         super.Start(m,parameter);
         count = PVPPlugin.getCountdownTime();

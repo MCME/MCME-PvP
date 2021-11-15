@@ -103,7 +103,6 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
   		     return 1;
   		   else
   		     return -1;
-  		   return 0;
   	    });
         super.Start(m, parameter);
         goal = parameter;

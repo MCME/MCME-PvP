@@ -77,7 +77,6 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
  		     return 1;
  		   else
  		     return -1;
- 		   return 0;
  	    });
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
