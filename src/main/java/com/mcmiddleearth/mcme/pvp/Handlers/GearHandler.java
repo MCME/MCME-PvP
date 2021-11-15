@@ -134,6 +134,8 @@ public class GearHandler {
         
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
+            items[6] = new ItemStack(Material.COMPASS);
+            p.getInventory().addItem(items[6]);
         }
         else{
             p.getInventory().setChestplate(items[1]);
@@ -143,7 +145,7 @@ public class GearHandler {
         }
         
         if(sg == SpecialGear.ONEINTHEQUIVER){
-            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 60);
+            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 100);
         }
         else{
             items[5].addEnchantment(Enchantment.ARROW_INFINITE, 1);

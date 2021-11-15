@@ -465,7 +465,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
 
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
             
-                healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+                //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
             Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }

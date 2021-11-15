@@ -192,7 +192,8 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         }
                         
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), tick, 0, 20);
-                        
+                        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), compass, 0, 20*5);
+
                         Points = getScoreboard().registerNewObjective("Remaining", "dummy");
                         Points.setDisplayName("Time: " + time + "m");
                         time *= 60;
@@ -231,7 +232,33 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
 
             }, 40, 20);
     }
-    
+
+    //sets target of compass for each infected to location of nearest surivor.
+    Runnable compass = new Runnable() {
+        @Override
+        public void run() {
+            for (Player p : Team.getInfected().getMembers()) {
+                double range = 30;
+                p.setCompassTarget(getNearest(p, range).getLocation());
+            }
+        }
+    };
+
+    //returns closest survivor to infected.
+    public Player getNearest(Player infected, Double range) {
+        if (!Team.getInfected().getMembers().contains(infected)) throw new IllegalArgumentException ("Player must be part of team infected");
+        double distance = Double.POSITIVE_INFINITY;
+        Player target = null;
+        for (Player survivor : Team.getSurvivor().getMembers()) {
+            double distanceto = infected.getLocation().distance(survivor.getLocation());
+            if (distanceto > distance)
+                continue;
+            distance = distanceto;
+            target = survivor;
+        }
+        return target;
+    }
+
     @Override
     public void End(Map m){
         state = GameState.IDLE;
