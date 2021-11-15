@@ -134,8 +134,8 @@ public class GearHandler {
         
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
-            items[6] = new ItemStack(Material.COMPASS);
-            p.getInventory().addItem(items[6]);
+            items[7] = new ItemStack(Material.COMPASS);
+            p.getInventory().addItem(items[7]);
         }
         else{
             p.getInventory().setChestplate(items[1]);
