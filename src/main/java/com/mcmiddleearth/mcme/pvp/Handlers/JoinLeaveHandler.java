@@ -52,7 +52,7 @@ public class JoinLeaveHandler implements Listener{
     public void onPlayerJoin(PlayerJoinEvent e){
         final Player p = e.getPlayer();
         PlayerStat.loadStat(p);
-        
+
         if(PVPCommand.getRunningGame() != null){
             e.setJoinMessage(ChatColor.GRAY + e.getPlayer().getName() + " has joined as a spectator! \n To join the game type /pvp join.");
         }
@@ -149,6 +149,7 @@ public class JoinLeaveHandler implements Listener{
     }
     
     public static String handlePlayerQuit(Player player) {
+
         String quitMessage = "";
         if(PVPCommand.getNextGame() != null){
             PVPCommand.getNextGame().getGm().getPlayers().remove(player);

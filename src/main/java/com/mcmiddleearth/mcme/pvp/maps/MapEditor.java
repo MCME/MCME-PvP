@@ -248,19 +248,4 @@ public class MapEditor{
         }
         message.send(p);
     }
-
-    public static void BrightnessSet(String map, String fbt, Player p){
-        Map m = Map.maps.get(map);
-        if(fbt.equals("true")){
-            m.setFbt(true);
-            p.sendMessage("fbt has been set to true");
-            sendMapMessage(map,m,p);
-        }
-        else if(fbt.equals("false")){
-            m.setFbt(false);
-            p.sendMessage("fbt has been set to false");
-            sendMapMessage(map,m,p);
-        }
-        else p.sendMessage("fbt needs to be true or false");
-    }
 }

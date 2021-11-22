@@ -21,6 +21,7 @@ package com.mcmiddleearth.mcme.pvp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.mcmiddleearth.mcme.pvp.Gamemode.anticheat.AntiCheatListeners;
+import com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler;
 import com.mcmiddleearth.mcme.pvp.Util.CLog;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -32,10 +33,7 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import lombok.Getter;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Server;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -163,10 +161,11 @@ public class PVPPlugin extends JavaPlugin{
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.JoinLeaveHandler(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.Locker(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.AllGameHandlers(), PVPPlugin.getPlugin());
-        pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.PlayerStat.StatListener(), PVPPlugin.getPlugin());
+       // pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.PlayerStat.StatListener(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.Gearpvp(), PVPPlugin.getPlugin());
         pm.registerEvents(new AntiCheatListeners(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.WeatherHandler(), PVPPlugin.getPlugin());
+        Bukkit.getWorld("world").setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             //PlaceholderAPI.registerPlaceholderExpansion("mcmePvP", new com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler());
@@ -200,6 +199,7 @@ public class PVPPlugin extends JavaPlugin{
             }
         }
         com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler.configureBukkitTeams();
+        ArrowHandler.despawnArrows();
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
 

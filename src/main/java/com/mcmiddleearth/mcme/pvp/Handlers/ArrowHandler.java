@@ -38,21 +38,17 @@ import org.bukkit.event.player.PlayerPickupArrowEvent;
  * @author Eric
  */
 public class ArrowHandler implements Listener{
-    
-    public static void initializeArrowHandling(){
-        Bukkit.getPluginManager().registerEvents(new ArrowHandler(), PVPPlugin.getPlugin());
-        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), despawnArrows, 20*5);
-    }
 
-    public static Runnable despawnArrows = () -> {
+
+    public static void  despawnArrows (){
         if(Bukkit.getOnlinePlayers().size() > 0){
             Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
 
             for(Arrow arrow : p.getWorld().getEntitiesByClass(Arrow.class)){
 
-                if(arrow.isInBlock()){
+                //if(arrow.isInBlock()){
                     arrow.remove();
-                }
+               // }
 
             }
         }

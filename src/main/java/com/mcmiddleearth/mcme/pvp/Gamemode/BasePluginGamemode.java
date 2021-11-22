@@ -64,7 +64,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public void Start(Map m, int parameter){
         PVPCommand.toggleVoxel("true");
         
-        ArrowHandler.initializeArrowHandling();
+        ArrowHandler.despawnArrows();
         
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
@@ -88,6 +88,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public void End(Map m){
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
+        ArrowHandler.despawnArrows();
         
         /*for(Player p : Bukkit.getOnlinePlayers()){
             p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");

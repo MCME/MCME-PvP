@@ -62,7 +62,6 @@ public class Map {
     private String title;
     private HashMap<String, EventLocation> ImportantPoints = new HashMap<>();
     private ArrayList<EventLocation> regionPoints = new ArrayList<>();
-    private Boolean fbt;
     
     @JsonIgnore
     private Region region;
@@ -105,18 +104,18 @@ public class Map {
         }
         sign.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
     }
-    // Adds players to Map if Max amount of players hasn't been reached and the GameState is IDLE or COUNTDOWN, not RUNNING.
-    public boolean playerJoin(Player p){
+
+    public boolean playerJoin(Player player){
         if(Max <= Curr){
             return false;
         }
         
-        gm.getPlayers().add(p);
+        gm.getPlayers().add(player);
         if(gm.getState() == GameState.IDLE || gm.getState() == GameState.COUNTDOWN){
             Curr++;
             
-            for(Player pl : Bukkit.getOnlinePlayers()){
-                pl.sendMessage(ChatColor.GREEN + p.getName() + " Joined!");
+            for(Player allPlayers : Bukkit.getOnlinePlayers()){
+                allPlayers.sendMessage(ChatColor.GREEN + player.getName() + " Joined!");
             }
             
             try{
@@ -130,23 +129,23 @@ public class Map {
                 System.err.println("Signs aren't working! Ignoring!");
             }
         }    
-        else if(gm.getState() == GameState.RUNNING && gm.midgamePlayerJoin(p)){}
+        else if(gm.getState() == GameState.RUNNING && gm.midgamePlayerJoin(player)){}
         else{
-            p.sendMessage(ChatColor.YELLOW + "Can't join " + gmType + " midgame!");
+            player.sendMessage(ChatColor.YELLOW + "Can't join " + gmType + " midgame!");
         }
         return true;
     }
-    
-    public void playerLeave(Player p){
-        ChatHandler.getPlayerPrefixes().remove(p.getName());
-        p.setDisplayName(p.getName());
-        for(Player pl : gm.getPlayers()){
-            pl.sendMessage(p.getName() + " left");
+
+    public void playerLeave(Player player){
+        ChatHandler.getPlayerPrefixes().remove(player.getName());
+        player.setDisplayName(player.getName());
+        for(Player allPlayers : gm.getPlayers()){
+            allPlayers.sendMessage(player.getName() + " left");
         }
         if(gm instanceof BasePluginGamemode){
-            ((BasePluginGamemode) gm).playerLeave(p);
+            ((BasePluginGamemode) gm).playerLeave(player);
         }else{
-            gm.getPlayers().remove(p);
+            gm.getPlayers().remove(player);
         }
         Curr = 0;
         try{
@@ -154,9 +153,9 @@ public class Map {
             s.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
             s.update(true, true);
             LobbySign.toBukkitLoc().getBlock().getState().update();
-            p.getInventory().clear();
-            if(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").hasPlayer(p)){
-                Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").removePlayer(p);
+            player.getInventory().clear();
+            if(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").hasPlayer(player)){
+                Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").removePlayer(player);
             }
         }
         catch(NullPointerException e){
@@ -168,13 +167,13 @@ public class Map {
     }
     
     public void playerLeaveAll(){
-        for(Player p : gm.getPlayers()){
-            ChatHandler.getPlayerPrefixes().remove(p.getName());
-            p.setDisplayName(p.getName());
+        for(Player player : gm.getPlayers()){
+            ChatHandler.getPlayerPrefixes().remove(player.getName());
+            player.setDisplayName(player.getName());
             for(Player pl : gm.getPlayers()){
 //                pl.sendMessage(p.getName() + " left");
             }
-            if(!p.getGameMode().equals(GameMode.SPECTATOR)){
+            if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                 Curr--;
             }
             
@@ -191,7 +190,7 @@ public class Map {
                 System.err.println("Signs aren't working! Ignoring!");
             }
             
-            p.getInventory().clear();
+            player.getInventory().clear();
             
         }
         gm.getPlayers().clear();
@@ -311,14 +310,6 @@ public class Map {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setFbt(Boolean fbt) {
-        this.fbt = fbt;
-    }
-
-    public Boolean getFbt(){
-        return fbt;
     }
 
     public void setImportantPoints(HashMap<String, EventLocation> importantPoints) {

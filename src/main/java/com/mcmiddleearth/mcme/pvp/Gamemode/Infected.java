@@ -167,11 +167,13 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if(c == infected){
                 Team.getInfected().add(p);
                 p.teleport(m.getImportantPoints().get("InfectedSpawn").toBukkitLoc());
+                GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             }
             
             else{
                 Team.getSurvivor().add(p);
                 p.teleport(m.getImportantPoints().get("SurvivorSpawn").toBukkitLoc());
+                GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
             }
             
             c++;
@@ -194,6 +196,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), tick, 0, 20);
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), compass, 0, 20*5);
 
+                        if (Points == null)
                         Points = getScoreboard().registerNewObjective("Remaining", "dummy");
                         Points.setDisplayName("Time: " + time + "m");
                         time *= 60;
@@ -326,7 +329,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     
                     @Override
                     public void run(){
-                     
+
                         GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
                         Team.getInfected().add(p);
                     }
@@ -392,24 +395,13 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     
     @Override
     public boolean midgamePlayerJoin(Player p){
-        if(time >= 120 && (!Team.getInfected().getAllMembers().contains(p) || !Team.getSurvivor().getAllMembers().contains(p))){
-            if(Team.getInfected().getAllMembers().contains(p)){
-                Team.getInfected().add(p);
-                p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
-                Points.getScore(ChatColor.DARK_RED + "Survivors:").setScore(Team.getInfected().size());
-                super.midgamePlayerJoin(p);
-                
-                GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
-                
-                return true;
-            }
-            
-            Team.getSurvivor().add(p);
-            p.teleport(map.getImportantPoints().get("SurvivorSpawn").toBukkitLoc().add(0, 2, 0));
-            Points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
+        if(time >= 120){
+            Team.getInfected().add(p);
+            p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
+            Points.getScore(ChatColor.DARK_RED + "Survivors:").setScore(Team.getInfected().size());
             super.midgamePlayerJoin(p);
-            
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+
+            GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             
             return true;
         }else{

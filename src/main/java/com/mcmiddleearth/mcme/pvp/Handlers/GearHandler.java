@@ -65,7 +65,7 @@ public class GearHandler {
         else{
             items = new ItemStack[] {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), 
                 new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS),
-                new ItemStack(Material.IRON_SWORD), new ItemStack(Material.BOW), new ItemStack(Material.SHIELD)};
+                new ItemStack(Material.IRON_SWORD), new ItemStack(Material.BOW), new ItemStack(Material.SHIELD), new ItemStack(Material.COMPASS)};
         }
         
         for(int i = 0; i <= 5; i++){
@@ -113,7 +113,7 @@ public class GearHandler {
                 items[i].setItemMeta(lam);
             }
             else{
-                items[i].addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+                items[i].addUnsafeEnchantment(Enchantment.DURABILITY, 100);
             }
             items[i].getItemMeta().setUnbreakable(true);
         }
@@ -125,16 +125,19 @@ public class GearHandler {
         
         if(sg == SpecialGear.RINGBEARER && !(p.hasPotionEffect(PotionEffectType.INVISIBILITY))){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
+            p.getInventory().setChestplate(items[1]);
+            p.getInventory().setLeggings(items[2]);
+            p.getInventory().setBoots(items[3]);
         }
-        
-        else if(sg != SpecialGear.INFECTED){
+
+
+        if(sg != SpecialGear.INFECTED){
             p.getInventory().setHelmet(items[0]);
         }
         
         
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
-            items[7] = new ItemStack(Material.COMPASS);
             p.getInventory().addItem(items[7]);
         }
         else{
@@ -257,7 +260,7 @@ public class GearHandler {
                                     else{
                                         GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.RINGBEARER);
                                     }
-                                    p.getInventory().setHeldItemSlot(0);
+                                    p.getInventory().setHeldItemSlot(1);
                                 }
                             }, 500);
                         }else{

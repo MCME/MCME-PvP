@@ -71,9 +71,6 @@ public class AllGameHandlers implements Listener{
             if(PVPCommand.getRunningGame().getGm().getPlayers().contains(e.getPlayer())){
                 Map m = PVPCommand.getRunningGame();
                 if(m != null){
-                    if(m.getFbt()){
-                        e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 2));
-                    }
                     if(m.getName().contains("HD")){
                         if(e.getPlayer().getInventory().contains(new ItemStack(Material.TNT))){
                             e.getPlayer().getInventory().remove(Material.TNT);
@@ -82,7 +79,7 @@ public class AllGameHandlers implements Listener{
                     }
                 }
             }
-        }else{   
+        }else{
             e.setRespawnLocation(PVPPlugin.getSpawn());
         }
     }
@@ -169,6 +166,9 @@ public class AllGameHandlers implements Listener{
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent e){
         if(e.getEntity() instanceof Player){
+            if(((Player) e.getEntity()).getHealth() - e.getFinalDamage() <= 0){
+                ((Player) e.getEntity()).spigot().respawn();
+            }
             if(PVPCommand.getRunningGame() == null){
                 e.setCancelled(true);
             }
@@ -183,6 +183,10 @@ public class AllGameHandlers implements Listener{
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
+        if(e.getClickedBlock() == null)
+        {
+            return;
+        }
         if(PVPCommand.getRunningGame() != null){
             if(e.getClickedBlock().getType().equals(Material.BEACON) || e.getClickedBlock().getType().equals(Material.ANVIL) || e.getClickedBlock().getType().equals(Material.CHEST) || e.getClickedBlock().getType().equals(Material.TRAPPED_CHEST) || e.getClickedBlock().getType().equals(Material.CRAFTING_TABLE) || e.getClickedBlock().getType().equals(Material.SHULKER_BOX)){
                 e.setUseInteractedBlock(Event.Result.DENY);

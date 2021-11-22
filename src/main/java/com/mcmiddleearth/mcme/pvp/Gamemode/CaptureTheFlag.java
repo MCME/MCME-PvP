@@ -59,10 +59,11 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     @Override
     public void Start(Map m, int parameter){
     	players.sort((Player p1, Player p2) -> {
-  		   if (PlayerStat.getPlayerStats().get(p1.getName()).getKD()  > PlayerStat.getPlayerStats().get(p2.getName()).getKD())
-  		     return 1;
-  		   else
-  		     return -1;
+            PlayerStat.getPlayerStats().get(p1.getName());
+            if (PlayerStat.getKD(p1)  > PlayerStat.getKD(p2))
+                return 1;
+            else
+                return -1;
   	    });
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;

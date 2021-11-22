@@ -99,7 +99,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         if((redBearer.getInventory().getHelmet() == null || redBearer.getInventory().getHelmet().getType() != Material.GLOWSTONE) &&
-                                redCanRespawn){
+                                redCanRespawn&& (!redBearer.hasPotionEffect(PotionEffectType.INVISIBILITY))){
                             redBearer.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE));
                         }
                         
@@ -111,7 +111,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         if((blueBearer.getInventory().getHelmet() == null || blueBearer.getInventory().getHelmet().getType() != Material.GLOWSTONE) &&
-                                blueCanRespawn){
+                                blueCanRespawn && (!blueBearer.hasPotionEffect(PotionEffectType.INVISIBILITY))){
                             blueBearer.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE));
                         }
                         
@@ -124,7 +124,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     @Override
     public void Start(Map m,int parameter) {
     	players.sort((Player p1, Player p2) -> {
-  		   if (PlayerStat.getPlayerStats().get(p1.getName()).getKD()  > PlayerStat.getPlayerStats().get(p2.getName()).getKD())
+  		   if (PlayerStat.getKD(p1)  > PlayerStat.getKD(p2))
   		     return 1;
   		   else
   		     return -1;
