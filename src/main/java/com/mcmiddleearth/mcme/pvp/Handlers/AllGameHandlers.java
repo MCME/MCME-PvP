@@ -137,47 +137,45 @@ public class AllGameHandlers implements Listener{
                 return;
             }
         }
-        
-        if(e.getEntity() instanceof Player){
+        if(e.getEntity() instanceof Player)
             damagee = (Player) e.getEntity();
-        }
-        else{
-            return;
-        }
-        
-        if(e.getDamager() instanceof Player){
+        else return;
+
+        if(e.getDamager() instanceof Player)
             damager = (Player) e.getDamager();
-        }
+
         else if(e.getDamager() instanceof Arrow){
-            if(((Arrow) e.getDamager()).getShooter() instanceof Player){
+            if(((Arrow) e.getDamager()).getShooter() instanceof Player)
                 damager =  (Player) ((Arrow) e.getDamager()).getShooter();
-            }
         }
-        else{
-            return;
-        }
+        else return;
         
         if(Team.areTeamMates(damagee, damager)){
             e.setCancelled(true);
         }
         
     }
-    
+
+    /**
+     * Handles player damage taken, cancels damage event if game isn't runnning or if they take contact damage.
+     * If the damage is enough to kill them, have them respawn.
+     *
+     * @param damageEvent represents damage event of Player
+     */
     @EventHandler
-    public void onPlayerDamage(EntityDamageEvent e){
-        if(e.getEntity() instanceof Player){
-            if(((Player) e.getEntity()).getHealth() - e.getFinalDamage() <= 0){
-                ((Player) e.getEntity()).spigot().respawn();
-            }
-            if(PVPCommand.getRunningGame() == null){
-                e.setCancelled(true);
-            }
-            else if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING){
-                e.setCancelled(true);
-            }
-            else if (e.getCause().equals(EntityDamageEvent.DamageCause.CONTACT)){
-                e.setCancelled(true);
-            }
+    public void onPlayerDamage(EntityDamageEvent damageEvent){
+        if(damageEvent.getEntity() instanceof Player){
+            if(PVPCommand.getRunningGame() == null)
+                damageEvent.setCancelled(true);
+
+            else if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING)
+                damageEvent.setCancelled(true);
+
+            else if (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.CONTACT))
+                damageEvent.setCancelled(true);
+
+            else if(((Player) damageEvent.getEntity()).getHealth() - damageEvent.getFinalDamage() <= 0)
+                ((Player) damageEvent.getEntity()).spigot().respawn();
         }
     }
 
@@ -188,7 +186,7 @@ public class AllGameHandlers implements Listener{
             return;
         }
         if(PVPCommand.getRunningGame() != null){
-            if(e.getClickedBlock().getType().equals(Material.BEACON) || e.getClickedBlock().getType().equals(Material.ANVIL) || e.getClickedBlock().getType().equals(Material.CHEST) || e.getClickedBlock().getType().equals(Material.TRAPPED_CHEST) || e.getClickedBlock().getType().equals(Material.CRAFTING_TABLE) || e.getClickedBlock().getType().equals(Material.SHULKER_BOX)){
+            if(e.getClickedBlock().getType().equals(Material.BEACON) || e.getClickedBlock().getType().equals(Material.ANVIL) || e.getClickedBlock().getType().equals(Material.CHEST) || e.getClickedBlock().getType().equals(Material.FURNACE) || e.getClickedBlock().getType().equals(Material.TRAPPED_CHEST) || e.getClickedBlock().getType().equals(Material.CRAFTING_TABLE) || e.getClickedBlock().getType().equals(Material.SHULKER_BOX)){
                 e.setUseInteractedBlock(Event.Result.DENY);
             }
         }

@@ -88,12 +88,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     @Override
     public void Start(Map m, int parameter){
 
-    	players.sort((Player p1, Player p2) -> {
-            if (PlayerStat.getKD(p1)  > PlayerStat.getKD(p2))
-                return 1;
-            else
-                return -1;
-    	});
+    	kdSort();
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
         givenTnt = false;

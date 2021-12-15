@@ -29,9 +29,7 @@ import com.sk89q.worldedit.math.BlockVector2;
 import com.sk89q.worldedit.regions.Polygonal2DRegion;
 import com.sk89q.worldedit.regions.Region;
 import org.bukkit.*;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.event.block.SignChangeEvent;
 import lombok.Getter;
 import lombok.Setter;
 import java.lang.reflect.Constructor;
@@ -51,8 +49,6 @@ public class Map {
     @JsonIgnore
     private int Curr;
 
-    private EventLocation LobbySign;
-    
     @JsonIgnore
     private Gamemode gm;
 
@@ -81,29 +77,7 @@ public class Map {
         this.name = name;
         this.title = name;
     }
-    
-    public void bindSign(SignChangeEvent sign){
-        this.LobbySign = new EventLocation(sign.getBlock().getLocation());
-        sign.setLine(0, ChatColor.AQUA + "" + ChatColor.BOLD + title);
-        if(gmType.equalsIgnoreCase("Team Deathmatch")){
-            sign.setLine(1, ChatColor.BLUE + "" + ChatColor.BOLD + "TDM");
-        }else{
-            sign.setLine(1, ChatColor.BLUE + "" + ChatColor.BOLD + gmType);
-        }
-        sign.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
-    }
-    
-    public void rebindSign(Location signLoc){
-        this.LobbySign = new EventLocation(signLoc.getBlock().getLocation());
-        Sign sign = (Sign) signLoc.getBlock().getState();
-        sign.setLine(0, ChatColor.AQUA + "" + ChatColor.BOLD + title);
-        if(gmType.equalsIgnoreCase("Team Deathmatch")){
-            sign.setLine(1, ChatColor.BLUE + "" + ChatColor.BOLD + "TDM");
-        }else{
-            sign.setLine(1, ChatColor.BLUE + "" + ChatColor.BOLD + gmType);
-        }
-        sign.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
-    }
+
 
     public boolean playerJoin(Player player){
         if(Max <= Curr){
@@ -111,59 +85,35 @@ public class Map {
         }
         
         gm.getPlayers().add(player);
-        if(gm.getState() == GameState.IDLE || gm.getState() == GameState.COUNTDOWN){
+        if(gm.getState() == GameState.IDLE){
             Curr++;
             
-            for(Player allPlayers : Bukkit.getOnlinePlayers()){
-                allPlayers.sendMessage(ChatColor.GREEN + player.getName() + " Joined!");
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                pl.sendMessage(ChatColor.GREEN + player.getName() + " Joined!");
             }
-            
-            try{
-                Sign s = (Sign) LobbySign.toBukkitLoc().getBlock().getState();
-                s.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
-                s.update(true, true);
-                LobbySign.toBukkitLoc().getBlock().getState().update();
-            }catch(NullPointerException e){
-                System.err.println("Couldn't find game signs!");
-            }catch(ClassCastException e){
-                System.err.println("Signs aren't working! Ignoring!");
-            }
-        }    
+
+        }
         else if(gm.getState() == GameState.RUNNING && gm.midgamePlayerJoin(player)){}
+        else if(gm.getState() == GameState.COUNTDOWN && gm.midgamePlayerJoin(player)){}
         else{
             player.sendMessage(ChatColor.YELLOW + "Can't join " + gmType + " midgame!");
         }
         return true;
     }
 
-    public void playerLeave(Player player){
+    public void playerLeave(Player player) {
         ChatHandler.getPlayerPrefixes().remove(player.getName());
         player.setDisplayName(player.getName());
-        for(Player allPlayers : gm.getPlayers()){
+        for (Player allPlayers : gm.getPlayers()) {
             allPlayers.sendMessage(player.getName() + " left");
         }
-        if(gm instanceof BasePluginGamemode){
+        if (gm instanceof BasePluginGamemode) {
             ((BasePluginGamemode) gm).playerLeave(player);
-        }else{
+        } else {
             gm.getPlayers().remove(player);
         }
         Curr = 0;
-        try{
-            Sign s = (Sign) LobbySign.toBukkitLoc().getBlock().getState();
-            s.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + "" + Curr+"/"+Max);
-            s.update(true, true);
-            LobbySign.toBukkitLoc().getBlock().getState().update();
-            player.getInventory().clear();
-            if(Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").hasPlayer(player)){
-                Bukkit.getScoreboardManager().getMainScoreboard().getTeam("players").removePlayer(player);
-            }
-        }
-        catch(NullPointerException e){
-            System.out.println("Couldn't find game signs!");
-        }
-        catch(ClassCastException e){
-            System.err.println("Signs aren't working! Ignoring!");
-        }
+        player.getInventory().clear();
     }
     
     public void playerLeaveAll(){
@@ -176,22 +126,7 @@ public class Map {
             if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                 Curr--;
             }
-            
-            try{
-                Sign s = (Sign) LobbySign.toBukkitLoc().getBlock().getState();
-                s.setLine(2, ChatColor.GREEN + "" + ChatColor.BOLD + Curr+"/"+Max);
-                s.update(true, true);
-                LobbySign.toBukkitLoc().getBlock().getState().update();
-            }
-            catch(NullPointerException e){
-                System.err.println("Couldn't find game sign!");
-            }
-            catch(ClassCastException e){
-                System.err.println("Signs aren't working! Ignoring!");
-            }
-            
             player.getInventory().clear();
-            
         }
         gm.getPlayers().clear();
     }
@@ -222,15 +157,6 @@ public class Map {
         region = new Polygonal2DRegion(new BukkitWorld(world), wePoints, 0, 1000);
         
     }
-    
-    public static Map findMap(String title, String gamemode){
-        for(Map m : maps.values()){
-            if(m.getGmType().equalsIgnoreCase(gamemode) && m.getTitle().equalsIgnoreCase(title)){
-                return m;
-            }
-        }
-        return null;
-    }
 
     public Gamemode getGm() {
         return gm;
@@ -242,10 +168,6 @@ public class Map {
 
     public int getCurr() {
         return Curr;
-    }
-
-    public EventLocation getLobbySign() {
-        return LobbySign;
     }
 
     public String getGmType() {
@@ -288,9 +210,6 @@ public class Map {
         Curr = curr;
     }
 
-    public void setLobbySign(EventLocation lobbySign) {
-        LobbySign = lobbySign;
-    }
 
     public void setGm(Gamemode gm) {
         this.gm = gm;

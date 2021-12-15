@@ -236,28 +236,33 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             }, 40, 20);
     }
 
-    //sets target of compass for each infected to location of nearest surivor.
+    /**
+     * Sets target of compass for each player from team infected to location of the nearest player of team survivor.
+     */
     Runnable compass = new Runnable() {
         @Override
         public void run() {
-            for (Player p : Team.getInfected().getMembers()) {
-                double range = 30;
-                p.setCompassTarget(getNearest(p, range).getLocation());
+            for (Player player : Team.getInfected().getMembers()) {
+                player.setCompassTarget(getNearest(player).getLocation());
             }
         }
     };
 
-    //returns closest survivor to infected.
-    public Player getNearest(Player infected, Double range) {
-        if (!Team.getInfected().getMembers().contains(infected)) throw new IllegalArgumentException ("Player must be part of team infected");
+    /**
+     * Determines the closest player of team survivor to the given player.
+     *
+     * @param sourcePlayer Represents a player.
+     * @return Closest survivor to given player.
+     */
+    public Player getNearest(Player sourcePlayer) {
         double distance = Double.POSITIVE_INFINITY;
         Player target = null;
-        for (Player survivor : Team.getSurvivor().getMembers()) {
-            double distanceto = infected.getLocation().distance(survivor.getLocation());
-            if (distanceto > distance)
+        for (Player targetPlayer : Team.getSurvivor().getMembers()) {
+            double distanceTo = sourcePlayer.getLocation().distance(targetPlayer.getLocation());
+            if (distanceTo > distance)
                 continue;
-            distance = distanceto;
-            target = survivor;
+            distance = distanceTo;
+            target = targetPlayer;
         }
         return target;
     }

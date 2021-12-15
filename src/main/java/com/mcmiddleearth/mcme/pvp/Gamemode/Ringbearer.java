@@ -123,12 +123,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     @Override
     public void Start(Map m,int parameter) {
-    	players.sort((Player p1, Player p2) -> {
-  		   if (PlayerStat.getKD(p1)  > PlayerStat.getKD(p2))
-  		     return 1;
-  		   else
-  		     return -1;
-  	    });
+        kdSort();
         super.Start(m,parameter);
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;

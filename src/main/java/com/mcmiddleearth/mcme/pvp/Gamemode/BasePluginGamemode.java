@@ -27,7 +27,6 @@ import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
-import com.mcmiddleearth.mcme.pvp.Gamemode.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -39,7 +38,6 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 /**
  *
@@ -47,6 +45,11 @@ import java.util.Comparator;
  */
 public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.Gamemode.Gamemode {
 
+    /**
+     * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
+     * COUNTDOWN = /pvp game start has been performed, 5 second countdown before the game starts.
+     * RUNNING = The game is running.
+     */
     @JsonIgnore
     ArrayList<Player> players = new ArrayList<>();
     public enum GameState {
@@ -63,9 +66,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     @Override
     public void Start(Map m, int parameter){
         PVPCommand.toggleVoxel("true");
-        
-        ArrowHandler.despawnArrows();
-        
+
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
@@ -88,8 +89,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public void End(Map m){
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
-        ArrowHandler.despawnArrows();
-        
+
         /*for(Player p : Bukkit.getOnlinePlayers()){
             p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
         }*/
@@ -126,7 +126,18 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
             arrow.remove();
         }
     }
-    
+
+    /**
+     * Sorts players by kd.
+     */
+    public void kdSort(){
+        players.sort((Player p1, Player p2) -> {
+            if (PlayerStat.getKD(p1) > PlayerStat.getKD(p2))
+                return 1;
+            else
+                return -1;
+        });
+    }
     
     public boolean midgamePlayerJoin(Player p){
         PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();

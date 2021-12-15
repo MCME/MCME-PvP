@@ -98,12 +98,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     @Override
     public void Start(Map m, int parameter) {
-    	players.sort((Player p1, Player p2) -> {
-            if (PlayerStat.getKD(p1)  > PlayerStat.getKD(p2))
-  		       return 1;
-  		    else
-  		       return -1;
-  	    });
+        kdSort();
         super.Start(m, parameter);
         goal = parameter;
         givenTnt = false;
@@ -429,7 +424,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     @Override
     public boolean midgamePlayerJoin (Player p){
         
-        if(state == GameState.RUNNING){
+        if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
             
             if(Team.getRed().getAllMembers().contains(p)){
                 addToTeam(p, Teams.RED);
@@ -437,13 +432,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
             else if(Team.getBlue().getAllMembers().contains(p)){
                 addToTeam(p, Teams.BLUE);
             }
-            
-            if(Points.getScore(ChatColor.RED + "Red:").getScore() - Points.getScore(ChatColor.BLUE + "Blue:").getScore() >= midgameJoinPointThreshold){
-                addToTeam(p, Teams.BLUE);
-            }
-            else if(Points.getScore(ChatColor.RED + "Red:").getScore() - Points.getScore(ChatColor.BLUE + "Blue:").getScore() <= (-1 * midgameJoinPointThreshold)){
-                addToTeam(p, Teams.RED);
-            }
+
             else{
                 if(Team.getRed().size() >= Team.getBlue().size()){
                     addToTeam(p, Teams.BLUE);

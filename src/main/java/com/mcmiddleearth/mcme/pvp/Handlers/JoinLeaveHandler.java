@@ -28,9 +28,16 @@ import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -56,91 +63,104 @@ public class JoinLeaveHandler implements Listener{
         if(PVPCommand.getRunningGame() != null){
             e.setJoinMessage(ChatColor.GRAY + e.getPlayer().getName() + " has joined as a spectator! \n To join the game type /pvp join.");
         }
-        
-        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
+
+        //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
+        /*try{
+                            p.setResourcePack(m.getResourcePackURL());
+                        }
+                        catch(NullPointerException e){
+                            p.sendMessage(org.bukkit.ChatColor.RED + "No resource pack was set for this map!");
+                        }*/
+        //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
+        switch (Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
             @Override
-            public void run(){
-                
-                if(!p.isDead()){
+            public void run() {
+
+                if (!p.isDead()) {
                     p.setHealth(20);
                 }
-                
+
                 p.setTotalExperience(0);
                 p.setExp(0);
                 p.setGameMode(GameMode.ADVENTURE);
                 p.getInventory().clear();
                 p.setPlayerListName(ChatColor.WHITE + p.getName());
                 p.setDisplayName(ChatColor.WHITE + p.getName());
-                p.getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
-                    new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
+                p.getInventory().setArmorContents(new ItemStack[]{new ItemStack(Material.AIR), new ItemStack(Material.AIR),
+                        new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
                 try {
                     System.out.println(DBmanager.getJSonParser().writeValueAsString(PlayerStat.getPlayerStats()));
                 } catch (JsonProcessingException ex) {
                     Logger.getLogger(JoinLeaveHandler.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
                 ArrayList<String> nullPointerColors = new ArrayList<>();
-                for(String playerName : com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().keySet()){
-                    try{
-                        Bukkit.getPlayer(playerName).setPlayerListName(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(playerName) + playerName);
-                        Bukkit.getPlayer(playerName).setDisplayName(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(playerName) + playerName);
-                    }
-                    catch(NullPointerException e){
+                for (String playerName : ChatHandler.getPlayerColors().keySet()) {
+                    try {
+                        Bukkit.getPlayer(playerName).setPlayerListName(ChatHandler.getPlayerColors().get(playerName) + playerName);
+                        Bukkit.getPlayer(playerName).setDisplayName(ChatHandler.getPlayerColors().get(playerName) + playerName);
+                    } catch (NullPointerException e) {
                         nullPointerColors.add(playerName);
                     }
                 }
-                
-                for(String s : nullPointerColors){
-                    com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().remove(s);
+
+                for (String s : nullPointerColors) {
+                    ChatHandler.getPlayerColors().remove(s);
                 }
-                
-                if(PVPCommand.getRunningGame() == null && PVPCommand.getNextGame() == null){
+
+                if (PVPCommand.getRunningGame() == null && PVPCommand.getNextGame() == null) {
                     p.teleport(PVPPlugin.getSpawn());
                     //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
-                    com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().put(p.getName(), org.bukkit.ChatColor.WHITE);
-                }else{
+                    ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
+                } else {
                     Map m = null;
-                    if(PVPCommand.getNextGame() != null){
+                    if (PVPCommand.getNextGame() != null) {
                         m = PVPCommand.getNextGame();
-                    }
-                    else if(PVPCommand.getRunningGame() != null){
+                    } else if (PVPCommand.getRunningGame() != null) {
                         m = PVPCommand.getRunningGame();
-                    }
-                    else{
+                    } else {
                         return;
                     }
-                          
-                    if(m.getGm().getState() != GameState.IDLE){
+
+                    if (m.getGm().getState() != GameState.IDLE) {
                         p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
-                        
+
                         /*try{
                             p.setResourcePack(m.getResourcePackURL());
                         }
                         catch(NullPointerException e){
                             p.sendMessage(org.bukkit.ChatColor.RED + "No resource pack was set for this map!");
                         }*/
-                        
+
                         p.setScoreboard(BasePluginGamemode.getScoreboard());
                         p.sendMessage(ChatColor.GREEN + "Current Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
-                          
-                        if(m.getGm().isMidgameJoin()){
-                            p.sendMessage(ChatColor.YELLOW + "Use /pvp join to join the game!");
-                        }else{
+
+                        if (m.getGm().isMidgameJoin()) {
+                            TextComponent message = new TextComponent(ChatColor.YELLOW + "Click to join");
+                            message.setUnderlined(true);
+                            message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pvp join"));
+                            message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.YELLOW + "Click").create()));
+                            p.spigot().sendMessage(message);
+                        } else {
                             p.sendMessage(ChatColor.YELLOW + "Sorry, you can't join this game midgame");
                             p.sendMessage(ChatColor.YELLOW + "You can join the next game, though!");
                         }
                         Team.getSpectator().add(p);
-                    }
-                    else{
+                    } else {
                         p.teleport(PVPPlugin.getSpawn());
                         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                         p.sendMessage(ChatColor.GREEN + "Upcoming Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
-                        p.sendMessage(ChatColor.YELLOW + "Use " + ChatColor.GREEN + "/pvp join" + ChatColor.YELLOW + " to join!");
+                        TextComponent message = new TextComponent(ChatColor.YELLOW + "Click to join");
+                        message.setUnderlined(true);
+                        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pvp join"));
+                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.YELLOW + "Click").create()));
+                        p.spigot().sendMessage(message);
                         p.sendMessage(ChatColor.GREEN + "Do /pvp rules " + PVPCommand.removeSpaces(PVPCommand.getNextGame().getGmType()) + " if you don't know how this gamemode works!");
                     }
                 }
             }
-        }, 20);
+        }, 20)) {
+        }
     }
     
     @EventHandler

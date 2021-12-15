@@ -347,6 +347,12 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     pS.getPlayersKilled().clear();
                 }
                 break;
+            case "broadcast":
+                if(nextGame != null)
+                    sendBroadcast(source, nextGame);
+                else
+                    source.sendMessage("Can't send broadcast, next game is null");
+                break;
             case "lobby":
                 source.sendMessage(ChatColor.GREEN + "Sending Signs");
                 for(Map m : Map.maps.values()){
@@ -361,12 +367,6 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     sign.setItemMeta(im);
                     source.getInventory().addItem(sign);
                 }
-                break;
-            case "broadcast":
-                if(nextGame != null)
-                    sendBroadcast(source, nextGame);
-                else
-                    source.sendMessage("Can't send broadcast, next game is null");
                 break;
             case "toggleLock":
                 if(locked){

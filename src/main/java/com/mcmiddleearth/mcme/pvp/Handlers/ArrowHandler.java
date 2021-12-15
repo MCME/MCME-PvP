@@ -35,29 +35,29 @@ import org.bukkit.event.player.PlayerPickupArrowEvent;
 
 /**
  *
- * @author Eric
+ * @author barteldvn
  */
 public class ArrowHandler implements Listener{
 
-
-    public static void  despawnArrows (){
-        if(Bukkit.getOnlinePlayers().size() > 0){
-            Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
-
-            for(Arrow arrow : p.getWorld().getEntitiesByClass(Arrow.class)){
-
-                //if(arrow.isInBlock()){
-                    arrow.remove();
-               // }
-
-            }
-        }
-
-    };
-    
+    /**
+     * Removes arrow when it hits a block.
+     * @param projectileHitEvent Projectile hitting an object event.
+     */
     @EventHandler
-    public void onArrowPickup (PlayerPickupArrowEvent e){
-        e.setCancelled(true);
+    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent){
+        Projectile projectile = projectileHitEvent.getEntity();
+        if (projectile instanceof  Arrow && projectileHitEvent.getHitBlock() != null) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 200);
+        }
+    }
+
+    /**
+     * Cancels players picking up arrows.
+     * @param arrowPickupEvent Player arrow pickup event.
+     */
+    @EventHandler
+    public void onArrowPickup (PlayerPickupArrowEvent arrowPickupEvent){
+        arrowPickupEvent.setCancelled(true);
     }
     
 }

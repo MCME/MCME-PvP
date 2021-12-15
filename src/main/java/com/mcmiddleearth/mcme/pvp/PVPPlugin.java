@@ -155,12 +155,12 @@ public class PVPPlugin extends JavaPlugin{
         PluginManager pm = this.getServer().getPluginManager();
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.ListenerCore(), this);
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.PlayerStat.StatListener(), PVPPlugin.getPlugin());
-        pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.Lobby.SignClickListener(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.ServerMessageHandler(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.JoinLeaveHandler(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.Locker(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.AllGameHandlers(), PVPPlugin.getPlugin());
+        pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler(), PVPPlugin.getPlugin());
        // pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.PlayerStat.StatListener(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.Gearpvp(), PVPPlugin.getPlugin());
         pm.registerEvents(new AntiCheatListeners(), PVPPlugin.getPlugin());
@@ -199,7 +199,6 @@ public class PVPPlugin extends JavaPlugin{
             }
         }
         com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler.configureBukkitTeams();
-        ArrowHandler.despawnArrows();
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
 

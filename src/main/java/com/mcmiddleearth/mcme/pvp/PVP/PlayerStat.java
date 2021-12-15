@@ -164,7 +164,6 @@ public class PlayerStat {
                     PlayerStat.getPlayerStats().get(p.getName()).addGameLost();
                 }
                 break;
-                
             case BLUE:
                 for(Player p : Team.getBlue().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameLost();
