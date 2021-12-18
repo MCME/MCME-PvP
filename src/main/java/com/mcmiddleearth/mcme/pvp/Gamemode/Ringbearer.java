@@ -322,7 +322,31 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
         }
     }
-    
+
+    public void checkWin(){
+        if(Team.getRed().size() <= 0){
+
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                pl.sendMessage(ChatColor.BLUE + "Game over!");
+                pl.sendMessage(ChatColor.BLUE + "Blue Team Wins!");
+            }
+            PlayerStat.addGameWon(Teams.BLUE);
+            PlayerStat.addGameLost(Teams.RED);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+        else if(Team.getBlue().size() <= 0){
+
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                pl.sendMessage(ChatColor.RED + "Game over!");
+                pl.sendMessage(ChatColor.RED + "Red Team Wins!");
+            }
+            PlayerStat.addGameWon(Teams.RED);
+            PlayerStat.addGameLost(Teams.BLUE);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+    }
     public String requiresParameter(){
         return "none";
     }

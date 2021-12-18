@@ -107,12 +107,18 @@ public class JoinLeaveHandler implements Listener{
                 for (String s : nullPointerColors) {
                     ChatHandler.getPlayerColors().remove(s);
                 }
-
+                /**
+                 *  Case if no game is running or upcoming
+                 */
                 if (PVPCommand.getRunningGame() == null && PVPCommand.getNextGame() == null) {
                     p.teleport(PVPPlugin.getSpawn());
                     //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                     ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
-                } else {
+                }
+                /**
+                 * Case if a game is running or upcoming
+                 */
+                else {
                     Map m = null;
                     if (PVPCommand.getNextGame() != null) {
                         m = PVPCommand.getNextGame();
@@ -121,8 +127,11 @@ public class JoinLeaveHandler implements Listener{
                     } else {
                         return;
                     }
-
-                    if (m.getGm().getState() != GameState.IDLE) {
+                    /**
+                     * If Game is running/counting down (/pvp game start has been performed)
+                     */
+                    if (m.getGm().getState() == GameState.RUNNING || m.getGm().getState() == GameState.COUNTDOWN) {
+                        Team.getSpectator().add(p);
                         p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
 
                         /*try{
@@ -145,16 +154,26 @@ public class JoinLeaveHandler implements Listener{
                             p.sendMessage(ChatColor.YELLOW + "Sorry, you can't join this game midgame");
                             p.sendMessage(ChatColor.YELLOW + "You can join the next game, though!");
                         }
-                        Team.getSpectator().add(p);
+
                     } else {
                         p.teleport(PVPPlugin.getSpawn());
+                        if(!m.getGm().getPlayers().contains(p)) {
+                            if (m.playerJoin(p)) {
+                                p.setPlayerListName(ChatColor.GREEN + p.getName());
+                                p.setDisplayName(ChatColor.GREEN + p.getName());
+                                ChatHandler.getPlayerColors().put(p.getName(), ChatColor.GREEN);
+                                ChatHandler.getPlayerPrefixes().put(p.getName(), ChatColor.GREEN + "Participant");
+                                BukkitTeamHandler.addToBukkitTeam(p, ChatColor.GREEN);
+                            }
+                        }
+
                         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                         p.sendMessage(ChatColor.GREEN + "Upcoming Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
-                        TextComponent message = new TextComponent(ChatColor.YELLOW + "Click to join");
-                        message.setUnderlined(true);
-                        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pvp join"));
-                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.YELLOW + "Click").create()));
-                        p.spigot().sendMessage(message);
+//                        TextComponent message = new TextComponent(ChatColor.YELLOW + "Click to join");
+//                        message.setUnderlined(true);
+//                        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pvp join"));
+//                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.YELLOW + "Click").create()));
+//                        p.spigot().sendMessage(message);
                         p.sendMessage(ChatColor.GREEN + "Do /pvp rules " + PVPCommand.removeSpaces(PVPCommand.getNextGame().getGmType()) + " if you don't know how this gamemode works!");
                     }
                 }

@@ -401,7 +401,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
                     PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
 
-                    if(!killerInv.contains(new ItemStack(Material.ARROW,2))){
+                    if(!killerInv.contains(new ItemStack(Material.ARROW,1))){
                          killerInv.addItem(new ItemStack(Material.ARROW,1));
                     }
 
@@ -427,7 +427,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
-                if(!e.getPlayer().getInventory().contains(Material.ARROW, 2)){
+                if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
                 
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
                 

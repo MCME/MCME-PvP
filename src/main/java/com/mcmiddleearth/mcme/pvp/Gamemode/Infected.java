@@ -290,7 +290,32 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             return false;
         }
     }
-    
+    @Override
+    public void checkWin(){
+        if(Team.getSurvivor().size() < 1) {
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(ChatColor.DARK_RED + "Game over!");
+                player.sendMessage(ChatColor.DARK_RED + "Infected Wins!");
+
+            }
+            PlayerStat.addGameWon(Teams.INFECTED);
+            PlayerStat.addGameLost(Teams.SURVIVORS);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+            return;
+        }
+        if(Team.getInfected().size() < 1){
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    player.sendMessage(ChatColor.DARK_RED + "Game over!");
+                    player.sendMessage(ChatColor.DARK_RED + "Survivor Wins!");
+            }
+            PlayerStat.addGameWon(Teams.SURVIVORS);
+            PlayerStat.addGameLost(Teams.INFECTED);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+    }
     private class Gamepvp implements Listener{
         
         @EventHandler

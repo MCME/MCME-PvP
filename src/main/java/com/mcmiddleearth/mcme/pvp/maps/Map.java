@@ -87,11 +87,6 @@ public class Map {
         gm.getPlayers().add(player);
         if(gm.getState() == GameState.IDLE){
             Curr++;
-            
-            for(Player pl : Bukkit.getOnlinePlayers()){
-                pl.sendMessage(ChatColor.GREEN + player.getName() + " Joined!");
-            }
-
         }
         else if(gm.getState() == GameState.RUNNING && gm.midgamePlayerJoin(player)){}
         else if(gm.getState() == GameState.COUNTDOWN && gm.midgamePlayerJoin(player)){}

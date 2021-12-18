@@ -45,13 +45,14 @@ import java.util.ArrayList;
  */
 public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.Gamemode.Gamemode {
 
+
+    @JsonIgnore
+    ArrayList<Player> players = new ArrayList<>();
     /**
      * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
      * COUNTDOWN = /pvp game start has been performed, 5 second countdown before the game starts.
      * RUNNING = The game is running.
      */
-    @JsonIgnore
-    ArrayList<Player> players = new ArrayList<>();
     public enum GameState {
         IDLE, COUNTDOWN, RUNNING
     }
@@ -61,6 +62,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     
     public void playerLeave(Player p){
         players.remove(p);
+        checkWin();
     }
     
     @Override
@@ -178,6 +180,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         }
         
         return true;
+    }
+
+    public void checkWin(){
     }
 
     @Override

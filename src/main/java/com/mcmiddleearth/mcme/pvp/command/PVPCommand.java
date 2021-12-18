@@ -26,6 +26,7 @@ import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
+import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.mcmiddleearth.mcme.pvp.Permissions;
 import com.mcmiddleearth.mcme.pvp.maps.MapEditor;
@@ -69,21 +70,20 @@ public class PVPCommand extends CommandDispatcher<Player>{
         PVPPlugin = PVPPlugin1;
         reloadMaplist();
         register(LiteralArgumentBuilder.<Player>literal("pvp")
-                .then(LiteralArgumentBuilder.<Player>literal("fbt").executes(c->{
-                            doCommand("fbt", (Player) c.getSource());
-                            return 1;
-                        }))
+            .then(LiteralArgumentBuilder.<Player>literal("fbt").executes(c->{
+                doCommand("fbt", (Player) c.getSource());
+                return 1; }))
             .then(LiteralArgumentBuilder.<Player>literal("map")
                 .then(LiteralArgumentBuilder.<Player>literal("list").executes(c -> {
                     doCommand("mapList", c.getSource());
-                    return 1;} ))
+                    return 1; }))
                 .then(RequiredArgumentBuilder.<Player, String>argument("name", new CommandNewMapArgument()).requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode())).executes(c ->{
                     doCommand("createMap", c.getArgument("name", String.class), c.getSource());
                     return 1; }))
                 .then(LiteralArgumentBuilder.<Player>literal("spawn").requires(c -> c.hasPermission(Permissions.JOIN.getPermissionNode()))
                     .then(RequiredArgumentBuilder.<Player, String>argument("name", new CommandMapArgument()).executes(c ->{
                     doCommand("teleport", c.getArgument("name", String.class), c.getSource());
-                    return 1;}))))
+                    return 1; }))))
             .then(LiteralArgumentBuilder.<Player>literal("game")
                 .then(LiteralArgumentBuilder.<Player>literal("quickstart").requires( c -> c.hasPermission(Permissions.RUN.getPermissionNode()))
                     .then(RequiredArgumentBuilder.<Player, String>argument( "map", new CommandMapArgument()).executes(c -> {
@@ -110,6 +110,12 @@ public class PVPCommand extends CommandDispatcher<Player>{
             .then(LiteralArgumentBuilder.<Player>literal("join").executes(c -> {
                 doCommand("join", c.getSource());
                 return 1;} ))
+            .then(LiteralArgumentBuilder.<Player>literal("leave").executes(c -> {
+                doCommand("leave", c.getSource());
+                return 1;} ))
+            .then(LiteralArgumentBuilder.<Player>literal("spectate").executes(c -> {
+                doCommand("spectate", c.getSource());
+                return 1;} ))
             .then(LiteralArgumentBuilder.<Player>literal("kick").requires( c -> c.hasPermission(Permissions.KICK.getPermissionNode()))
                 .then(RequiredArgumentBuilder.<Player, String>argument("player", new com.mcmiddleearth.mcme.pvp.command.CommandPlayerArgument(PVPPlugin.getServer())).executes(c -> {
                     doCommand("kickPlayer", c.getArgument("player", String.class), c.getSource());
@@ -124,11 +130,11 @@ public class PVPCommand extends CommandDispatcher<Player>{
             .then(LiteralArgumentBuilder.<Player>literal("stats").executes(c -> {
                 doCommand("stats", c.getSource());
                 return 1;} )
-                .then(LiteralArgumentBuilder.<Player>literal("clear").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode())).executes(c -> {
-                    doCommand("statsClear", c.getSource());
-                    return 1;} )).executes(c -> {
-                        doCommand("stats", c.getSource());
-                        return 1;}))
+                    .then(LiteralArgumentBuilder.<Player>literal("clear").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode())).executes(c -> {
+                        doCommand("statsClear", c.getSource());
+                        return 1;} )).executes(c -> {
+                            doCommand("stats", c.getSource());
+                            return 1;}))
             .then(LiteralArgumentBuilder.<Player>literal("togglevoxel").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode()))
                 .then(RequiredArgumentBuilder.<Player, String> argument("bool", new com.mcmiddleearth.mcme.pvp.command.CommandStringArgument("true", "false"))).executes(c -> {
                 doCommand("toggleVoxel", c.getArgument("bool", String.class), c.getSource());
@@ -317,20 +323,50 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 source.setGameMode(GameMode.CREATIVE);
                 source.setGameMode(GameMode.ADVENTURE);
                 break;
+            case "leave":
+                source.performCommand("world");
+            case "spectate":
+                if(nextGame != null){
+                    map = nextGame;
+                }
+                else if(runningGame != null){
+                    map = runningGame;
+                }
+                else{
+                    source.sendMessage(ChatColor.RED + "There is no queued or running game!");
+                    break;
+                }
+                if(map.getGm().getState() == GameState.COUNTDOWN || map.getGm().getState() == GameState.RUNNING  ){
+                    map.playerLeave(source);
+                    ChatHandler.getPlayerColors().put(source.getName(), ChatColor.WHITE);
+                    ChatHandler.getPlayerPrefixes().remove(source.getName());
+                    source.setDisplayName(ChatColor.WHITE + source.getName());
+                    source.setPlayerListName(ChatColor.WHITE + source.getName());
+                    BukkitTeamHandler.removeFromBukkitTeam(source);
+                    Team.getSpectator().add(source);
+                    source.teleport(map.getSpawn().toBukkitLoc().add(0, 2, 0));
+                }
+                if(map.getGm().getPlayers().contains(source)){
+                        if(map.getGm().getState() == GameState.IDLE){
+                            ChatHandler.getPlayerColors().put(source.getName(), ChatColor.WHITE);
+                            ChatHandler.getPlayerPrefixes().remove(source.getName());
+                            source.setDisplayName(ChatColor.WHITE + source.getName());
+                            source.setPlayerListName(ChatColor.WHITE + source.getName());
+                            BukkitTeamHandler.removeFromBukkitTeam(source);
+                            map.getGm().getPlayers().remove(source);
+                        }
+                    else{
+                        source.sendMessage("Failed to spectate Map");
+                        break;
+                    }
+                }
+                else{
+                    source.sendMessage("You are already spectating the game");
+                    break;
+                }
+                break;
             case "pipe":
                 GearHandler.giveCustomItem(source, PIPE);
-                break;
-            case "stats":
-                PlayerStat playerStat = PlayerStat.getPlayerStats().get(source.getName());
-
-                source.sendMessage(ChatColor.GREEN + "Showing stats for " + source.getDisplayName());
-                source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
-                source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
-                source.sendMessage(ChatColor.GRAY + "KD: " + Math.floor(((playerStat.getKills() + 1) / (playerStat.getDeaths() + 1)) * 100)/100);
-                source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
-                source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
-                source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
-                source.sendMessage(ChatColor.GRAY + "Games Spectated: " + playerStat.getGamesSpectated());
                 break;
             case "statsClear":
                 for(File f : new File(PVPPlugin.getStatDirectory() + PVPPlugin.getFileSep()).listFiles()){
@@ -367,6 +403,18 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     sign.setItemMeta(im);
                     source.getInventory().addItem(sign);
                 }
+                break;
+            case "stats":
+                PlayerStat playerStat = PlayerStat.getPlayerStats().get(source.getName());
+
+                source.sendMessage(ChatColor.GREEN + "Showing stats for " + source.getDisplayName());
+                source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
+                source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
+                source.sendMessage(ChatColor.GRAY + "KD: " + Math.floor(((playerStat.getKills() + 1) / (playerStat.getDeaths() + 1)) * 100)/100);
+                source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
+                source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
+                source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
+                source.sendMessage(ChatColor.GRAY + "Games Spectated: " + playerStat.getGamesSpectated());
                 break;
             case "toggleLock":
                 if(locked){
@@ -431,22 +479,37 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 toggleVoxel(argument);
                 break;
             case "createGame":
-                Map n = Map.maps.get(argument);
-                if(n.getGm().requiresParameter().equals("none"))
+                Map map = Map.maps.get(argument);
+                if(map.getGm().requiresParameter().equals("none"))
                 {
                     if(nextGame==null && runningGame==null) {
-                        source.sendMessage("Map: " + n.getTitle() + ", Gamemode: " + n.getGmType());
-                        sendBroadcast(source,n);
+                        source.sendMessage("Map: " + map.getTitle() + ", Gamemode: " + map.getGmType());
+                        sendBroadcast(source,map);
                         parameter = 0;
-                        nextGame = n;
+                        nextGame = map;
+                        for(Player player : Bukkit.getOnlinePlayers()){
+                            if(!map.getGm().getPlayers().contains(player)){
+                                if(map.playerJoin(player)){
+                                    player.setPlayerListName(ChatColor.GREEN + player.getName());
+                                    player.setDisplayName(ChatColor.GREEN + player.getName());
+                                    ChatHandler.getPlayerColors().put(player.getName(), ChatColor.GREEN);
+                                    ChatHandler.getPlayerPrefixes().put(player.getName(), ChatColor.GREEN + "Participant");
+                                    BukkitTeamHandler.addToBukkitTeam(player, ChatColor.GREEN);
+                                }
+                            }
+                            else{
+                                source.sendMessage("Failed to Join Map");
+                                break;
+                            }
+                        }
                     }else{
-                        source.sendMessage("Map: " + n.getTitle() + ", Gamemode: " + n.getGmType() + " is queued!");
-                        gameQueue.add(n);
+                        source.sendMessage("Map: " + map.getTitle() + ", Gamemode: " + map.getGmType() + " is queued!");
+                        gameQueue.add(map);
                         parameterQueue.add(0);
                     }
                 }
                 else{
-                    source.sendMessage(ChatColor.RED + n.getTitle() + " " + n.getGmType() + " requires a variable.");
+                    source.sendMessage(ChatColor.RED + map.getTitle() + " " + map.getGmType() + " requires a variable.");
                 }
 
                 break;
