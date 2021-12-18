@@ -211,12 +211,12 @@ public class PlayerStat {
      * @return double representing the player's KD ratio
      */
     public static double getKD(Player player) {
-        int kills = PlayerStat.getPlayerStats().get(player.getName()).getKills();
-        int deaths = PlayerStat.getPlayerStats().get(player.getName()).getDeaths();
+        double kills = PlayerStat.getPlayerStats().get(player.getName()).getKills();
+        double deaths = PlayerStat.getPlayerStats().get(player.getName()).getDeaths();
         if (deaths == 0)
             return kills;
         else
-            return Math.floor((kills / deaths)/100)*100;
+            return kills / deaths;
     }
 
     public static class StatListener implements Listener{

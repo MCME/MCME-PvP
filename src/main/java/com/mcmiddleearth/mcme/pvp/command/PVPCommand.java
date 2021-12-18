@@ -130,11 +130,16 @@ public class PVPCommand extends CommandDispatcher<Player>{
             .then(LiteralArgumentBuilder.<Player>literal("stats").executes(c -> {
                 doCommand("stats", c.getSource());
                 return 1;} )
-                    .then(LiteralArgumentBuilder.<Player>literal("clear").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode())).executes(c -> {
-                        doCommand("statsClear", c.getSource());
-                        return 1;} )).executes(c -> {
-                            doCommand("stats", c.getSource());
-                            return 1;}))
+//                    .then(LiteralArgumentBuilder.<Player>literal("clear").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode())).executes(c -> {
+//                        doCommand("statsClear", c.getSource());
+//                        return 1;} )).executes(c -> {
+//                            doCommand("stats", c.getSource());
+//                            return 1;})
+            )
+            .then(LiteralArgumentBuilder.<Player>literal("stats")
+                    .then(RequiredArgumentBuilder.<Player, String>argument("player", new com.mcmiddleearth.mcme.pvp.command.CommandPlayerArgument(PVPPlugin.getServer())).executes(c -> {
+                        doCommand("stats", c.getArgument("player", String.class), c.getSource());
+                        return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("togglevoxel").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode()))
                 .then(RequiredArgumentBuilder.<Player, String> argument("bool", new com.mcmiddleearth.mcme.pvp.command.CommandStringArgument("true", "false"))).executes(c -> {
                 doCommand("toggleVoxel", c.getArgument("bool", String.class), c.getSource());
@@ -368,21 +373,21 @@ public class PVPCommand extends CommandDispatcher<Player>{
             case "pipe":
                 GearHandler.giveCustomItem(source, PIPE);
                 break;
-            case "statsClear":
-                for(File f : new File(PVPPlugin.getStatDirectory() + PVPPlugin.getFileSep()).listFiles()){
-                    f.delete();
-                }
-
-                for(PlayerStat pS : PlayerStat.getPlayerStats().values()) {
-                    pS.setKills(0);
-                    pS.setDeaths(0);
-                    pS.setGamesLost(0);
-                    pS.setGamesWon(0);
-                    pS.setGamesSpectated(0);
-                    pS.setGamesPlayed(0);
-                    pS.getPlayersKilled().clear();
-                }
-                break;
+//            case "statsClear":
+//                for(File f : new File(PVPPlugin.getStatDirectory() + PVPPlugin.getFileSep()).listFiles()){
+//                    f.delete();
+//                }
+//
+//                for(PlayerStat pS : PlayerStat.getPlayerStats().values()) {
+//                    pS.setKills(0);
+//                    pS.setDeaths(0);
+//                    pS.setGamesLost(0);
+//                    pS.setGamesWon(0);
+//                    pS.setGamesSpectated(0);
+//                    pS.setGamesPlayed(0);
+//                    pS.getPlayersKilled().clear();
+//                }
+//                break;
             case "broadcast":
                 if(nextGame != null)
                     sendBroadcast(source, nextGame);
@@ -410,7 +415,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 source.sendMessage(ChatColor.GREEN + "Showing stats for " + source.getDisplayName());
                 source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
                 source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
-                source.sendMessage(ChatColor.GRAY + "KD: " + Math.floor(((playerStat.getKills() + 1) / (playerStat.getDeaths() + 1)) * 100)/100);
+                source.sendMessage(ChatColor.GRAY + "KD: " + PlayerStat.getKD(source));
                 source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
                 source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
                 source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
@@ -525,6 +530,19 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 out.writeUTF("world");
                 source.sendPluginMessage(PVPPlugin.getPlugin(), "BungeeCord", out.toByteArray());
                 source.sendMessage(ChatColor.GREEN+"Kicked "+argument+" from the PvP server!");
+                break;
+            case "stats":
+                Player player = Bukkit.getPlayer(argument);
+                PlayerStat playerStat = PlayerStat.getPlayerStats().get(player.getName());
+
+                source.sendMessage(ChatColor.GREEN + "Showing stats for " + player.getDisplayName());
+                source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
+                source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
+                source.sendMessage(ChatColor.GRAY + "KD: " + PlayerStat.getKD(player));
+                source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
+                source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
+                source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
+                source.sendMessage(ChatColor.GRAY + "Games Spectated: " + playerStat.getGamesSpectated());
                 break;
             case "rules":
                 switch(argument) {
