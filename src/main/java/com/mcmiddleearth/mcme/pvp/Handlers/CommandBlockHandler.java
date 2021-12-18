@@ -66,9 +66,6 @@ public class CommandBlockHandler implements CommandExecutor{
                         Map.maps.get(args[2]).getGm().End(Map.maps.get(args[2]));
                         if(args.length == 4){
                             if(args[3].equalsIgnoreCase("next")){//wip
-                                Location sign = Map.maps.get(args[2]).getLobbySign().toBukkitLoc();
-                                Map.maps.get(args[2]).setLobbySign(null);
-                                Map.maps.get((String) Map.maps.keySet().toArray()[new Random().nextInt(Map.maps.keySet().size()-1)]).rebindSign(sign);
                             }
                         }
                     }
