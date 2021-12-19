@@ -122,7 +122,6 @@ public class PlayerStat {
                     PlayerStat.getPlayerStats().get(p.getName()).addGameWon();
                 }
                 break;
-                
             case BLUE:
                 for(Player p : Team.getBlue().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameWon();
@@ -149,7 +148,6 @@ public class PlayerStat {
                 }
                 break;
         }
-        
     }
 
     /**
@@ -190,7 +188,6 @@ public class PlayerStat {
                 }
                 break;
         }
-        
     }
 
     /**
@@ -223,15 +220,15 @@ public class PlayerStat {
 
 
         /**
-         * @EventHandler for player deaths.
+         * @EventHandler for player death/kill related stats.
          * Increments death stat for player that died, if a player killed him, increment his kill stat.
          *
-         * @param pdEvent Thrown whenever a player dies.
+         * @param deathEvent Thrown whenever a player dies.
          */
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent pdEvent){
+        public void onPlayerDeath(PlayerDeathEvent deathEvent){
             if(PVPCommand.getRunningGame() != null){
-                Player p1 = pdEvent.getEntity();
+                Player p1 = deathEvent.getEntity();
                 if(PVPCommand.getRunningGame().getGm().getPlayers().contains(p1)){
                     PlayerStat ps = PlayerStat.getPlayerStats().get(p1.getName());
                     if(p1.getKiller() != null){

@@ -492,9 +492,9 @@ public class PVPCommand extends CommandDispatcher<Player>{
                         sendBroadcast(source,map);
                         parameter = 0;
                         nextGame = map;
-                        for(Player player : Bukkit.getOnlinePlayers()){
-                            if(!map.getGm().getPlayers().contains(player)){
-                                if(map.playerJoin(player)){
+                        for(Player player : Bukkit.getOnlinePlayers()) {
+                            if (!map.getGm().getPlayers().contains(player)) {
+                                if (map.playerJoin(player)) {
                                     player.setPlayerListName(ChatColor.GREEN + player.getName());
                                     player.setDisplayName(ChatColor.GREEN + player.getName());
                                     ChatHandler.getPlayerColors().put(player.getName(), ChatColor.GREEN);
@@ -503,11 +503,12 @@ public class PVPCommand extends CommandDispatcher<Player>{
                                 }
                             }
                             else{
-                                source.sendMessage("Failed to Join Map");
+                                player.sendMessage("Failed to Join Map");
                                 break;
                             }
                         }
-                    }else{
+                    }
+                    else{
                         source.sendMessage("Map: " + map.getTitle() + ", Gamemode: " + map.getGmType() + " is queued!");
                         gameQueue.add(map);
                         parameterQueue.add(0);
@@ -642,20 +643,36 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 }
                 break;
             case "createVarGame":
-                Map n = Map.maps.get(argument1);
-                if(n.getGm().requiresParameter().equals("none"))
+                Map map = Map.maps.get(argument1);
+                if(map.getGm().requiresParameter().equals("none"))
                 {
                     doCommand("createGame", argument1, source);
                 }
                 else{
                     if(nextGame == null && runningGame == null) {
-                        source.sendMessage("Map: " + n.getTitle() + ", Gamemode: " + n.getGmType() + ", Parameter: "+ argument2);
-                        sendBroadcast(source,n);
+                        source.sendMessage("Map: " + map.getTitle() + ", Gamemode: " + map.getGmType() + ", Parameter: "+ argument2);
+                        sendBroadcast(source,map);
                         parameter = Integer.parseInt(argument2);
-                        nextGame = n;
-                    }else{
-                        source.sendMessage("Map: " + n.getTitle() + ", Gamemode: " + n.getGmType() + ", Parameter: "+ argument2 + " is queued!");
-                        gameQueue.add(n);
+                        nextGame = map;
+                        for(Player player : Bukkit.getOnlinePlayers()) {
+                            if (!map.getGm().getPlayers().contains(player)) {
+                                if (map.playerJoin(player)) {
+                                    player.setPlayerListName(ChatColor.GREEN + player.getName());
+                                    player.setDisplayName(ChatColor.GREEN + player.getName());
+                                    ChatHandler.getPlayerColors().put(player.getName(), ChatColor.GREEN);
+                                    ChatHandler.getPlayerPrefixes().put(player.getName(), ChatColor.GREEN + "Participant");
+                                    BukkitTeamHandler.addToBukkitTeam(player, ChatColor.GREEN);
+                                }
+                            }
+                            else{
+                                player.sendMessage("Failed to Join Map");
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        source.sendMessage("Map: " + map.getTitle() + ", Gamemode: " + map.getGmType() + ", Parameter: "+ argument2 + " is queued!");
+                        gameQueue.add(map);
                         parameterQueue.add(Integer.parseInt(argument2));
                     }
                 }

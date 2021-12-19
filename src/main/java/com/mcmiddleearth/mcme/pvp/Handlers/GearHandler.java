@@ -17,12 +17,9 @@
  * 
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
+import com.mcmiddleearth.mcme.pvp.Gamemode.*;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
-import com.mcmiddleearth.mcme.pvp.Gamemode.Gamemode;
-import com.mcmiddleearth.mcme.pvp.Gamemode.Ringbearer;
-import com.mcmiddleearth.mcme.pvp.Gamemode.TeamConquest;
-import com.mcmiddleearth.mcme.pvp.Gamemode.TeamSlayer;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import java.util.Arrays;
 import java.util.Random;
@@ -109,13 +106,15 @@ public class GearHandler {
                     case BLACK:
                         lam.setColor(DyeColor.BLACK.getColor());
                 }
-                
+
                 items[i].setItemMeta(lam);
             }
             else{
-                items[i].addUnsafeEnchantment(Enchantment.DURABILITY, 100);
             }
-            items[i].getItemMeta().setUnbreakable(true);
+            ItemMeta itemmeta;
+            itemmeta = items[i].getItemMeta();
+            itemmeta.setUnbreakable(true);
+            items[i].setItemMeta(itemmeta);
         }
         p.getInventory().clear();
         p.getInventory().setHelmet(new ItemStack(Material.AIR));
@@ -123,7 +122,7 @@ public class GearHandler {
         p.getInventory().setLeggings(new ItemStack(Material.AIR));
         p.getInventory().setBoots(new ItemStack(Material.AIR));
         
-        if(sg == SpecialGear.RINGBEARER && !(p.hasPotionEffect(PotionEffectType.INVISIBILITY))){
+        if(sg == SpecialGear.RINGBEARER ){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
             p.getInventory().setChestplate(items[1]);
             p.getInventory().setLeggings(items[2]);
@@ -146,12 +145,8 @@ public class GearHandler {
             p.getInventory().setBoots(items[3]);
             
         }
-        
-        if(sg == SpecialGear.ONEINTHEQUIVER){
-            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 100);
-        }
-        else{
-            items[5].addEnchantment(Enchantment.ARROW_INFINITE, 1);
+
+        if(sg != SpecialGear.ONEINTHEQUIVER){
             p.getInventory().addItem(items[6]);
         }
         
@@ -202,10 +197,13 @@ public class GearHandler {
         
         @EventHandler
         public void onPlayerInteract(PlayerInteractEvent e){
+
             if(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 final Player p = e.getPlayer();
                 ItemStack item = null;
-                
+                ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+                if(!p.getInventory().contains(Arrow) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
+                    p.getInventory().addItem(Arrow);
                 if(p.getInventory().getItemInMainHand() != null){
                     item = p.getInventory().getItemInMainHand();
                 }else{

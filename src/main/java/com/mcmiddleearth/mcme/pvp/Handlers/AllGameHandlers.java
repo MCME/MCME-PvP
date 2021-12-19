@@ -18,6 +18,8 @@
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
+import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
+import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -147,6 +149,9 @@ public class AllGameHandlers implements Listener{
         else if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player)
                 damager =  (Player) ((Arrow) e.getDamager()).getShooter();
+            if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver){
+                damagee.damage(100, damager);
+            };
         }
         else return;
         
