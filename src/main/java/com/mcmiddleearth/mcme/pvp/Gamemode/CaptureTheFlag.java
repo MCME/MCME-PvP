@@ -56,6 +56,9 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         state = GameState.IDLE;
     }
 
+    private Player red_flag = null;
+    private Player blue_flag = null;
+
     @Override
     public void Start(Map m, int parameter){
         count = PVPPlugin.getCountdownTime();
@@ -293,15 +296,39 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
             Player p = e.getEntity();
-            if(Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER){
+            if(isBlueFlag(p)){
                 GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
                 map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
+                setBlueFlag(null);
             }
 
-            if(p.getInventory().getHelmet().getType() == Material.RED_BANNER){
+            if(isRedFlag(p)){
                 GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
                 map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
+                setRedFlag(null);
             }//dying with the banner returns it to spawn
+        }
+
+        public void setBlueFlag(Player player){
+            red_flag = player;
+        }
+
+        public void setRedFlag(Player player){
+            blue_flag = player;
+        }
+
+        public boolean isBlueFlag(Player player){
+            if(player == blue_flag){
+                return true;
+            }
+            return false;
+        }
+
+        public boolean isRedFlag(Player player){
+            if(player == red_flag){
+                return true;
+            }
+            return false;
         }
 
         @EventHandler
@@ -320,6 +347,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if (e.getClickedBlock().getType() == Material.RED_BANNER) {//BLUE claims red banner
                     if (Team.getBlue().getMembers().contains(p)) {
                         p.getInventory().setHelmet(new ItemStack(Material.RED_BANNER));
+                        setRedFlag(p);
                         map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.BLUE + e.getPlayer().getName() + " has claimed the Red flag!");
@@ -331,6 +359,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if (e.getClickedBlock().getType() == Material.BLUE_BANNER) {//RED claims blue banner
                     if (Team.getRed().getMembers().contains(p)) {
                         p.getInventory().setHelmet(new ItemStack(Material.BLUE_BANNER));
+                        setBlueFlag(p);
                         map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.RED + e.getPlayer().getName() + " has claimed the Blue flag!");
@@ -341,7 +370,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 //right clicking the enemy banner puts it on your head
 
                 if (e.getClickedBlock().getType() == Material.BLUE_BANNER) {//BLUE SCORES
-                    if (Team.getBlue().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.RED_BANNER) {
+                    if (Team.getBlue().getMembers().contains(p) && isRedFlag(p)) {
                         GearHandler.giveGear(e.getPlayer(),ChatColor.BLUE,SpecialGear.NONE);
                         Points.getScore(ChatColor.BLUE + "Blue:").setScore(blueScore + 1);
                         map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
@@ -352,7 +381,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 }
 
                 if (e.getClickedBlock().getType() == Material.RED_BANNER) {//RED SCORES
-                    if (Team.getRed().getMembers().contains(p) && Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER) {
+                    if (Team.getRed().getMembers().contains(p) && isBlueFlag(p)) {
                         GearHandler.giveGear(e.getPlayer(),ChatColor.RED,SpecialGear.NONE);
                         Points.getScore(ChatColor.RED + "Red:").setScore(redScore + 1);
                         map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
