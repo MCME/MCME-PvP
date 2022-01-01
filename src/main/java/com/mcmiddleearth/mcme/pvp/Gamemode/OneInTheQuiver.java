@@ -390,35 +390,27 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private class Gamepvp implements Listener{
         
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
             int tempDeaths;
 
-            if(e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING){
-                
-                if(e.getEntity().getKiller() instanceof Player){
-                
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
-
-                    PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
+            if(playerDeathEvent.getEntity().getKiller() != null && state == GameState.RUNNING){
+                    Points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() + 1);
+                    PlayerInventory killerInv = playerDeathEvent.getEntity().getKiller().getInventory();
 
                     if(!killerInv.contains(new ItemStack(Material.ARROW,1))){
                          killerInv.addItem(new ItemStack(Material.ARROW,1));
                     }
-
-                    if(playerDeaths.containsKey(e.getEntity().getName())){
-                        tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
-                        playerDeaths.remove(e.getEntity().getName());
-                        playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
+                    if(playerDeaths.containsKey(playerDeathEvent.getEntity().getName())){
+                        tempDeaths = Integer.parseInt(playerDeaths.get(playerDeathEvent.getEntity().getName()));
+                        playerDeaths.remove(playerDeathEvent.getEntity().getName());
+                        playerDeaths.put(playerDeathEvent.getEntity().getName(), String.valueOf(tempDeaths + 1));
                     }else{
-                        playerDeaths.put(e.getEntity().getName(), "1");
+                        playerDeaths.put(playerDeathEvent.getEntity().getName(), "1");
                     }
-
-
-                    if(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() == 21){
+                    if(Points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() == 21){
                         End(map);
-                        e.getEntity().teleport(PVPPlugin.getSpawn());
+                        playerDeathEvent.getEntity().teleport(PVPPlugin.getSpawn());
                     }
-                }
             }
         }
         
@@ -428,13 +420,9 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
                 if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
-                
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
-                
                 }
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
-            
-//                healing.put(e.getPlayer(), new Long(System.currentTimeMillis() + 7500));
             }
         }
     }

@@ -137,6 +137,7 @@ public class GearHandler {
         
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
+            p.getInventory().addItem(items[6]);
             p.getInventory().addItem(items[7]);
         }
         else{
@@ -144,10 +145,6 @@ public class GearHandler {
             p.getInventory().setLeggings(items[2]);
             p.getInventory().setBoots(items[3]);
             
-        }
-
-        if(sg != SpecialGear.ONEINTHEQUIVER){
-            p.getInventory().addItem(items[6]);
         }
         
         p.getInventory().addItem(items[4]);
@@ -201,9 +198,6 @@ public class GearHandler {
             if(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 final Player p = e.getPlayer();
                 ItemStack item = null;
-                ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-                if(!p.getInventory().contains(Arrow) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
-                    p.getInventory().addItem(Arrow);
                 if(p.getInventory().getItemInMainHand() != null){
                     item = p.getInventory().getItemInMainHand();
                 }else{

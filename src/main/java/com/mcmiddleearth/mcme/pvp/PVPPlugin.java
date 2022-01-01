@@ -161,7 +161,6 @@ public class PVPPlugin extends JavaPlugin{
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.Locker(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.AllGameHandlers(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler(), PVPPlugin.getPlugin());
-       // pm.registerEvents(new com.mcmiddleearth.mcme.pvp.PVP.PlayerStat.StatListener(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.Gearpvp(), PVPPlugin.getPlugin());
         pm.registerEvents(new AntiCheatListeners(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.WeatherHandler(), PVPPlugin.getPlugin());

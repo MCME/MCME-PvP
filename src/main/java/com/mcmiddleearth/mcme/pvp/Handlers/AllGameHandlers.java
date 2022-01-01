@@ -44,6 +44,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -52,7 +54,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.*;
 
 /**
- *
  * @author Donovan <dallen@dallen.xyz>
  */
 public class AllGameHandlers implements Listener{
@@ -132,40 +133,48 @@ public class AllGameHandlers implements Listener{
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
-        }
-        else{
+        } else{
             if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING){
                 e.setCancelled(true);
                 return;
             }
         }
-        if(e.getEntity() instanceof Player)
+        if(e.getEntity() instanceof Player) {
             damagee = (Player) e.getEntity();
-        else return;
+        } else return;
 
-        if(e.getDamager() instanceof Player)
+        if(e.getDamager() instanceof Player) {
             damager = (Player) e.getDamager();
+        }
 
-        else if(e.getDamager() instanceof Arrow){
+        if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player)
                 damager =  (Player) ((Arrow) e.getDamager()).getShooter();
             if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver){
-                damagee.damage(100, damager);
-            };
-        }
-        else return;
-        
+                damagee.damage(50);
+            }
+        } else return;
+
         if(Team.areTeamMates(damagee, damager)){
             e.setCancelled(true);
         }
-        
+    }
+
+    /**
+     * Cancels player interaction with inventory
+     *
+     * @param inventoryClickEvent represents Player interacting with any inventory.
+     */
+    @EventHandler
+    public void onInventoryInteract(InventoryClickEvent inventoryClickEvent){
+        inventoryClickEvent.setCancelled(true);
     }
 
     /**
      * Handles player damage taken, cancels damage event if game isn't runnning or if they take contact damage.
      * If the damage is enough to kill them, have them respawn.
      *
-     * @param damageEvent represents damage event of Player
+     * @param damageEvent represents damage event of Player.
      */
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent damageEvent){
@@ -179,8 +188,6 @@ public class AllGameHandlers implements Listener{
             else if (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.CONTACT))
                 damageEvent.setCancelled(true);
 
-            else if(((Player) damageEvent.getEntity()).getHealth() - damageEvent.getFinalDamage() <= 0)
-                ((Player) damageEvent.getEntity()).spigot().respawn();
         }
     }
 

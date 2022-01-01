@@ -169,11 +169,6 @@ public class JoinLeaveHandler implements Listener{
 
                         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                         p.sendMessage(ChatColor.GREEN + "Upcoming Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
-//                        TextComponent message = new TextComponent(ChatColor.YELLOW + "Click to join");
-//                        message.setUnderlined(true);
-//                        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pvp join"));
-//                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.YELLOW + "Click").create()));
-//                        p.spigot().sendMessage(message);
                         p.sendMessage(ChatColor.GREEN + "Do /pvp rules " + PVPCommand.removeSpaces(PVPCommand.getNextGame().getGmType()) + " if you don't know how this gamemode works!");
                     }
                 }
@@ -201,8 +196,7 @@ public class JoinLeaveHandler implements Listener{
             PlayerStat.getPlayerStats().get(player.getName()).saveStat();
             PlayerStat.getPlayerStats().remove(player.getName());
         }
-        //Thompson.getInst().farwell(player);
-        
+
         if(PVPCommand.getRunningGame() != null){
             quitMessage = com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(player.getName()) + player.getName() + ChatColor.GRAY + " left the fight!";
         }
