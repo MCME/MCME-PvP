@@ -58,9 +58,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private boolean pvpRegistered = false;
 
     @Getter
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "PlayerSpawn"
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("PlayerSpawn"));
     
     private GameState state;
     
@@ -69,10 +67,10 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private int count;
     
     private Objective Points;
-    
+
     private Gamepvp pvp;
-    
-    private HashMap<String, String> playerDeaths = new HashMap<String, String>();
+
+    private HashMap<String, String> playerDeaths = new HashMap<>();
     
     private HashMap<String, ChatColor> hasPlayed = new HashMap<String, ChatColor>();
     
@@ -158,67 +156,64 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             
         }
         
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
-                @Override
-                public void run() {
-                    
-                    if(count == 0){
-                        if(state == GameState.RUNNING){
-                            return;
-                        }
-                        //Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), healer, 0, 20);
-                        int k = 0;
-                        
-                        Points = getScoreboard().registerNewObjective("Kills", "dummy");
-                        Points.setDisplayName("Kills");
-                        Points.setDisplaySlot(DisplaySlot.SIDEBAR);
-                        
-                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                            p.sendMessage(ChatColor.GREEN + "Game Start!");
-                            p.setScoreboard(getScoreboard());
-                        }
-                        
-                        for(Player p : players){
-                            
-                            p.setGameMode(GameMode.ADVENTURE);
-                            
-                            ChatHandler.getPlayerPrefixes().put(p.getName(), chatColors[k] + "Player");
-                            ChatHandler.getPlayerColors().put(p.getName(), chatColors[k]);
-                            hasPlayed.put(p.getName(), chatColors[k]);
-                            
-                            Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
-                            
-                            if(p.getName().length() < 14){
-                                p.setPlayerListName(chatColors[k] + p.getName());
-                            }else{
-                                String newName = p.getName().substring(0,13);
-                                p.setPlayerListName(chatColors[k] + newName);
-                            }
-                            GearHandler.giveGear(p, chatColors[k], SpecialGear.ONEINTHEQUIVER);
-                            BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
-                        
-                            if(chatColors.length == (k+1)){
-                                k = 0;
-                            }else{
-                                k++;
-                            }
-                        }
-                        state = GameState.RUNNING;
-                        count = -1;
-                        
-                        for(Player p : players){
-                            p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
-                        }
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), () -> {
 
+            if(count == 0){
+                if(state == GameState.RUNNING){
+                    return;
+                }
+                //Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), healer, 0, 20);
+                int k = 0;
+
+                Points = getScoreboard().registerNewObjective("Kills", "dummy");
+                Points.setDisplayName("Kills");
+                Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    p.sendMessage(ChatColor.GREEN + "Game Start!");
+                    p.setScoreboard(getScoreboard());
+                }
+
+                for(Player p : players){
+
+                    p.setGameMode(GameMode.ADVENTURE);
+
+                    ChatHandler.getPlayerPrefixes().put(p.getName(), chatColors[k] + "Player");
+                    ChatHandler.getPlayerColors().put(p.getName(), chatColors[k]);
+                    hasPlayed.put(p.getName(), chatColors[k]);
+
+                    Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
+
+                    if(p.getName().length() < 14){
+                        p.setPlayerListName(chatColors[k] + p.getName());
+                    }else{
+                        String newName = p.getName().substring(0,13);
+                        p.setPlayerListName(chatColors[k] + newName);
                     }
-                    else if(count != -1){
-                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                            p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
-                        }
-                        count--;
+                    GearHandler.giveGear(p, chatColors[k], SpecialGear.ONEINTHEQUIVER);
+                    BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
+
+                    if(chatColors.length == (k+1)){
+                        k = 0;
+                    }else{
+                        k++;
                     }
                 }
-            }, 40, 20);
+                state = GameState.RUNNING;
+                count = -1;
+
+                for(Player p : players){
+                    p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
+                }
+
+            }
+            else if(count != -1){
+                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
+                }
+                count--;
+            }
+        }, 40, 20);
     }
     
     public void End(Map m){
@@ -226,15 +221,15 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         state = GameState.IDLE;
         hasPlayed.clear();
         
-        ArrayList<String> mostDeaths = new ArrayList<String>();
+        ArrayList<String> mostDeaths = new ArrayList<>();
         int mostDeathsNum = 0;
         String killMessage = "";
         
-        ArrayList<String> mostKills = new ArrayList<String>();
+        ArrayList<String> mostKills = new ArrayList<>();
         int mostKillsNum = 0;
         String deathMessage = "";
         
-        ArrayList<String> highestKd = new ArrayList<String>();
+        ArrayList<String> highestKd = new ArrayList<>();
         double highestKdNum = 0;
         String kDMessage = "";
 

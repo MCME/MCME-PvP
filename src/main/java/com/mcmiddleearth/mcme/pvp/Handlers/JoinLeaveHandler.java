@@ -107,16 +107,16 @@ public class JoinLeaveHandler implements Listener{
                 for (String s : nullPointerColors) {
                     ChatHandler.getPlayerColors().remove(s);
                 }
-                /**
-                 *  Case if no game is running or upcoming
+                /*
+                   Case if no game is running or upcoming
                  */
                 if (PVPCommand.getRunningGame() == null && PVPCommand.getNextGame() == null) {
                     p.teleport(PVPPlugin.getSpawn());
                     //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                     ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
                 }
-                /**
-                 * Case if a game is running or upcoming
+                /*
+                  Case if a game is running or upcoming
                  */
                 else {
                     Map m = null;
@@ -127,8 +127,8 @@ public class JoinLeaveHandler implements Listener{
                     } else {
                         return;
                     }
-                    /**
-                     * If Game is running/counting down (/pvp game start has been performed)
+                    /*
+                      If Game is running/counting down (/pvp game start has been performed)
                      */
                     if (m.getGm().getState() == GameState.RUNNING || m.getGm().getState() == GameState.COUNTDOWN) {
                         Team.getSpectator().add(p);

@@ -49,7 +49,7 @@ public class ArrowHandler implements Listener{
      * @param projectileHitEvent Projectile hitting an object event.
      */
     @EventHandler
-    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent, Block block){
+    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent){
         Projectile projectile = projectileHitEvent.getEntity();
         if (projectile instanceof  Arrow && projectileHitEvent.getHitBlock() != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 100);
@@ -76,7 +76,7 @@ public class ArrowHandler implements Listener{
             Player shooter = (Player) entityShootBowEvent.getEntity();
             System.out.println(shooter);
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            if (shooter.getInventory().contains(Material.ARROW, 0) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
+            if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
                 shooter.getInventory().addItem(Arrow);
         }
     }

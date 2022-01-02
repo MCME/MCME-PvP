@@ -21,14 +21,14 @@ package com.mcmiddleearth.mcme.pvp.command;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
-import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.mcmiddleearth.mcme.pvp.Permissions;
+import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.mcmiddleearth.mcme.pvp.maps.MapEditor;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -39,13 +39,10 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.junit.Assert;
 
 import java.io.File;
 import java.util.*;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 import static com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.CustomItem.PIPE;
 
@@ -61,7 +58,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
     @Getter
     private static String Message = "PvP-server Locked";
     private static Queue<Map> gameQueue = new LinkedList<>();
-    private static Queue<Integer> parameterQueue = new LinkedList<>();;
+    private static Queue<Integer> parameterQueue = new LinkedList<>();
     @Getter private static Map nextGame = null;
     private static int parameter;
     @Getter @Setter protected static Map runningGame = null;
@@ -71,7 +68,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
         reloadMaplist();
         register(LiteralArgumentBuilder.<Player>literal("pvp")
             .then(LiteralArgumentBuilder.<Player>literal("fbt").executes(c->{
-                doCommand("fbt", (Player) c.getSource());
+                doCommand("fbt", c.getSource());
                 return 1; }))
             .then(LiteralArgumentBuilder.<Player>literal("map")
                 .then(LiteralArgumentBuilder.<Player>literal("list").executes(c -> {
@@ -141,7 +138,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                         doCommand("stats", c.getArgument("player", String.class), c.getSource());
                         return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("togglevoxel").requires( c -> c.hasPermission(Permissions.PVP_ADMIN.getPermissionNode()))
-                .then(RequiredArgumentBuilder.<Player, String> argument("bool", new com.mcmiddleearth.mcme.pvp.command.CommandStringArgument("true", "false"))).executes(c -> {
+                .then(RequiredArgumentBuilder.argument("bool", new com.mcmiddleearth.mcme.pvp.command.CommandStringArgument("true", "false"))).executes(c -> {
                 doCommand("toggleVoxel", c.getArgument("bool", String.class), c.getSource());
                 return 1;} ))
             .then(LiteralArgumentBuilder.<Player>literal("lobby").executes(c -> {
@@ -521,6 +518,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 break;
             case "kickPlayer":
                 Player kick = Bukkit.getPlayer(argument);
+                if(kick == null) return;
                 if(nextGame != null)
                     nextGame.playerLeave(kick);
                 if(runningGame != null)
@@ -598,7 +596,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
             case "deleteMap":
                 Map.maps.remove(argument);
                 File f = new File(PVPPlugin.getMapDirectory() + PVPPlugin.getFileSep() + argument);
-                f.delete();
+                if(f.delete())source.sendMessage(ChatColor.RED + "Error while trying to delete, are you sure " + argument + " exists?");
                 reloadMaplist();
                 source.sendMessage(ChatColor.RED + "Deleted " + argument);
                 break;
@@ -729,7 +727,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
         out.writeUTF("ALL");
         out.writeUTF(ChatColor.GRAY + player.getName() + " has started a game\n"
                 +ChatColor.GRAY + "Map: " + ChatColor.GREEN + m.getTitle() + ChatColor.GRAY + ", Gamemode: " + ChatColor.GREEN + m.getGmType()+"\n"
-                +ChatColor.GRAY + "Use " + ChatColor.GREEN + "/pvp join" + ChatColor.GRAY + " to join the game\n"
+                +ChatColor.GRAY + "Use " + ChatColor.GREEN + "/pvp" + ChatColor.GRAY + " to join the game\n"
                 +ChatColor.GRAY + "There are only " + m.getMax() + " slots left\n"
                 +ChatColor.GREEN + "Do /pvp rules " + removeSpaces(m.getGmType()) + " if you don't know how this gamemode works!");
         player.sendPluginMessage(PVPPlugin.getPlugin(), "BungeeCord", out.toByteArray());
@@ -742,14 +740,14 @@ public class PVPCommand extends CommandDispatcher<Player>{
      * @return text without any spaces.
      */
     public static String removeSpaces(String text){
-        String newString = "";
+        StringBuilder newString = new StringBuilder();
 
         char[] chars = text.toCharArray();
 
         for(char c : chars){
-            if(c != ' '){ newString += String.valueOf(c); }
+            if(c != ' '){ newString.append(c); }
         }
-        return newString;
+        return newString.toString();
     }
 
     /**

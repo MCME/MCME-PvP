@@ -18,26 +18,19 @@
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
-import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
-import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
-import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
+import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
+import com.mcmiddleearth.mcme.pvp.PVP.Team;
+import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
-import com.mcmiddleearth.mcme.pvp.PVP.Team;
-import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.sk89q.worldedit.math.BlockVector3;
-import java.io.File;
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,13 +38,15 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.*;
+
+import java.io.File;
+import java.util.HashMap;
 
 /**
  * @author Donovan <dallen@dallen.xyz>
@@ -105,12 +100,12 @@ public class AllGameHandlers implements Listener{
         if(PVPCommand.getRunningGame() != null){
             if(PVPCommand.getRunningGame().getGm().getState() == GameState.COUNTDOWN && !Team.getSpectator().getMembers().contains(e.getPlayer())){
                 if(from.getX() != to.getX() || from.getZ() != to.getZ()){
-                    e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ()));
+                    e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ(), e.getPlayer().getEyeLocation().getYaw(), e.getPlayer().getEyeLocation().getPitch()));
                     return;
                 }
             }
             if(!PVPCommand.getRunningGame().getRegion().contains(BlockVector3.at(to.getX(), to.getY(), to.getZ()))){
-                e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ()));
+                e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ(), e.getPlayer().getEyeLocation().getYaw(), e.getPlayer().getEyeLocation().getPitch()));
                 
                 if(!lastOutOfBounds.containsKey(e.getPlayer().getName())){
                     e.getPlayer().sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
@@ -153,7 +148,7 @@ public class AllGameHandlers implements Listener{
             if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver){
                 damagee.damage(50);
             }
-        } else return;
+        }
 
         if(Team.areTeamMates(damagee, damager)){
             e.setCancelled(true);
@@ -171,7 +166,15 @@ public class AllGameHandlers implements Listener{
     }
 
     /**
-     * Handles player damage taken, cancels damage event if game isn't runnning or if they take contact damage.
+     * Cancels players swapping items to their off-hand
+     *
+     * @param swapHandItemEvent represents player swapping an item to their off-hand.
+     */
+    @EventHandler
+    public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){swapHandItemEvent.setCancelled(true);}
+
+    /**
+     * Handles player damage taken, cancels damage event if game isn't running or if they take contact damage.
      * If the damage is enough to kill them, have them respawn.
      *
      * @param damageEvent represents damage event of Player.

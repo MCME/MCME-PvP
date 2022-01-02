@@ -197,13 +197,13 @@ public class GearHandler {
 
             if(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 final Player p = e.getPlayer();
-                ItemStack item = null;
+                ItemStack item;
                 if(p.getInventory().getItemInMainHand() != null){
                     item = p.getInventory().getItemInMainHand();
                 }else{
                     return;
                 }
-                
+
                 if(item.getType().equals(Material.GHAST_TEAR)){
                     p.getWorld().playEffect(p.getLocation().add(Dir('x', p.getLocation().getYaw())+ 0.5, 1.0, Dir('z', p.getLocation().getYaw())), Effect.SMOKE, 4);
                     return;
@@ -291,18 +291,18 @@ public class GearHandler {
         
         //handle tnt on death
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
-            if(PVPCommand.getRunningGame() != null && e.getEntity() instanceof Player){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
+            if(PVPCommand.getRunningGame() != null){
                 
                 if(PVPCommand.getRunningGame().getTitle().equals("Helms_Deep") &&
                         (PVPCommand.getRunningGame().getGm() instanceof TeamSlayer ||
                         PVPCommand.getRunningGame().getGm() instanceof TeamConquest)){
                     
-                    Player p = e.getEntity();
-                    PlayerInventory inv = p.getInventory();
+                    Player player = playerDeathEvent.getEntity();
+                    PlayerInventory inv = player.getInventory();
                     
                     if(inv.contains(Material.TNT)){
-                        p.sendMessage(ChatColor.RED + "You no longer have the BOMB");
+                        player.sendMessage(ChatColor.RED + "You no longer have the BOMB");
                         
                         for(ItemStack i : inv.getContents()){
                             if(i!= null && i.getType().equals(Material.TNT)){
