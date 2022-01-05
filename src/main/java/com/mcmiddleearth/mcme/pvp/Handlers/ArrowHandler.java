@@ -76,8 +76,13 @@ public class ArrowHandler implements Listener{
             Player shooter = (Player) entityShootBowEvent.getEntity();
             System.out.println(shooter);
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
-                shooter.getInventory().addItem(Arrow);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
+                        shooter.getInventory().addItem(Arrow);
+                }
+            }, 1);
         }
     }
 }
