@@ -71,10 +71,8 @@ public class ArrowHandler implements Listener{
      */
     @EventHandler
     public void onArrowShoot(EntityShootBowEvent entityShootBowEvent){
-        System.out.println("test");
         if(entityShootBowEvent.getEntity() instanceof Player ) {
             Player shooter = (Player) entityShootBowEvent.getEntity();
-            System.out.println(shooter);
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
                 @Override
