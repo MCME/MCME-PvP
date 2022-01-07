@@ -124,7 +124,6 @@ public class AllGameHandlers implements Listener{
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e){
         Player damagee = null;
         Player damager = null;
-        
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
@@ -143,10 +142,10 @@ public class AllGameHandlers implements Listener{
         }
 
         if(e.getDamager() instanceof Arrow){
-            if(((Arrow) e.getDamager()).getShooter() instanceof Player)
-                damager =  (Player) ((Arrow) e.getDamager()).getShooter();
-            if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver){
-                damagee.damage(50);
+            if(((Arrow) e.getDamager()).getShooter() instanceof Player) {
+                damager = (Player) ((Arrow) e.getDamager()).getShooter();
+                if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)
+                    e.setDamage(50);
             }
         }
 
@@ -162,7 +161,8 @@ public class AllGameHandlers implements Listener{
      */
     @EventHandler
     public void onInventoryInteract(InventoryClickEvent inventoryClickEvent){
-        inventoryClickEvent.setCancelled(true);
+        if(PVPCommand.getRunningGame() != null)
+            inventoryClickEvent.setCancelled(true);
     }
 
     /**
@@ -171,7 +171,10 @@ public class AllGameHandlers implements Listener{
      * @param swapHandItemEvent represents player swapping an item to their off-hand.
      */
     @EventHandler
-    public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){swapHandItemEvent.setCancelled(true);}
+    public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){
+        if(PVPCommand.getRunningGame() != null)
+            swapHandItemEvent.setCancelled(true);
+    }
 
     /**
      * Handles player damage taken, cancels damage event if game isn't running or if they take contact damage.

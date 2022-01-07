@@ -115,13 +115,11 @@ public class Map {
         for(Player player : gm.getPlayers()){
             ChatHandler.getPlayerPrefixes().remove(player.getName());
             player.setDisplayName(player.getName());
-            for(Player pl : gm.getPlayers()){
-//                pl.sendMessage(p.getName() + " left");
-            }
             if(!player.getGameMode().equals(GameMode.SPECTATOR)){
                 Curr--;
             }
             player.getInventory().clear();
+            player.setFlying(false);
         }
         gm.getPlayers().clear();
     }

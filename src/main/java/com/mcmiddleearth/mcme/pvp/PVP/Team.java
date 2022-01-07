@@ -106,9 +106,11 @@ public class Team {
             
             if(t == Teams.SPECTATORS && p.getGameMode() != GameMode.SPECTATOR){
                 p.setGameMode(GameMode.SPECTATOR);
+                p.setFlying(true);
             }
             else if(p.getGameMode() != GameMode.ADVENTURE){
                 p.setGameMode(GameMode.ADVENTURE);
+                p.setFlying(false);
             }
             
             if(t == Teams.INFECTED){

@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -45,6 +46,8 @@ import org.bukkit.scoreboard.Objective;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+
+import static org.bukkit.potion.PotionEffectType.GLOWING;
 
 /**
  *
@@ -353,53 +356,63 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private class Gamepvp implements Listener{
         
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
             
-            if(state == GameState.RUNNING && e.getEntity() instanceof Player){
-                Player p = (Player) e.getEntity();
+            if(state == GameState.RUNNING){
+                Player player = playerDeathEvent.getEntity();
                 
-                if(Team.getRed().getMembers().contains(p)){
+                if(Team.getRed().getMembers().contains(player)){
                     
-                    if(redBearer.equals(p) && redCanRespawn){
+                    if(redBearer.equals(player) && redCanRespawn){
                         redCanRespawn = false;
-                        GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
-                        BukkitTeamHandler.addToBukkitTeam(p, ChatColor.RED);
+                        GearHandler.giveGear(player, ChatColor.RED, SpecialGear.NONE);
+                        BukkitTeamHandler.addToBukkitTeam(player, ChatColor.RED);
+                        if(blueCanRespawn){
+                        getBlueBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));
+                        }
                         
                         for(Player pl : Bukkit.getOnlinePlayers()){
                             pl.sendMessage(ChatColor.RED + "Red Team's Ringbearer has been killed!");
                             pl.sendMessage(ChatColor.RED + "They can't respawn!");
                         }
                     }
-                    else if(p.equals(redBearer) && redBearerHasRespawned){
-                        Team.getSpectator().add(p);
+                    else if(player.equals(redBearer) && redBearerHasRespawned){
+                        Team.getSpectator().add(player);
                     }
                     
                     else if(!redCanRespawn){
-                        Team.getSpectator().add(p);
+                        Team.getSpectator().add(player);
+                    }
+                    for(PotionEffect effect:player.getActivePotionEffects()) {
+                        player.removePotionEffect(effect.getType());
                     }
                     
                 }
-                else if(Team.getBlue().getMembers().contains(p)){
+                else if(Team.getBlue().getMembers().contains(player)){
                     
-                    if(blueBearer.equals(p) && blueCanRespawn){
+                    if(blueBearer.equals(player) && blueCanRespawn){
                         blueCanRespawn = false;
-                        GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
-                        BukkitTeamHandler.addToBukkitTeam(p, ChatColor.BLUE);
-                        
+                        GearHandler.giveGear(player, ChatColor.BLUE, SpecialGear.NONE);
+                        BukkitTeamHandler.addToBukkitTeam(player, ChatColor.BLUE);
+                        if(redCanRespawn){
+                            getRedBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));
+                        }
                         for(Player pl : Bukkit.getOnlinePlayers()){
                             pl.sendMessage(ChatColor.BLUE + "Blue Team's Ringbearer has been killed!");
                             pl.sendMessage(ChatColor.BLUE + "They can't respawn!");
                         }
                     }
                     
-                    else if(p.equals(blueBearer) && blueBearerHasRespawned){
-                        Team.getSpectator().add(p);
+                    else if(player.equals(blueBearer) && blueBearerHasRespawned){
+                        Team.getSpectator().add(player);
                     }
                     
                     else if(!blueCanRespawn){
-                        Team.getSpectator().add(p);
+                        Team.getSpectator().add(player);
                     }
-                    
+                    for(PotionEffect effect:player.getActivePotionEffects()) {
+                        player.removePotionEffect(effect.getType());
+                    }
                 }
                 
                 Points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());

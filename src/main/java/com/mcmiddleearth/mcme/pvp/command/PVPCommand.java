@@ -42,6 +42,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.junit.Assert;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.CustomItem.PIPE;
@@ -533,11 +534,13 @@ public class PVPCommand extends CommandDispatcher<Player>{
             case "stats":
                 Player player = Bukkit.getPlayer(argument);
                 PlayerStat playerStat = PlayerStat.getPlayerStats().get(player.getName());
+                DecimalFormat KDFormat = new DecimalFormat("#0.00");
+                String KD = String.valueOf(PlayerStat.getKD(player));
 
                 source.sendMessage(ChatColor.GREEN + "Showing stats for " + player.getDisplayName());
                 source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
                 source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
-                source.sendMessage(ChatColor.GRAY + "KD: " + PlayerStat.getKD(player));
+                source.sendMessage(ChatColor.GRAY + "KD: " + KDFormat.format(KD));
                 source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
                 source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
                 source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());

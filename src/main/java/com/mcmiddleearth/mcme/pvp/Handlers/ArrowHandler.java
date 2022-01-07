@@ -21,11 +21,9 @@ package com.mcmiddleearth.mcme.pvp.Handlers;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
-import com.sk89q.worldedit.entity.Entity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -34,7 +32,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -52,7 +49,7 @@ public class ArrowHandler implements Listener{
     public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent){
         Projectile projectile = projectileHitEvent.getEntity();
         if (projectile instanceof  Arrow && projectileHitEvent.getHitBlock() != null) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 100);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 80);
         }
     }
 
@@ -66,7 +63,7 @@ public class ArrowHandler implements Listener{
     }
 
     /**
-     * Adds arrow back to player's inventory after shooting one (If not OITQ).
+     * (If not OITQ) Adds arrow back to player's inventory after shooting one.
      * @param entityShootBowEvent Entity shoots bow.
      */
     @EventHandler
@@ -74,13 +71,9 @@ public class ArrowHandler implements Listener{
         if(entityShootBowEvent.getEntity() instanceof Player ) {
             Player shooter = (Player) entityShootBowEvent.getEntity();
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
-                @Override
-                public void run() {
-                    if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver))
-                        shooter.getInventory().addItem(Arrow);
-                }
-            }, 1);
+            if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> shooter.getInventory().addItem(Arrow), 1);
+            }
         }
     }
 }
