@@ -327,7 +327,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 source.setGameMode(GameMode.ADVENTURE);
                 break;
             case "leave":
-                source.performCommand("world");
+                sendPlayerToMain(source);
             case "spectate":
                 if(nextGame != null){
                     map = nextGame;
