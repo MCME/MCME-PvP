@@ -32,6 +32,8 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.potion.PotionEffect;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -120,6 +122,9 @@ public class Map {
             }
             player.getInventory().clear();
             player.setFlying(false);
+            for(PotionEffect effect:player.getActivePotionEffects()) {
+                player.removePotionEffect(effect.getType());
+            }
         }
         gm.getPlayers().clear();
     }
