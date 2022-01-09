@@ -39,41 +39,50 @@ import org.bukkit.inventory.ItemStack;
  *
  * @author barteldvn
  */
-public class ArrowHandler implements Listener{
+public class ArrowHandler implements Listener {
 
     /**
      * Removes arrow after it hits a block.
+     *
      * @param projectileHitEvent Projectile hitting an object event.
      */
     @EventHandler
-    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent){
+    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent) {
         Projectile projectile = projectileHitEvent.getEntity();
-        if (projectile instanceof  Arrow && projectileHitEvent.getHitBlock() != null) {
+        if (projectile instanceof Arrow && projectileHitEvent.getHitBlock() != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 80);
         }
     }
 
     /**
      * Cancels players picking up arrows.
+     *
      * @param arrowPickupEvent Player arrow pickup event.
      */
     @EventHandler
-    public void onArrowPickup (PlayerPickupArrowEvent arrowPickupEvent){
+    public void onArrowPickup(PlayerPickupArrowEvent arrowPickupEvent) {
         arrowPickupEvent.setCancelled(true);
     }
 
     /**
      * (If not OITQ) Adds arrow back to player's inventory after shooting one.
+     *
      * @param entityShootBowEvent Entity shoots bow.
      */
     @EventHandler
-    public void onArrowShoot(EntityShootBowEvent entityShootBowEvent){
-        if(entityShootBowEvent.getEntity() instanceof Player ) {
+    public void onArrowShoot(EntityShootBowEvent entityShootBowEvent) {
+        if (entityShootBowEvent.getEntity() instanceof Player) {
             Player shooter = (Player) entityShootBowEvent.getEntity();
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> shooter.getInventory().addItem(Arrow), 1);
-            }
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    if (!shooter.getInventory().contains(Material.ARROW) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
+                        shooter.getInventory().addItem(Arrow);
+                    }
+                }
+
+            }, 1);
         }
     }
 }
