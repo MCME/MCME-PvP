@@ -22,6 +22,7 @@ import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.Permissions;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
@@ -161,7 +162,10 @@ public class AllGameHandlers implements Listener{
      */
     @EventHandler
     public void onInventoryInteract(InventoryClickEvent inventoryClickEvent){
-        if(PVPCommand.getRunningGame() != null)
+        if (inventoryClickEvent.getWhoClicked().hasPermission(Permissions.RUN.getPermissionNode())) {
+            return;
+        }
+        else
             inventoryClickEvent.setCancelled(true);
     }
 
@@ -172,7 +176,10 @@ public class AllGameHandlers implements Listener{
      */
     @EventHandler
     public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){
-        if(PVPCommand.getRunningGame() != null)
+        if (swapHandItemEvent.getPlayer().hasPermission(Permissions.RUN.getPermissionNode())) {
+            return;
+        }
+        else
             swapHandItemEvent.setCancelled(true);
     }
 
