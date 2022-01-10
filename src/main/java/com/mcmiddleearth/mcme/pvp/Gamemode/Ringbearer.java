@@ -292,10 +292,13 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         else if((redCanRespawn && !blueCanRespawn)){
-            addToTeam(p, Teams.RED);
+            return false;
         }
         else if((blueCanRespawn && !redCanRespawn) || Team.getBlue().getAllMembers().contains(p)){
-            addToTeam(p, Teams.BLUE);
+            return false;
+        }
+        else if((!redCanRespawn && !blueCanRespawn)){
+            return false;
         }
         else if(redCanRespawn && blueCanRespawn){
             
