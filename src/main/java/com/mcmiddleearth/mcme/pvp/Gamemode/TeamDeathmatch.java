@@ -276,7 +276,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     @Override
     public boolean midgamePlayerJoin(Player p){
-        if(Team.getRed().size() >= (startingRedNum) || Team.getBlue().size() >= (startingBlueNum)){
+        if(Team.getRed().size() >= (startingRedNum) && Team.getBlue().size() >= (startingBlueNum)){
             
             if(Team.getRed().size() >= Team.getBlue().size()){
                 addToTeam(p, Teams.BLUE);
