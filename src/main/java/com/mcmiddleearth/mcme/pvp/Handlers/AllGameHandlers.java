@@ -39,10 +39,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -156,30 +153,41 @@ public class AllGameHandlers implements Listener{
     }
 
     /**
-     * Cancels player interaction with inventory
+     * Cancels a player, without the RUN permission, trying to fly.
+     *
+     * @param playerToggleFlightEvent represents a Player toggling flight.
+     */
+    @EventHandler
+    public void onPlayerToggleFlight(PlayerToggleFlightEvent playerToggleFlightEvent){
+        System.out.println("toggle flight");
+        Player player = playerToggleFlightEvent.getPlayer();
+        if(!player.hasPermission(Permissions.RUN.getPermissionNode())){
+            System.out.println("toggle flight without perms to");
+            playerToggleFlightEvent.setCancelled(true);
+            player.setFlying(false);
+            player.setAllowFlight(false);
+        }
+    }
+
+    /**
+     * Cancels player, without the RUN permission, interaction with inventory.
      *
      * @param inventoryClickEvent represents Player interacting with any inventory.
      */
     @EventHandler
-    public void onInventoryInteract(InventoryClickEvent inventoryClickEvent){
-        if (inventoryClickEvent.getWhoClicked().hasPermission(Permissions.RUN.getPermissionNode())) {
-            return;
-        }
-        else
+    public void onInventoryInteract(InventoryClickEvent inventoryClickEvent) {
+        if (!inventoryClickEvent.getWhoClicked().hasPermission(Permissions.RUN.getPermissionNode()))
             inventoryClickEvent.setCancelled(true);
     }
 
     /**
-     * Cancels players swapping items to their off-hand
+     * Cancels player, without the RUN permission, swapping items to their off-hand.
      *
      * @param swapHandItemEvent represents player swapping an item to their off-hand.
      */
     @EventHandler
     public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){
-        if (swapHandItemEvent.getPlayer().hasPermission(Permissions.RUN.getPermissionNode())) {
-            return;
-        }
-        else
+        if (!swapHandItemEvent.getPlayer().hasPermission(Permissions.RUN.getPermissionNode()))
             swapHandItemEvent.setCancelled(true);
     }
 

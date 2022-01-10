@@ -339,7 +339,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     source.sendMessage(ChatColor.RED + "There is no queued or running game!");
                     break;
                 }
-                if(map.getGm().getState() == GameState.COUNTDOWN || map.getGm().getState() == GameState.RUNNING  ){
+                if(map.getGm().getState() == GameState.COUNTDOWN || map.getGm().getState() == GameState.RUNNING ){
                     map.playerLeave(source);
                     ChatHandler.getPlayerColors().put(source.getName(), ChatColor.WHITE);
                     ChatHandler.getPlayerPrefixes().remove(source.getName());
