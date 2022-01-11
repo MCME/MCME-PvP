@@ -4,8 +4,10 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 public class ActionBarHandler {
 
@@ -18,7 +20,7 @@ public class ActionBarHandler {
             @Override
             public void run() {
                 if (PVPCommand.isLocked())
-                    ActionBarHandler.sendActionBar(player, "test");
+                    ActionBarHandler.sendActionBar(player, ChatColor.RED + "Locked");
                 else{
                     ActionBarHandler.sendActionBar(player, "");
                     this.cancel();

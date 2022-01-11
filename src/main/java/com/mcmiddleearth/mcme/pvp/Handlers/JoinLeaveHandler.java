@@ -78,6 +78,9 @@ public class JoinLeaveHandler implements Listener{
                 if (!p.isDead()) {
                     p.setHealth(20);
                 }
+                if (PVPCommand.isLocked()) {
+                    ActionBarHandler.sendLockedMessage(p);
+                }
 
                 p.setTotalExperience(0);
                 p.setExp(0);
@@ -165,9 +168,7 @@ public class JoinLeaveHandler implements Listener{
                                 BukkitTeamHandler.addToBukkitTeam(p, ChatColor.GREEN);
                             }
                         }
-                        if (PVPCommand.isLocked()) {
-                            ActionBarHandler.sendLockedMessage(p);
-                        }
+
 
                         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                         p.sendMessage(ChatColor.GREEN + "Upcoming Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
