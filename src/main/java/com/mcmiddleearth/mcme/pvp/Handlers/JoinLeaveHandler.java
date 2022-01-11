@@ -176,7 +176,7 @@ public class JoinLeaveHandler implements Listener{
                     }
                 }
             }
-        }, 20);
+        }, 1);
 
     }
 
