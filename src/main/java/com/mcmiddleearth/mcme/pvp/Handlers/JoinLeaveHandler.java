@@ -29,7 +29,6 @@ import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +71,7 @@ public class JoinLeaveHandler implements Listener{
                             p.sendMessage(org.bukkit.ChatColor.RED + "No resource pack was set for this map!");
                         }*/
         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
-        switch (Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
             @Override
             public void run() {
 
@@ -166,6 +165,9 @@ public class JoinLeaveHandler implements Listener{
                                 BukkitTeamHandler.addToBukkitTeam(p, ChatColor.GREEN);
                             }
                         }
+                        if (PVPCommand.isLocked()) {
+                            ActionBarHandler.sendLockedMessage(p);
+                        }
 
                         //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                         p.sendMessage(ChatColor.GREEN + "Upcoming Game: " + ChatColor.BLUE + m.getGmType() + ChatColor.GREEN + " on " + ChatColor.RED + m.getTitle());
@@ -173,10 +175,10 @@ public class JoinLeaveHandler implements Listener{
                     }
                 }
             }
-        }, 20)) {
-        }
+        }, 20);
+
     }
-    
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e){
         e.setQuitMessage(handlePlayerQuit(e.getPlayer()));

@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
@@ -39,7 +40,6 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.junit.Assert;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -409,11 +409,13 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 break;
             case "stats":
                 PlayerStat playerStat = PlayerStat.getPlayerStats().get(source.getName());
+                DecimalFormat KDFormat = new DecimalFormat("#0.00");
+                String KD = KDFormat.format(PlayerStat.getKD(source));
 
                 source.sendMessage(ChatColor.GREEN + "Showing stats for " + source.getDisplayName());
                 source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
                 source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
-                source.sendMessage(ChatColor.GRAY + "KD: " + PlayerStat.getKD(source));
+                source.sendMessage(ChatColor.GRAY + "KD: " + KD);
                 source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
                 source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
                 source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
@@ -433,6 +435,8 @@ public class PVPCommand extends CommandDispatcher<Player>{
                             p.sendMessage(Message);
                             sendPlayerToMain(p);
                         }
+                        else
+                        ActionBarHandler.sendLockedMessage(p);
                     }
                 }
                 break;
@@ -535,12 +539,12 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 Player player = Bukkit.getPlayer(argument);
                 PlayerStat playerStat = PlayerStat.getPlayerStats().get(player.getName());
                 DecimalFormat KDFormat = new DecimalFormat("#0.00");
-                String KD = String.valueOf(PlayerStat.getKD(player));
+                String KD = KDFormat.format(PlayerStat.getKD(player));
 
                 source.sendMessage(ChatColor.GREEN + "Showing stats for " + player.getDisplayName());
                 source.sendMessage(ChatColor.GRAY + "Kills: " + playerStat.getKills());
                 source.sendMessage(ChatColor.GRAY + "Deaths: " + playerStat.getDeaths());
-                source.sendMessage(ChatColor.GRAY + "KD: " + KDFormat.format(KD));
+                source.sendMessage(ChatColor.GRAY + "KD: " + KD);
                 source.sendMessage(ChatColor.GRAY + "Games Played: " + playerStat.getGamesPlayed());
                 source.sendMessage(ChatColor.GRAY + "    Won: " + playerStat.getGamesWon());
                 source.sendMessage(ChatColor.GRAY + "    Lost: " + playerStat.getGamesLost());
