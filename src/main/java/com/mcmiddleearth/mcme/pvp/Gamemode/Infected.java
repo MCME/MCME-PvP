@@ -428,7 +428,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         if(time >= 120){
             Team.getInfected().add(p);
             p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
-            Points.getScore(ChatColor.DARK_RED + "Survivors:").setScore(Team.getInfected().size());
+            Points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
             super.midgamePlayerJoin(p);
 
             GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
