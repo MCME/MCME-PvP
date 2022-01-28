@@ -79,7 +79,7 @@ public class JoinLeaveHandler implements Listener{
                     p.setHealth(20);
                 }
                 if (PVPCommand.isLocked()) {
-                    ActionBarHandler.sendLockedMessage(p);
+                    ActionBarHandler.sendLockedMessage();
                 }
 
                 p.setTotalExperience(0);

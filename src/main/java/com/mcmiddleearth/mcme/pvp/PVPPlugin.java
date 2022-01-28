@@ -163,7 +163,6 @@ public class PVPPlugin extends JavaPlugin{
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler(), PVPPlugin.getPlugin());
         pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.Gearpvp(), PVPPlugin.getPlugin());
         pm.registerEvents(new AntiCheatListeners(), PVPPlugin.getPlugin());
-        pm.registerEvents(new com.mcmiddleearth.mcme.pvp.Handlers.WeatherHandler(), PVPPlugin.getPlugin());
         Bukkit.getWorld("world").setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {

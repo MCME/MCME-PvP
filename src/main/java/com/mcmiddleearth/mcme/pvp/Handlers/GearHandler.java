@@ -281,14 +281,7 @@ public class GearHandler {
                 }
             }
         }
-        //return accidentally-dropped items
-        @EventHandler
-        public void returnDroppedItems(PlayerDropItemEvent e){
-            if(PVPCommand.getRunningGame() != null){
-                e.setCancelled(true);
-            }
-        }
-        
+
         //handle tnt on death
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){

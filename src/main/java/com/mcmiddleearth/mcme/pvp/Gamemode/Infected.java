@@ -50,10 +50,8 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "InfectedSpawn",
-        "SurvivorSpawn",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("InfectedSpawn",
+            "SurvivorSpawn"));
     
     private GameState state;
     
@@ -297,7 +295,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendMessage(ChatColor.DARK_RED + "Game over!");
                 player.sendMessage(ChatColor.DARK_RED + "Infected Wins!");
-
             }
             PlayerStat.addGameWon(Teams.INFECTED);
             PlayerStat.addGameLost(Teams.SURVIVORS);

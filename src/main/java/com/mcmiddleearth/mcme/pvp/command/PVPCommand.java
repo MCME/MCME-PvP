@@ -436,7 +436,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                             sendPlayerToMain(p);
                         }
                         else
-                        ActionBarHandler.sendLockedMessage(p);
+                        ActionBarHandler.sendLockedMessage();
                     }
                 }
                 break;

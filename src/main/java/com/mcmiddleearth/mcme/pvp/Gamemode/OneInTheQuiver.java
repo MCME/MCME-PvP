@@ -98,27 +98,6 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         state = GameState.IDLE;
     }
     
-//    Runnable healer = new Runnable(){
-//
-//        public void run(){
-//            boolean healed = false;
-//
-//            for(Player p : healing.keySet()){
-//
-//
-//                if(System.currentTimeMillis() < healing.get(p)){
-//                    p.setHealth(20);
-//                    healed = true;
-//                }
-//
-//            }
-//            if(!healed){
-//                healing.clear();
-//            }
-//        }
-//
-//    };
-    
     @Override
     public void Start(Map m, int parameter){
         super.Start(m, parameter);
@@ -162,7 +141,6 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if(state == GameState.RUNNING){
                     return;
                 }
-                //Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), healer, 0, 20);
                 int k = 0;
 
                 Points = getScoreboard().registerNewObjective("Kills", "dummy");
@@ -414,8 +392,11 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
+                e.getPlayer().getInventory().remove(new ItemStack(Material.BOW,1));
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
                 if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
+
                 }
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
             }

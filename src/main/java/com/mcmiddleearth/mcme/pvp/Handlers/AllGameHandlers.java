@@ -56,9 +56,7 @@ public class AllGameHandlers implements Listener{
         if(e.getEntity().getKiller() == null){
             return;
         }
-        
         e.setDeathMessage(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getName()) + e.getEntity().getName() + ChatColor.GRAY + " was killed by " + com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName());
-        
     }
     
     @EventHandler
@@ -153,16 +151,35 @@ public class AllGameHandlers implements Listener{
     }
 
     /**
+     * Handles player damage taken, cancels damage event if game isn't running or if they take contact damage.
+     * If the damage is enough to kill them, have them respawn.
+     *
+     * @param damageEvent represents damage event of Player.
+     */
+    @EventHandler
+    public void onPlayerDamage(EntityDamageEvent damageEvent){
+        if(damageEvent.getEntity() instanceof Player){
+            if(PVPCommand.getRunningGame() == null)
+                damageEvent.setCancelled(true);
+
+            else if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING)
+                damageEvent.setCancelled(true);
+
+            else if (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.CONTACT))
+                damageEvent.setCancelled(true);
+
+        }
+    }
+
+    /**
      * Cancels a player, without the RUN permission, trying to fly.
      *
      * @param playerToggleFlightEvent represents a Player toggling flight.
      */
     @EventHandler
     public void onPlayerToggleFlight(PlayerToggleFlightEvent playerToggleFlightEvent){
-        System.out.println("toggle flight");
         Player player = playerToggleFlightEvent.getPlayer();
         if(!player.hasPermission(Permissions.RUN.getPermissionNode())){
-            System.out.println("toggle flight without perms to");
             playerToggleFlightEvent.setCancelled(true);
             player.setFlying(false);
             player.setAllowFlight(false);
@@ -191,27 +208,6 @@ public class AllGameHandlers implements Listener{
             swapHandItemEvent.setCancelled(true);
     }
 
-    /**
-     * Handles player damage taken, cancels damage event if game isn't running or if they take contact damage.
-     * If the damage is enough to kill them, have them respawn.
-     *
-     * @param damageEvent represents damage event of Player.
-     */
-    @EventHandler
-    public void onPlayerDamage(EntityDamageEvent damageEvent){
-        if(damageEvent.getEntity() instanceof Player){
-            if(PVPCommand.getRunningGame() == null)
-                damageEvent.setCancelled(true);
-
-            else if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING)
-                damageEvent.setCancelled(true);
-
-            else if (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.CONTACT))
-                damageEvent.setCancelled(true);
-
-        }
-    }
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent e){
         if(e.getClickedBlock() == null)
@@ -222,6 +218,13 @@ public class AllGameHandlers implements Listener{
             if(e.getClickedBlock().getType().equals(Material.BEACON) || e.getClickedBlock().getType().equals(Material.ANVIL) || e.getClickedBlock().getType().equals(Material.CHEST) || e.getClickedBlock().getType().equals(Material.FURNACE) || e.getClickedBlock().getType().equals(Material.TRAPPED_CHEST) || e.getClickedBlock().getType().equals(Material.CRAFTING_TABLE) || e.getClickedBlock().getType().equals(Material.SHULKER_BOX)){
                 e.setUseInteractedBlock(Event.Result.DENY);
             }
+        }
+    }
+
+    @EventHandler
+    public void returnDroppedItems(PlayerDropItemEvent e){
+        if(PVPCommand.getRunningGame() != null){
+            e.setCancelled(true);
         }
     }
     

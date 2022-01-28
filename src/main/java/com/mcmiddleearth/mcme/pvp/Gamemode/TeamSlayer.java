@@ -53,14 +53,14 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn1",
-        "RedSpawn2",
-        "RedSpawn3",
-        "BlueSpawn1",
-        "BlueSpawn2",
-        "BlueSpawn3",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(
+            "RedSpawn1",
+            "RedSpawn2",
+            "RedSpawn3",
+            "BlueSpawn1",
+            "BlueSpawn2",
+            "BlueSpawn3"
+    ));
     
     
     private GameState state;
@@ -134,6 +134,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         break;
                 }
             }
+
             else if(Team.getBlue().size() < Team.getRed().size()){
                 Team.getBlue().add(p);
                 switch(lastBlueSpawn){
