@@ -250,7 +250,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                             if (blueFlagStolen)
                                 ActionBarHandler.sendActionBar(player, ChatColor.RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured the flag, protect them!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                     for (Player player : Team.getRed().getMembers()) {
@@ -260,7 +260,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                             if (redFlagStolen)
                                 ActionBarHandler.sendActionBar(player, ChatColor.RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured the flag, protect them!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                 }
