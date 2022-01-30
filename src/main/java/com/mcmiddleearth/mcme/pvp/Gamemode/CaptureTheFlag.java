@@ -399,8 +399,8 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.BLUE + e.getPlayer().getName() + " has captured the Red flag!");
                         }
-                        blueFlagStolen = false;
-                        blueFlagCarrier = null;
+                        redFlagStolen = false;
+                        redFlagCarrier = null;
                     }
                 }
 
@@ -412,8 +412,8 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.RED + e.getPlayer().getName() + " has captured the Blue flag!");
                         }
-                        redFlagStolen = false;
-                        redFlagCarrier = null;
+                        blueFlagStolen = false;
+                        blueFlagCarrier = null;
                     }
                 }
 
