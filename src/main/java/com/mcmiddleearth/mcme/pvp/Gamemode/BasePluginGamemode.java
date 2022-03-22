@@ -72,29 +72,12 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
-        /*if(m.getResourcePackURL() != null){
-            for(Player p : Bukkit.getOnlinePlayers()){
-                if(!players.contains(p)){
-                    try{
-                        p.setResourcePack(m.getResourcePackURL());
-                    }
-                    catch(NullPointerException e){
-                        p.sendMessage(ChatColor.RED + "No resource pack was set for this map!");
-                    }
-                }
-            }
-        }*/
-        
     }
     
     @Override
     public void End(Map m){
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
-
-        /*for(Player p : Bukkit.getOnlinePlayers()){
-            p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
-        }*/
         
         Team.resetAllTeams();
         

@@ -149,9 +149,15 @@ public class GearHandler {
         
         p.getInventory().addItem(items[4]);
         p.getInventory().addItem(items[5]);
-        
-        ItemStack Arrows = new ItemStack(Material.ARROW, 1);
-        p.getInventory().addItem(Arrows);
+
+        if(sg == SpecialGear.ONEINTHEQUIVER) {
+            ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+            p.getInventory().setItem(9, Arrow);
+        }
+        else {
+            ItemStack Arrows = new ItemStack(Material.ARROW, 24);
+            p.getInventory().setItem(9, Arrows);
+        }
         
         if(sg == SpecialGear.RINGBEARER){
             giveCustomItem(p, CustomItem.RING);

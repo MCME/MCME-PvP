@@ -19,6 +19,8 @@
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
+import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
+import com.mcmiddleearth.mcme.pvp.Gamemode.Infected;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
@@ -27,6 +29,7 @@ import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.sk89q.worldedit.math.BlockVector3;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -42,6 +45,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
@@ -208,15 +214,42 @@ public class AllGameHandlers implements Listener{
             swapHandItemEvent.setCancelled(true);
     }
 
+    /**
+     * On playerInteractEvent with chest for all GM except OITQ the player gets new arrows.
+     * All other container interactions are blocked.
+     *
+     * @param playerInteractEvent represents player clicking a material
+     */
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent e){
-        if(e.getClickedBlock() == null)
-        {
+    public void onPlayerInteract(PlayerInteractEvent playerInteractEvent){
+        Player player = playerInteractEvent.getPlayer();
+        if (playerInteractEvent.getClickedBlock() == null)
             return;
-        }
+        Material material = playerInteractEvent.getClickedBlock().getType();
         if(PVPCommand.getRunningGame() != null){
-            if(e.getClickedBlock().getType().equals(Material.BEACON) || e.getClickedBlock().getType().equals(Material.ANVIL) || e.getClickedBlock().getType().equals(Material.CHEST) || e.getClickedBlock().getType().equals(Material.FURNACE) || e.getClickedBlock().getType().equals(Material.TRAPPED_CHEST) || e.getClickedBlock().getType().equals(Material.CRAFTING_TABLE) || e.getClickedBlock().getType().equals(Material.SHULKER_BOX)){
-                e.setUseInteractedBlock(Event.Result.DENY);
+
+            if(material.equals(Material.BEACON) || material.equals(Material.ANVIL) || material.equals(Material.CHEST)|| material.equals(Material.FURNACE) || material.equals(Material.TRAPPED_CHEST) || material.equals(Material.CRAFTING_TABLE) || material.equals(Material.SHULKER_BOX)){
+                playerInteractEvent.setCancelled(true);
+            }
+
+            if(material.equals(Material.CHEST) && !player.getInventory().contains(Material.ARROW, 24) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
+                playerInteractEvent.setCancelled(true);
+                final int[] counter = {3};
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 5, true, false));
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (counter[0] == 0) {
+                            ActionBarHandler.sendActionBar(player, ChatColor.GREEN + "Restocked!");
+                            cancel();
+                        }
+                        ActionBarHandler.sendActionBar(player, ChatColor.WHITE + "Restocking Supplies... " + counter[0]);
+                        counter[0]--;
+                    }
+                }.runTaskTimer(PVPPlugin.getPlugin(), 0,20);
+
+                ItemStack Arrows = new ItemStack(Material.ARROW, 24);
+                player.getInventory().setItem(9, Arrows);
             }
         }
     }

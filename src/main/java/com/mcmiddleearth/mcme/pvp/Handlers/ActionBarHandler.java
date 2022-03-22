@@ -23,14 +23,14 @@ public class ActionBarHandler {
                 if (PVPCommand.isLocked()) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission(Permissions.JOIN.getPermissionNode())) {
-                            ActionBarHandler.sendActionBar(player, ChatColor.RED + "Locked");
+                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "Server Locked");
                         }
                     }
                 }else {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                             ActionBarHandler.sendActionBar(player, "");
                     }
-                            this.cancel();
+                            cancel();
                         }
                     }
             }.runTaskTimer(PVPPlugin.getPlugin(), 0,20);

@@ -392,11 +392,10 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 Random random = new Random();
-                e.getPlayer().getInventory().remove(new ItemStack(Material.BOW,1));
+                e.getPlayer().getInventory().remove(Material.BOW);
                 e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
                 if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
-
                 }
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
             }

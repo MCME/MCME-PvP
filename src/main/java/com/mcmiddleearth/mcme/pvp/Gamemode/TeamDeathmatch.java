@@ -51,10 +51,8 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn",
-        "BlueSpawn",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("RedSpawn",
+            "BlueSpawn"));
     
     private GameState state;
     

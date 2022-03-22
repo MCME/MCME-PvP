@@ -54,8 +54,8 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
     private boolean midgameJoin = true;
 
-    private boolean redFlagStolen =false;
-    private boolean blueFlagStolen =false;
+    private boolean redFlagStolen;
+    private boolean blueFlagStolen;
     private Player blueFlagCarrier;
     private Player redFlagCarrier;
 
@@ -238,29 +238,36 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         return "whatever it is the gamemode needs to end, the goal basically, like kills or time";
     }
 
+    /**
+     * Sets Actionbar messages to indicate the flag status of your and the other's team.
+     */
     public void actionBarFlagStatus(){
+        blueFlagStolen =false;
+        redFlagStolen = false;
+        blueFlagCarrier = null;
+        redFlagCarrier = null;
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (blueFlagStolen || redFlagStolen) {
                     for (Player player : Team.getBlue().getMembers()) {
                         if (redFlagCarrier != null && player == redFlagCarrier)
-                            ActionBarHandler.sendActionBar(player, ChatColor.RED + "You have the enemy flag! Right click on our spawn flag to capture it!");
+                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
                         else {
                             if (blueFlagStolen)
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "The enemy stole your flag, retrieve it!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured their flag, protect them!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                     for (Player player : Team.getRed().getMembers()) {
                         if (blueFlagCarrier != null && player == blueFlagCarrier)
-                            ActionBarHandler.sendActionBar(player, ChatColor.RED + "You have the enemy flag! Right click on our spawn flag to capture it!");
+                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
                         else {
                             if (redFlagStolen)
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "The enemy stole your flag, retrieve it!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.RED + "A teammate has captured their flag, protect them!");
+                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                 }
