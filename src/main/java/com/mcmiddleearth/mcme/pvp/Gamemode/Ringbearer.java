@@ -55,8 +55,6 @@ import static org.bukkit.potion.PotionEffectType.GLOWING;
  */
 public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {//Handled by plugin
     
-    private final int target = 100;
-    
     private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
         "RedSpawn",
         "BlueSpawn",
@@ -67,21 +65,17 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private int count;
     
     private GameState state;
-    
-    boolean hasTeams = false;
-    
+    private GamemodeHandlers pvp;
+
     private Player redBearer = null;
+    private Player blueBearer = null;
     
     private boolean redCanRespawn;
     private boolean redBearerHasRespawned;
     
-    private Player blueBearer = null;
-    
     private boolean blueCanRespawn;
     private boolean blueBearerHasRespawned;
-    
-    private Gamepvp pvp;
-    
+
     private boolean pvpRegistered = false;
     
     private Objective Points;
@@ -140,7 +134,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            pvp = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
             pm.registerEvents(pvp, PVPPlugin.getPlugin());
             pvpRegistered = true;
@@ -167,7 +161,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         
@@ -356,7 +350,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     public String requiresParameter(){
         return "none";
     }
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
@@ -469,7 +463,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     }
                 }
                 else{
-                    e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 2, 0));
+                    e.setRespawnLocation(map.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
                 }
             }
         }
@@ -547,13 +541,10 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
     }
 
-    public int getTarget() {
-        return target;
-    }
 
     @Override
     public ArrayList<String> getNeededPoints() {
-        return NeededPoints;
+        return new ArrayList<>(this.NeededPoints);
     }
 
     @Override

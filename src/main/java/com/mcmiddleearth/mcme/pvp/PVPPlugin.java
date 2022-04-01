@@ -21,7 +21,6 @@ package com.mcmiddleearth.mcme.pvp;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.mcmiddleearth.mcme.pvp.Gamemode.anticheat.AntiCheatListeners;
-import com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler;
 import com.mcmiddleearth.mcme.pvp.Util.CLog;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -56,22 +55,21 @@ import java.util.stream.Collectors;
  * @author Donovan
  */
 public class PVPPlugin extends JavaPlugin{
-    private static boolean debug = true;
+    private static final boolean debug = true;
     @Getter private static PVPPlugin plugin;
     private String spawnWorld;
-    private static String FileSep = System.getProperty("file.separator");
-    private ArrayList<String> noHunger = new ArrayList<String>();
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final String FileSep = System.getProperty("file.separator");
+    private final ArrayList<String> noHunger = new ArrayList<String>();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static Server serverInstance;
     private static File pluginDirectory;
     private static File playerDirectory;
     @Getter private static File mapDirectory;
     @Getter private static File statDirectory;
-    private static boolean blockprotect = false;
     private static Integer minutes_broadcast;
     private CommandDispatcher<Player> commandDispatcher;
-    @Getter private static Location Spawn;
-    @Getter private static int countdownTime = 5;
+    @Getter private static Location lobby;
+    @Getter private static final int countdownTime = 5;
     @Getter private static final MessageUtil messageUtil = new MessageUtil();
 
     @Override
@@ -130,21 +128,21 @@ public class PVPPlugin extends JavaPlugin{
         if(this.getConfig().contains("noHunger")){
             noHunger.addAll(this.getConfig().getStringList("noHunger"));
         }
-        this.serverInstance = getServer();
-        this.pluginDirectory = getDataFolder();
+        serverInstance = getServer();
+        pluginDirectory = getDataFolder();
         CLog.println(pluginDirectory.getPath());
         if (!pluginDirectory.exists()){
             pluginDirectory.mkdir();
         }
-        this.playerDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "players");
+        playerDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "players");
         if (!playerDirectory.exists()){
             playerDirectory.mkdir();
         }
-        this.mapDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "maps");
+        mapDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "maps");
         if (!mapDirectory.exists()){
             mapDirectory.mkdir();
         }
-        this.statDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "stats");
+        statDirectory = new File(pluginDirectory + System.getProperty("file.separator") + "stats");
         if (!statDirectory.exists()){
             statDirectory.mkdir();
         }
@@ -173,7 +171,7 @@ public class PVPPlugin extends JavaPlugin{
         }
         HashMap<String, Object> maps = new HashMap<>();
         try{
-            maps = DBmanager.loadAllObj(Map.class, this.mapDirectory);
+            maps = DBmanager.loadAllObj(Map.class, mapDirectory);
         }
         catch(Exception ex){
         }
@@ -202,7 +200,7 @@ public class PVPPlugin extends JavaPlugin{
 
             @Override
             public void run() {
-                Spawn = new Location(Bukkit.getWorld("world"), 344.47, 39, 521.58, 0.3F, -24.15F);
+                lobby = new Location(Bukkit.getWorld("world"), 344.47, 39, 521.58, 0.3F, -24.15F);
 
             }
         }, 20);
@@ -247,5 +245,6 @@ public class PVPPlugin extends JavaPlugin{
 
     public static File getPlayerDirectory() { return playerDirectory; }
 
-    public static boolean isBlockprotect() { return blockprotect; }
+    public static boolean isBlockprotect() {
+        return false; }
 }

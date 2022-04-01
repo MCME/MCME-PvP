@@ -19,8 +19,8 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
-import com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
@@ -30,10 +30,7 @@ import com.mcmiddleearth.mcme.pvp.maps.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -50,14 +47,13 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     ArrayList<Player> players = new ArrayList<>();
     /**
      * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
-     * COUNTDOWN = /pvp game start has been performed, 5 second countdown before the game starts.
+     * COUNTDOWN = /pvp game start has been performed, 5-second countdown before the game starts.
      * RUNNING = The game is running.
      */
     public enum GameState {
         IDLE, COUNTDOWN, RUNNING
     }
 
-    
     private static Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
     
     public void playerLeave(Player p){
@@ -68,7 +64,6 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     @Override
     public void Start(Map m, int parameter){
         PVPCommand.toggleVoxel("true");
-
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
@@ -89,16 +84,15 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         ChatHandler.getPlayerColors().clear();
         
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
+            ActionBarHandler.sendActionBarMessage(p, "");
             BukkitTeamHandler.removeFromBukkitTeam(p);
             ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
-            p.teleport(PVPPlugin.getSpawn());
+            p.teleport(PVPPlugin.getLobby());
             p.setDisplayName(ChatColor.WHITE + p.getName());
             p.setPlayerListName(ChatColor.WHITE + p.getName());
             p.getInventory().clear();
             p.setTotalExperience(0);
             p.setExp(0);
-            p.getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
-            new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
             p.setGameMode(GameMode.ADVENTURE);
             p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             ChatHandler.getPlayerPrefixes().remove(p.getName());
@@ -106,9 +100,6 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
             if(!p.isDead()){
                 p.setHealth(20);
             }
-        }
-        for(Arrow arrow : Bukkit.getWorld(m.getSpawn().getWorld()).getEntitiesByClass(Arrow.class)) {
-            arrow.remove();
         }
     }
 
@@ -154,9 +145,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         }
         
         else if(PVPCommand.getRunningGame().getGm() instanceof Infected){
-            
-            message = ChatColor.BLUE + p.getName() + ChatColor.GRAY + " has joined the fight as a " + ChatColor.BLUE + "Survivor!";
-            
+            message = ChatColor.DARK_RED + p.getName() + ChatColor.GRAY + " has joined the fight as a " + ChatColor.DARK_RED + "Infected!";
         }
         for(Player pl : Bukkit.getOnlinePlayers()){
             pl.sendMessage(message);

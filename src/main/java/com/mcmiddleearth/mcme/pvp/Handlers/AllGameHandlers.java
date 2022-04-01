@@ -20,7 +20,6 @@ package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
-import com.mcmiddleearth.mcme.pvp.Gamemode.Infected;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
@@ -29,13 +28,11 @@ import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
 import com.sk89q.worldedit.math.BlockVector3;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -71,6 +68,12 @@ public class AllGameHandlers implements Listener{
             if(PVPCommand.getRunningGame().getGm().getPlayers().contains(e.getPlayer())){
                 Map m = PVPCommand.getRunningGame();
                 if(m != null){
+                    if(!(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver || PVPCommand.getRunningGame().getGm() instanceof DeathRun)){
+                        if(!e.getPlayer().getInventory().contains(Material.ARROW, 24)){
+                            ItemStack Arrows = new ItemStack(Material.ARROW, 24);
+                            e.getPlayer().getInventory().setItem(9, Arrows);
+                        }
+                    }
                     if(m.getName().contains("HD")){
                         if(e.getPlayer().getInventory().contains(new ItemStack(Material.TNT))){
                             e.getPlayer().getInventory().remove(Material.TNT);
@@ -80,7 +83,7 @@ public class AllGameHandlers implements Listener{
                 }
             }
         }else{
-            e.setRespawnLocation(PVPPlugin.getSpawn());
+            e.setRespawnLocation(PVPPlugin.getLobby());
         }
     }
     
@@ -135,9 +138,6 @@ public class AllGameHandlers implements Listener{
                 return;
             }
         }
-        if(e.getEntity() instanceof Player) {
-            damagee = (Player) e.getEntity();
-        } else return;
 
         if(e.getDamager() instanceof Player) {
             damager = (Player) e.getDamager();
@@ -146,6 +146,8 @@ public class AllGameHandlers implements Listener{
         if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player) {
                 damager = (Player) ((Arrow) e.getDamager()).getShooter();
+                if (damager == damagee)
+                    return;
                 if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)
                     e.setDamage(50);
             }
@@ -209,7 +211,7 @@ public class AllGameHandlers implements Listener{
      * @param swapHandItemEvent represents player swapping an item to their off-hand.
      */
     @EventHandler
-    public void OnPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){
+    public void onPlayerSwapHandItem(PlayerSwapHandItemsEvent swapHandItemEvent){
         if (!swapHandItemEvent.getPlayer().hasPermission(Permissions.RUN.getPermissionNode()))
             swapHandItemEvent.setCancelled(true);
     }
@@ -240,10 +242,10 @@ public class AllGameHandlers implements Listener{
                     @Override
                     public void run() {
                         if (counter[0] == 0) {
-                            ActionBarHandler.sendActionBar(player, ChatColor.GREEN + "Restocked!");
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "Restocked!");
                             cancel();
                         }
-                        ActionBarHandler.sendActionBar(player, ChatColor.WHITE + "Restocking Supplies... " + counter[0]);
+                        ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + counter[0]);
                         counter[0]--;
                     }
                 }.runTaskTimer(PVPPlugin.getPlugin(), 0,20);

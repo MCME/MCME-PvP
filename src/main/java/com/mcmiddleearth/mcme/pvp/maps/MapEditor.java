@@ -51,7 +51,7 @@ public class MapEditor{
         Map.maps.put(map, new Map(p.getLocation(), map));
         System.out.println(map);
         Map m = Map.maps.get(map);
-        p.sendMessage(map + " spawn is: " + m.getSpawn().getX() + " " + m.getSpawn().getY() + " " + m.getSpawn().getZ());
+        p.sendMessage(map + " spawn is: " + m.getMapSpectatorSpawn().getX() + " " + m.getMapSpectatorSpawn().getY() + " " + m.getMapSpectatorSpawn().getZ());
         sendMapMessage(map, m, p);
         PVPCommand.reloadMaplist();
     }
@@ -169,7 +169,7 @@ public class MapEditor{
 
     public static void HideSpawns(Player p){
         ArmorStand toDelete;
-        for(Entity marker : PVPPlugin.getSpawn().getWorld().getEntities())
+        for(Entity marker : PVPPlugin.getLobby().getWorld().getEntities())
             if(marker.getType() == EntityType.ARMOR_STAND){
                 toDelete = (ArmorStand) marker;
                 if(toDelete.isMarker())

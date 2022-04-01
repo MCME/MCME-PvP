@@ -55,7 +55,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private GamemodeHandlers EHHandlers;
 
     private HashMap<String, String> playerDeaths = new HashMap<String, String>();
 
@@ -157,9 +157,9 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            EHHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(EHHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
 
@@ -176,7 +176,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
             }
             else{
                 Team.getSpectator().add(p);
-                p.teleport(map.getSpawn().toBukkitLoc());
+                p.teleport(map.getMapSpectatorSpawn().toBukkitLoc());
             }
 
         }
@@ -421,7 +421,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         return "time in minutes";
     }
 
-    private class Gamepvp implements Listener {
+    private class GamemodeHandlers implements Listener {
 
     //Red Wool = 1 points, Orange Wool = 2 points, Green Wool = 3 points, Blue Wool = 4 points, Pink Wool = 5 points
 

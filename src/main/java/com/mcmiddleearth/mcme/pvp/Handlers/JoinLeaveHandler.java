@@ -88,8 +88,6 @@ public class JoinLeaveHandler implements Listener{
                 p.getInventory().clear();
                 p.setPlayerListName(ChatColor.WHITE + p.getName());
                 p.setDisplayName(ChatColor.WHITE + p.getName());
-                p.getInventory().setArmorContents(new ItemStack[]{new ItemStack(Material.AIR), new ItemStack(Material.AIR),
-                        new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
                 try {
                     System.out.println(DBmanager.getJSonParser().writeValueAsString(PlayerStat.getPlayerStats()));
                 } catch (JsonProcessingException ex) {
@@ -113,7 +111,7 @@ public class JoinLeaveHandler implements Listener{
                    Case if no game is running or upcoming
                  */
                 if (PVPCommand.getRunningGame() == null && PVPCommand.getNextGame() == null) {
-                    p.teleport(PVPPlugin.getSpawn());
+                    p.teleport(PVPPlugin.getLobby());
                     //p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
                     ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
                 }
@@ -134,7 +132,7 @@ public class JoinLeaveHandler implements Listener{
                      */
                     if (m.getGm().getState() == GameState.RUNNING || m.getGm().getState() == GameState.COUNTDOWN) {
                         Team.getSpectator().add(p);
-                        p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
 
                         /*try{
                             p.setResourcePack(m.getResourcePackURL());
@@ -158,7 +156,7 @@ public class JoinLeaveHandler implements Listener{
                         }
 
                     } else {
-                        p.teleport(PVPPlugin.getSpawn());
+                        p.teleport(PVPPlugin.getLobby());
                         if(!m.getGm().getPlayers().contains(p)) {
                             if (m.playerJoin(p)) {
                                 p.setPlayerListName(ChatColor.GREEN + p.getName());
@@ -181,8 +179,8 @@ public class JoinLeaveHandler implements Listener{
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e){
-        e.setQuitMessage(handlePlayerQuit(e.getPlayer()));
+    public void onPlayerQuit(PlayerQuitEvent playerQuitEvent){
+        playerQuitEvent.setQuitMessage(handlePlayerQuit(playerQuitEvent.getPlayer()));
     }
     
     public static String handlePlayerQuit(Player player) {

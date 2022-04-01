@@ -68,7 +68,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     private Objective Points;
     
-    private Gamepvp pvp;
+    private GamemodeHandlers FFAHandlers;
     
     private HashMap<String, String> playerDeaths = new HashMap<String, String>();
     
@@ -170,9 +170,9 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            FFAHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(FFAHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
@@ -189,7 +189,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             }
             else{
                 Team.getSpectator().add(p);
-                p.teleport(map.getSpawn().toBukkitLoc());
+                p.teleport(map.getMapSpectatorSpawn().toBukkitLoc());
             }
             
         }
@@ -433,7 +433,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         return "time in minutes";
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){

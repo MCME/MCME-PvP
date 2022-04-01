@@ -50,7 +50,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private CaptureTheFlag.CTFHandlers CTFHandlers;
 
     private boolean midgameJoin = true;
 
@@ -80,9 +80,9 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            CTFHandlers = new CTFHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(CTFHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         for(Player p : players) {//this distributes players evenly across teams
@@ -100,7 +100,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }//players that didn't join become spectators
 
@@ -252,38 +252,38 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if (blueFlagStolen || redFlagStolen) {
                     for (Player player : Team.getBlue().getMembers()) {
                         if (redFlagCarrier != null && player == redFlagCarrier)
-                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
                         else {
                             if (blueFlagStolen)
-                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
+                                ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
+                                ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                     for (Player player : Team.getRed().getMembers()) {
                         if (blueFlagCarrier != null && player == blueFlagCarrier)
-                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "You have the enemy flag! Right click on your flag to capture it!");
                         else {
                             if (redFlagStolen)
-                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
+                                ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "The enemy stole your flag, retrieve it!");
                             else
-                                ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
+                                ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "A teammate has captured their flag, protect them!");
                         }
                     }
                 }
                 else
                     for(Player player : Bukkit.getOnlinePlayers())
-                    ActionBarHandler.sendActionBar(player, "");
+                    ActionBarHandler.sendActionBarMessage(player, "");
             }
         }.runTaskTimer(PVPPlugin.getPlugin(), 0,20);
     }
 
-    private class Gamepvp implements Listener{
+    private class CTFHandlers implements Listener{
 
         private ArrayList<Location> bluePoints = new ArrayList<>();
         private ArrayList<Location> redPoints = new ArrayList<>();
 
-        public Gamepvp(){
+        public CTFHandlers(){
             for(java.util.Map.Entry<String, EventLocation> e : map.getImportantPoints().entrySet()){
                 if(e.getKey().contains("Point") && e.getKey().equals("BlueSpawn1")){
                     bluePoints.add(e.getValue().toBukkitLoc());
@@ -328,14 +328,12 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             }
         }
         @EventHandler
-        public void onPlayerRespawn(PlayerRespawnEvent e){//player respawns
+        public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                if(Team.getRed().getMembers().contains(e.getPlayer())){
+            if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())){
                     e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
                 }
-            }
-            if(Team.getBlue().getMembers().contains(e.getPlayer())){
+            if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
                 e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
             }
         }
@@ -455,7 +453,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
     @Override
     public ArrayList<String> getNeededPoints() {
-        return NeededPoints;
+        return new ArrayList<>(this.NeededPoints);
     }
 
     @Override

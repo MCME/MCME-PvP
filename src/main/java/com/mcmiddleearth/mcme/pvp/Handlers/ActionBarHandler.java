@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ActionBarHandler {
 
-    public static void sendActionBar(Player player, String message) {
+    public static void sendActionBarMessage(Player player, String message) {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message));
     }
 
@@ -23,12 +23,12 @@ public class ActionBarHandler {
                 if (PVPCommand.isLocked()) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission(Permissions.JOIN.getPermissionNode())) {
-                            ActionBarHandler.sendActionBar(player, ChatColor.DARK_RED + "Server Locked");
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "Server Locked");
                         }
                     }
                 }else {
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                            ActionBarHandler.sendActionBar(player, "");
+                            ActionBarHandler.sendActionBarMessage(player, "");
                     }
                             cancel();
                         }

@@ -86,7 +86,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     private GameState state;
     
-    private Gamepvp pvp;
+    private GamemodeHandlers TCHandlers;
     
     boolean hasTeams = false;
     
@@ -114,13 +114,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            TCHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(TCHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
-        for(Location l : pvp.points){
+        for(Location l : TCHandlers.points){
             l.getBlock().setType(Material.BEACON);
             
             l.getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
@@ -145,7 +145,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         
@@ -199,7 +199,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     public void End(Map m){
         state = GameState.IDLE;
         
-        for(Location l : pvp.points){
+        for(Location l : TCHandlers.points){
             l.getBlock().setType(Material.AIR);
             l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
         }
@@ -216,13 +216,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         return "point goal";
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         private ArrayList<Location> points = new ArrayList<>();
         
         HashMap<Location, Integer> capAmount = new HashMap<>();//red = +; blue = -
         
-        public Gamepvp(){
+        public GamemodeHandlers(){
             for(Entry<String, EventLocation> e : map.getImportantPoints().entrySet()){
                 if(e.getKey().contains("Point")){
                     points.add(e.getValue().toBukkitLoc());
@@ -233,7 +233,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         
         @EventHandler
         public void onPlayerInteract(PlayerInteractEvent e){
-            if(state == GameState.RUNNING && players.contains(e.getPlayer()) && 
+            if(state == GameState.RUNNING && players.contains(e.getPlayer()) &&
                     e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 if(e.getClickedBlock().getType().equals(Material.BEACON)){
                     e.setUseInteractedBlock(Event.Result.DENY);
@@ -377,12 +377,11 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                if(Team.getRed().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
-                }else if(Team.getBlue().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
-                }
+            if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())) {
+                e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+            }
+            if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
+                e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
             }
         }
         

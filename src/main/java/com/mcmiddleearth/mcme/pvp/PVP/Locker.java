@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class Locker implements Listener{
     
-    private static String Message = "PvP-server Locked";
+    private static final String Message = "PvP-server Locked";
 
 
     @EventHandler (priority = EventPriority.HIGHEST)

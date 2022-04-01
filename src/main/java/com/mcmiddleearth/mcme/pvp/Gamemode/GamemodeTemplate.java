@@ -40,7 +40,6 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {
 
@@ -70,7 +69,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private GamemodeHandlers GMHandlers;
 
     private boolean midgameJoin = true;
 
@@ -97,9 +96,9 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         }//if not all points are set this error pops up
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            GMHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(GMHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         for(Player p : players) {//this distributes players evenly across teams
@@ -118,7 +117,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }//players that didn't join become spectators
 
@@ -221,7 +220,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         return "whatever it is the gamemode needs to end, the goal basically, like kills or time";
     }
 
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         /*
         This is where the logic of the game goes. This example below is Team Slayer, but put your own work in
          */

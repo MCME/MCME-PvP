@@ -48,7 +48,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
 
     private Objective Points;
 
-    private DeathRun.Gamepvp pvp;
+    private GamemodeHandlers DRHandlers;
 
     private int time;
     private ArrayList<Player> winners = new ArrayList<>();
@@ -126,13 +126,13 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         }
 
         if (!pvpRegistered) {
-            pvp = new DeathRun.Gamepvp();
+            DRHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(DRHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
 
-        for (Location l : pvp.points) {
+        for (Location l : DRHandlers.points) {
             l.getBlock().setType(Material.BEACON);
         }
 
@@ -153,7 +153,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             if (!Team.getRunner().getMembers().contains(player) && !Team.getDeath().getMembers().contains(player)) {
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable() {
@@ -223,11 +223,11 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         }
     }
 
-    private class Gamepvp implements Listener {
+    private class GamemodeHandlers implements Listener {
 
         private ArrayList<Location> points = new ArrayList<>();
 
-        public Gamepvp() {
+        public GamemodeHandlers() {
             for (java.util.Map.Entry<String, EventLocation> e : map.getImportantPoints().entrySet()) {
                 if (e.getKey().contains("Point")) {
                     points.add(e.getValue().toBukkitLoc());
@@ -306,7 +306,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     e.setRespawnLocation(map.getImportantPoints().get("DeathSpawn").toBukkitLoc());
                     GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
                 } else {
-                    e.setRespawnLocation(map.getSpawn().toBukkitLoc());
+                    e.setRespawnLocation(map.getMapSpectatorSpawn().toBukkitLoc());
                     e.getPlayer().getInventory().clear();
                     e.getPlayer().getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
                             new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
