@@ -70,7 +70,7 @@ public class ArrowHandler implements Listener {
     }
 
     /**
-     * (If not OITQ and only if INF) Adds arrow back to player's inventory after shooting one.
+     * Adds arrow back to player's inventory after shooting one.
      *
      * @param entityShootBowEvent Entity shoots bow.
      */
@@ -82,7 +82,7 @@ public class ArrowHandler implements Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
                 @Override
                 public void run() {
-                    if (!(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver) && !shooter.getInventory().contains(Material.ARROW) && ((PVPCommand.getRunningGame().getGm() instanceof Infected) || (PVPCommand.getRunningGame().getGm() instanceof DeathRun))) {
+                    if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {
                         shooter.getInventory().addItem(Arrow);
                     }
                 }

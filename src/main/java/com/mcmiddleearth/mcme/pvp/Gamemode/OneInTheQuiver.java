@@ -369,9 +369,9 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             if(playerDeathEvent.getEntity().getKiller() != null && state == GameState.RUNNING){
                     points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).setScore(points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() + 1);
                     PlayerInventory killerInv = playerDeathEvent.getEntity().getKiller().getInventory();
-
-                    if(!killerInv.contains(new ItemStack(Material.ARROW,1))){
-                         killerInv.addItem(new ItemStack(Material.ARROW,1));
+                    ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+                    if(!killerInv.contains(Arrow)){
+                        killerInv.setItem(9, Arrow);
                     }
                     if(playerDeaths.containsKey(playerDeathEvent.getEntity().getName())){
                         tempDeaths = Integer.parseInt(playerDeaths.get(playerDeathEvent.getEntity().getName()));
