@@ -127,23 +127,28 @@ public class AllGameHandlers implements Listener{
     
     @EventHandler
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e){
-        Player damagee = null;
+        Player damagee;
         Player damager = null;
+
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
-        } else{
+        }
+        else{
             if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING){
                 e.setCancelled(true);
                 return;
             }
         }
+        if(e.getEntity() instanceof Player){
+            damagee = (Player) e.getEntity();
+        }
+        else return;
 
         if(e.getDamager() instanceof Player) {
             damager = (Player) e.getDamager();
         }
-
-        if(e.getDamager() instanceof Arrow){
+        else if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player) {
                 damager = (Player) ((Arrow) e.getDamager()).getShooter();
                 if (damager == damagee)
@@ -152,7 +157,6 @@ public class AllGameHandlers implements Listener{
                     e.setDamage(50);
             }
         }
-
         if(Team.areTeamMates(damagee, damager)){
             e.setCancelled(true);
         }
@@ -236,20 +240,20 @@ public class AllGameHandlers implements Listener{
 
             if(material.equals(Material.CHEST) && !player.getInventory().contains(Material.ARROW, 24) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
                 playerInteractEvent.setCancelled(true);
-                final int[] counter = {3};
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 5, true, false));
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (counter[0] == 0) {
-                            ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "Restocked!");
+                new BukkitRunnable(){
+                    private int countdown = 3;
+                    public void run(){
+                        if ((countdown > 0)) {
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + ChatColor.GOLD + "" + ChatColor.BOLD + countdown);
+                            countdown--;
+                        }
+                        if (countdown == 0) {
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "" + ChatColor.BOLD + "Restocked!");
                             cancel();
                         }
-                        ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + counter[0]);
-                        counter[0]--;
                     }
-                }.runTaskTimer(PVPPlugin.getPlugin(), 0,20);
-
+                }.runTaskTimer(PVPPlugin.getPlugin(), 0, 20);
                 ItemStack Arrows = new ItemStack(Material.ARROW, 24);
                 player.getInventory().setItem(9, Arrows);
             }

@@ -70,12 +70,12 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn",
-        "BlueSpawn",
-        "CapturePoint1",
-        "CapturePoint2",
-        "CapturePoint3"
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(new String[]{
+            "RedSpawn",
+            "BlueSpawn",
+            "CapturePoint1",
+            "CapturePoint2",
+            "CapturePoint3"
     }));
     
     Map map;
@@ -87,8 +87,6 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     private GameState state;
     
     private GamemodeHandlers TCHandlers;
-    
-    boolean hasTeams = false;
     
     private int goal;
     

@@ -19,21 +19,18 @@
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
-import com.mcmiddleearth.mcme.pvp.Gamemode.Infected;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -52,7 +49,7 @@ public class ArrowHandler implements Listener {
     public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent) {
         Projectile projectile = projectileHitEvent.getEntity();
         if (projectile instanceof Arrow && projectileHitEvent.getHitBlock() != null) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> projectile.remove(), 100);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), projectile::remove, 180);
         }
     }
 
@@ -79,14 +76,10 @@ public class ArrowHandler implements Listener {
         if (entityShootBowEvent.getEntity() instanceof Player) {
             Player shooter = (Player) entityShootBowEvent.getEntity();
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable() {
-                @Override
-                public void run() {
-                    if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {
-                        shooter.getInventory().addItem(Arrow);
-                    }
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> {
+                if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {
+                    shooter.getInventory().addItem(Arrow);
                 }
-
             }, 1);
         }
     }

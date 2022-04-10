@@ -34,7 +34,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     private boolean pvpRegistered = false;
 
     @Getter
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[]{
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(new String[]{
             "RunnerSpawn",
             "DeathSpawn",
             "VictoryPoint"
