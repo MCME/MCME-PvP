@@ -152,11 +152,11 @@ public class GearHandler {
 
         if(sg == SpecialGear.ONEINTHEQUIVER) {
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
-            p.getInventory().setItem(9, Arrow);
+            p.getInventory().setItem(8, Arrow);
         }
         else {
             ItemStack Arrows = new ItemStack(Material.ARROW, 24);
-            p.getInventory().setItem(9, Arrows);
+            p.getInventory().setItem(8, Arrows);
         }
         
         if(sg == SpecialGear.RINGBEARER){

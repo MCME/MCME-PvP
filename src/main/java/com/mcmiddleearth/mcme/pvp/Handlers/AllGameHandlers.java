@@ -71,7 +71,7 @@ public class AllGameHandlers implements Listener{
                     if(!(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver || PVPCommand.getRunningGame().getGm() instanceof DeathRun)){
                         if(!e.getPlayer().getInventory().contains(Material.ARROW, 24)){
                             ItemStack Arrows = new ItemStack(Material.ARROW, 24);
-                            e.getPlayer().getInventory().setItem(9, Arrows);
+                            e.getPlayer().getInventory().setItem(8, Arrows);
                         }
                     }
                     if(m.getName().contains("HD")){
@@ -255,7 +255,7 @@ public class AllGameHandlers implements Listener{
                     }
                 }.runTaskTimer(PVPPlugin.getPlugin(), 0, 20);
                 ItemStack Arrows = new ItemStack(Material.ARROW, 24);
-                player.getInventory().setItem(9, Arrows);
+                player.getInventory().setItem(8, Arrows);
             }
         }
     }

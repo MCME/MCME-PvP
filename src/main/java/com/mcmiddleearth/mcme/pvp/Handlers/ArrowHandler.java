@@ -78,7 +78,7 @@ public class ArrowHandler implements Listener {
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> {
                 if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {
-                    shooter.getInventory().addItem(Arrow);
+                    shooter.getInventory().setItem(8, Arrow);
                 }
             }, 1);
         }
