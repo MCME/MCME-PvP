@@ -62,7 +62,7 @@ public class GearHandler {
         else{
             items = new ItemStack[] {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), 
                 new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS),
-                new ItemStack(Material.IRON_SWORD), new ItemStack(Material.BOW), new ItemStack(Material.SHIELD), new ItemStack(Material.COMPASS)};
+                new ItemStack(Material.IRON_SWORD), new ItemStack(Material.BOW), new ItemStack(Material.SHIELD)};
         }
         
         for(int i = 0; i <= 5; i++){
@@ -138,7 +138,6 @@ public class GearHandler {
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
             p.getInventory().addItem(items[6]);
-            p.getInventory().addItem(items[7]);
         }
         else{
             p.getInventory().setChestplate(items[1]);

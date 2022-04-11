@@ -18,6 +18,7 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
@@ -28,12 +29,14 @@ import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -81,6 +84,10 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             }
 
             if(time == 120){
+                for(Player player: Bukkit.getOnlinePlayers()) {
+                    ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
+                    player.getInventory().setItem(3, COMPASS);
+                }
                 Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), compass, 0, 20);
             }
 
@@ -239,6 +246,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         public void run() {
             for (Player player : Team.getInfected().getMembers()) {
                 player.setCompassTarget(getNearest(player).getLocation());
+                ActionBarHandler.sendActionBarMessage(player, ChatColor.RED + "" + ChatColor.BOLD + "Tracking survivors!");
             }
         }
     };
@@ -329,9 +337,12 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size() + 1);
 
                     GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+                    if(time < 120){
+                        ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
+                        p.getInventory().setItem(3, COMPASS);
+                    }
                     Team.getInfected().add(p);
                     if(Team.getSurvivor().size() < 1){
-
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.DARK_RED + "Game over!");
                             player.sendMessage(ChatColor.DARK_RED + "Infected Wins!");
@@ -348,22 +359,9 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
-            
-            final Player p = e.getPlayer();
-
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+            final Player player = e.getPlayer();
+            if(state == GameState.RUNNING && players.contains(player)){
                 e.setRespawnLocation(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
-                
-                Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
-                    
-                    @Override
-                    public void run(){
-
-                        GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
-                        Team.getInfected().add(p);
-                    }
-                    
-                }, 40);
             }
         }
         
