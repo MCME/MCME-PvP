@@ -153,7 +153,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             if (!Team.getRunner().getMembers().contains(player) && !Team.getDeath().getMembers().contains(player)) {
                 Team.getSpectator().add(player);
-                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable() {
@@ -306,7 +306,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     e.setRespawnLocation(map.getImportantPoints().get("DeathSpawn").toBukkitLoc());
                     GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
                 } else {
-                    e.setRespawnLocation(map.getMapSpectatorSpawn().toBukkitLoc());
+                    e.setRespawnLocation(map.getSpawn().toBukkitLoc());
                     e.getPlayer().getInventory().clear();
                     e.getPlayer().getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
                             new ItemStack(Material.AIR), new ItemStack(Material.AIR)});

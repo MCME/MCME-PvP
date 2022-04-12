@@ -132,7 +132,7 @@ public class JoinLeaveHandler implements Listener{
                      */
                     if (m.getGm().getState() == GameState.RUNNING || m.getGm().getState() == GameState.COUNTDOWN) {
                         Team.getSpectator().add(p);
-                        p.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
 
                         /*try{
                             p.setResourcePack(m.getResourcePackURL());

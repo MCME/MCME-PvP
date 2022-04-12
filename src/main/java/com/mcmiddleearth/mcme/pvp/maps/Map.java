@@ -172,7 +172,7 @@ public class Map {
         return gmType;
     }
 
-    public EventLocation getMapSpectatorSpawn() {
+    public EventLocation getSpawn() {
         return Spawn;
     }
 

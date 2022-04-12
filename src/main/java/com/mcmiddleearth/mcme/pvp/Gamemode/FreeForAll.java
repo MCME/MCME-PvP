@@ -189,7 +189,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             }
             else{
                 Team.getSpectator().add(p);
-                p.teleport(map.getMapSpectatorSpawn().toBukkitLoc());
+                p.teleport(map.getSpawn().toBukkitLoc());
             }
             
         }

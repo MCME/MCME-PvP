@@ -102,7 +102,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         startingRedNum = Team.getRed().size();
@@ -228,7 +228,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                e.setRespawnLocation(map.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 2, 0));
             
                 e.getPlayer().getInventory().clear();
                 e.getPlayer().getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),

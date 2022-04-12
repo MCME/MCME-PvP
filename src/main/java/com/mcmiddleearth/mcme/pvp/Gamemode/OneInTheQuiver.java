@@ -130,7 +130,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(map.getMapSpectatorSpawn().toBukkitLoc());
+                p.teleport(map.getSpawn().toBukkitLoc());
             }
             
         }
@@ -371,7 +371,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     PlayerInventory killerInv = playerDeathEvent.getEntity().getKiller().getInventory();
                     ItemStack Arrow = new ItemStack(Material.ARROW, 1);
                     if(!killerInv.contains(Arrow)){
-                        killerInv.setItem(9, Arrow);
+                        killerInv.setItem(8, Arrow);
                     }
                     if(playerDeaths.containsKey(playerDeathEvent.getEntity().getName())){
                         tempDeaths = Integer.parseInt(playerDeaths.get(playerDeathEvent.getEntity().getName()));

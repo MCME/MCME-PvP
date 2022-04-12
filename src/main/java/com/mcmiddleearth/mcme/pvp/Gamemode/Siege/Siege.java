@@ -127,7 +127,7 @@ public class Siege extends BasePluginGamemode{
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
         

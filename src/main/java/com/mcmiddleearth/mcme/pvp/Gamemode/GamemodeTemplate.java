@@ -117,7 +117,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }//players that didn't join become spectators
 

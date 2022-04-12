@@ -51,7 +51,7 @@ public class MapEditor{
         Map.maps.put(map, new Map(p.getLocation(), map));
         System.out.println(map);
         Map m = Map.maps.get(map);
-        p.sendMessage(map + " spawn is: " + m.getMapSpectatorSpawn().getX() + " " + m.getMapSpectatorSpawn().getY() + " " + m.getMapSpectatorSpawn().getZ());
+        p.sendMessage(map + " spawn is: " + m.getSpawn().getX() + " " + m.getSpawn().getY() + " " + m.getSpawn().getZ());
         sendMapMessage(map, m, p);
         PVPCommand.reloadMaplist();
     }

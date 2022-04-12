@@ -185,7 +185,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getInfected().getMembers().contains(player) && !Team.getSurvivor().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
             Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
@@ -393,7 +393,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     int loopnum = 0;
                     for(Player p : Team.getSurvivor().getMembers()){
                         if(Team.getSurvivor().size() > 1 && loopnum == (Team.getSurvivor().size() - 1)){
-                
                             remainingPlayers += (", and " + p.getName());
                         }
                         else if(Team.getSurvivor().size() == 1 || loopnum == 0){
@@ -427,9 +426,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
             points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
             super.midgamePlayerJoin(p);
-
             GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
-            
             return true;
         }else{
             return false;

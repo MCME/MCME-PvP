@@ -347,7 +347,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     source.setPlayerListName(ChatColor.WHITE + source.getName());
                     BukkitTeamHandler.removeFromBukkitTeam(source);
                     Team.getSpectator().add(source);
-                    source.teleport(map.getMapSpectatorSpawn().toBukkitLoc().add(0, 2, 0));
+                    source.teleport(map.getSpawn().toBukkitLoc().add(0, 2, 0));
                 }
                 if(map.getGm().getPlayers().contains(source)){
                         if(map.getGm().getState() == GameState.IDLE){
@@ -621,7 +621,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 MapEditor.MapAreaSet(argument, source);
                 break;
             case "teleport":
-                Location spawn = Map.maps.get(argument).getMapSpectatorSpawn().toBukkitLoc();
+                Location spawn = Map.maps.get(argument).getSpawn().toBukkitLoc();
                 source.teleport(spawn);
                 source.sendMessage("You have been teleported to " + argument);
                 break;

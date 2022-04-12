@@ -176,7 +176,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
             }
             else{
                 Team.getSpectator().add(p);
-                p.teleport(map.getMapSpectatorSpawn().toBukkitLoc());
+                p.teleport(map.getSpawn().toBukkitLoc());
             }
 
         }

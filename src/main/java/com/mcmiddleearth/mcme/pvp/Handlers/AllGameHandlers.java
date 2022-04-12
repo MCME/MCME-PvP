@@ -243,11 +243,12 @@ public class AllGameHandlers implements Listener{
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 5, true, false));
                 new BukkitRunnable(){
                     private int countdown = 3;
+                    @Override
                     public void run(){
-                        if ((countdown > 0)) {
+                        if (countdown > 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + ChatColor.GOLD + "" + ChatColor.BOLD + countdown);
-                            countdown--;
                         }
+                        countdown --;
                         if (countdown == 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "" + ChatColor.BOLD + "Restocked!");
                             cancel();
