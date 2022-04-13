@@ -41,7 +41,7 @@ import org.bukkit.inventory.ItemStack;
 public class ArrowHandler implements Listener {
 
     /**
-     * Removes arrow 5 seconds after it hits a block.
+     * Removes arrow 9 seconds after it hits a block.
      *
      * @param projectileHitEvent Projectile hitting an object event.
      */
