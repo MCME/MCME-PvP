@@ -35,6 +35,10 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.Math.random;
 
 /**
  *
@@ -108,13 +112,14 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
      */
     public void kdSort(){
         players.sort((Player p1, Player p2) -> {
-            if (PlayerStat.getKD(p1) > PlayerStat.getKD(p2))
+            double offset = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            if (PlayerStat.getKD(p1) + offset > PlayerStat.getKD(p2) + offset)
                 return 1;
             else
                 return -1;
         });
     }
-    
+
     public boolean midgamePlayerJoin(Player p){
         PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         String message = "";

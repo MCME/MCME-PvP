@@ -38,6 +38,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -170,6 +172,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if(c == infected){
                 Team.getInfected().add(p);
                 p.teleport(m.getImportantPoints().get("InfectedSpawn").toBukkitLoc());
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
                 GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             }
             
@@ -337,6 +340,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size() + 1);
 
                     GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
                     if(time < 120){
                         ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
                         p.getInventory().setItem(3, COMPASS);
