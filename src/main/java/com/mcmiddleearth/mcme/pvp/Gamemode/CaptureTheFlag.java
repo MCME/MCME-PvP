@@ -89,11 +89,13 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             if (Team.getRed().size() <= Team.getBlue().size()) {
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }
 
             else if (Team.getBlue().size() < Team.getRed().size()) {
                 Team.getBlue().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }
         }
 
@@ -151,6 +153,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game Start!");
                         p.setScoreboard(getScoreboard());
+                        p.setWalkSpeed(0.2F);
                     }
 
                     for(Player p : Team.getRed().getMembers()){

@@ -98,40 +98,12 @@ public class AllGameHandlers implements Listener{
     HashMap<String, Long> lastOutOfBounds = new HashMap<>();
     HashMap<Player, Location> lastLocation = new HashMap<>();
 
-    private boolean movedPast(Player player, int distance) {
+    private boolean movedPast(Player player, double distance) {
         if (!lastLocation.containsKey(player)) {
-            return true;
+            lastLocation.put(player, player.getLocation());
+            return false;
         }
-        return lastLocation.get(player).distanceSquared(player.getLocation()) > (distance * distance);
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e){
-        Location from = e.getFrom();
-        Location to = e.getTo();
-        if (PVPCommand.getRunningGame() != null) {
-            if(!(from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ())) {
-                if (PVPCommand.getRunningGame().getGm().getState() == GameState.COUNTDOWN && !Team.getSpectator().getMembers().contains(e.getPlayer())) {
-                    if (from.getX() != to.getX() || from.getZ() != to.getZ()) {
-                        e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ(), e.getPlayer().getEyeLocation().getYaw(), e.getPlayer().getEyeLocation().getPitch()));
-                        return;
-                    }
-                }
-            }
-            if(movedPast(e.getPlayer(), 1)){
-                lastLocation.put(e.getPlayer(), e.getTo());
-                if (!PVPCommand.getRunningGame().getRegion().contains(BlockVector3.at(to.getX(), to.getY(), to.getZ()))) {
-                    e.setTo(new Location(to.getWorld(), from.getX(), to.getY(), from.getZ(), e.getPlayer().getEyeLocation().getYaw(), e.getPlayer().getEyeLocation().getPitch()));
-                    if (!lastOutOfBounds.containsKey(e.getPlayer().getName())) {
-                        e.getPlayer().sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
-                        lastOutOfBounds.put(e.getPlayer().getName(), System.currentTimeMillis());
-                    } else if (System.currentTimeMillis() - lastOutOfBounds.get(e.getPlayer().getName()) > 3000) {
-                        e.getPlayer().sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
-                        lastOutOfBounds.put(e.getPlayer().getName(), System.currentTimeMillis());
-                    }
-                }
-            }
-        }
+        return lastLocation.get(player).distanceSquared(player.getLocation()) >= (distance * distance);
     }
 
     @EventHandler

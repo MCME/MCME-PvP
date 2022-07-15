@@ -155,9 +155,11 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 if(Team.getBlue().size() >= Team.getRed().size()){
                     Team.getRed().add(p);
                     p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }else if(Team.getBlue().size() < Team.getRed().size()){
                     Team.getBlue().add(p);
                     p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }
             }else{
                 Team.getSpectator().add(p);

@@ -168,10 +168,10 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         int c = 0;
         int infected = rand.nextInt(players.size());
         for(Player p : players){
-            
             if(c == infected){
                 Team.getInfected().add(p);
                 p.teleport(m.getImportantPoints().get("InfectedSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
                 GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             }
@@ -179,6 +179,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             else{
                 Team.getSurvivor().add(p);
                 p.teleport(m.getImportantPoints().get("SurvivorSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
                 GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
             }
             

@@ -35,6 +35,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -117,18 +119,22 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 switch(lastRedSpawn){
                     case 1:
                         p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 2, 0));
+                        freezePlayer(p, 140);
                         lastRedSpawn = 2;
                         break;
                     case 2:
                         p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 2, 0));
+                        freezePlayer(p, 140);
                         lastRedSpawn = 3;
                         break;
                     case 3:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                     default:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                 }

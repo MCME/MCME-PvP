@@ -22,6 +22,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -167,6 +169,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
                 p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
                 }

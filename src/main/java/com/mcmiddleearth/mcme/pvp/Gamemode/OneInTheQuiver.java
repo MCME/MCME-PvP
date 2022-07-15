@@ -40,6 +40,8 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
@@ -123,6 +125,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
                 p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
                 }else{
@@ -136,7 +139,6 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
         
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), () -> {
-
             if(count == 0){
                 if(state == GameState.RUNNING){
                     return;

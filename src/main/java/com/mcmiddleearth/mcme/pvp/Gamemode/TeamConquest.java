@@ -42,6 +42,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -137,16 +139,18 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
                 if(Team.getBlue().size() >= Team.getRed().size()){
                     Team.getRed().add(p);
                     p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }else if(Team.getBlue().size() < Team.getRed().size()){
                     Team.getBlue().add(p);
                     p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }
             }else{
                 Team.getSpectator().add(p);
                 p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
-        
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
                 @Override
                 public void run() {

@@ -145,6 +145,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             } else {
                 Team.getRunner().add(p);
                 p.teleport(m.getImportantPoints().get("RunnerSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
             }
             c++;
         }

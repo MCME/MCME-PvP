@@ -37,6 +37,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -93,10 +95,12 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }
             else if(Team.getBlue().size() < Team.getRed().size()){
                 Team.getBlue().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }
         }
         for(Player player : Bukkit.getServer().getOnlinePlayers()){

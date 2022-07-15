@@ -1,4 +1,4 @@
-name: ${project.artifactId}
+name: MCME-PVP
 main: com.mcmiddleearth.mcme.pvp.PVPPlugin
 version: ${project.version}
 authors: [DonoA, aaldim, lizzehface, meggawatts, Eriol_Eandur, NicoviçTheSixth]

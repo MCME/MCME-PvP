@@ -27,14 +27,17 @@ import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -67,10 +70,32 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     
     @Override
     public void Start(Map m, int parameter){
+
         PVPCommand.toggleVoxel("true");
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
+        HashMap<Player, Location> lastLocation = new HashMap<>();
+        HashMap<String, Long> lastOutOfBounds = new HashMap<>();
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
+            @Override
+            public void run() {
+                for(Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    Location currentLoc = player.getLocation();
+                    if (!PVPCommand.getRunningGame().getRegion().contains(BlockVector3.at(currentLoc.getX(), currentLoc.getY(), currentLoc.getZ()))) {
+                        player.teleport(lastLocation.get(player));
+                        if (!lastOutOfBounds.containsKey(player.getName())) {
+                            player.sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
+                            lastOutOfBounds.put(player.getName(), System.currentTimeMillis());
+                        } else if (System.currentTimeMillis() - lastOutOfBounds.get(player.getName()) > 3000) {
+                            player.sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
+                            lastOutOfBounds.put(player.getName(), System.currentTimeMillis());
+                        }
+                    }
+                    lastLocation.put(player, player.getLocation());
+                }
+            }
+        }, 0, 10);
     }
     
     @Override
@@ -160,6 +185,20 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     public void checkWin(){
+    }
+
+    public void freezePlayer(Player p, int ticks){
+        p.setAllowFlight(true);
+        p.teleport(p.getLocation().add(0,0.1,0));
+        p.setFlying(true);
+        p.setFlySpeed(0);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
+    }
+
+    public void unFreezePlayer(Player p){
+        p.setAllowFlight(false);
+        p.setFlying(false);
+        p.setFlySpeed(0.1F);
     }
 
     @Override
