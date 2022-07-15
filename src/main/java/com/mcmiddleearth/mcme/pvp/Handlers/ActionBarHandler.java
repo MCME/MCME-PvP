@@ -5,6 +5,7 @@ import com.mcmiddleearth.mcme.pvp.Permissions;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.protocol.packet.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -23,7 +24,7 @@ public class ActionBarHandler {
                 if (PVPCommand.isLocked()) {
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (player.hasPermission(Permissions.JOIN.getPermissionNode())) {
-                            ActionBarHandler.sendActionBarMessage(player, ChatColor.DARK_RED + "Server Locked");
+                            ActionBarHandler.sendActionBarMessage(player, ChatColor.BOLD+ "" + ChatColor.RED + "Server Locked");
                         }
                     }
                 }else {
