@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.CustomItem.PIPE;
 

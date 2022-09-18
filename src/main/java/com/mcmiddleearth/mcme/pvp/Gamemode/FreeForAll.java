@@ -106,9 +106,9 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     }
 
     public void timer(){
-        Runnable tick = new Runnable(){
-
-            public void run(){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
                 time--;
 
                 if(time % 60 == 0){
@@ -158,7 +158,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     healing.clear();
                 }
             }
-        };
+        }.runTaskTimer(PVPPlugin.getPlugin(),0, 20);
     }
     
     @Override
@@ -260,6 +260,9 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                             p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
                         }
                         count--;
+                    }
+                    else{
+                        cancel();
                     }
                 }
             }.runTaskTimer(PVPPlugin.getPlugin(),40, 20);

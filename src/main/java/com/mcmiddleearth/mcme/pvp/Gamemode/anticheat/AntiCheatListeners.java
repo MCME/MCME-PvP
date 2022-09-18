@@ -107,7 +107,7 @@ public class AntiCheatListeners implements Listener{
                     command.equalsIgnoreCase("/blockdata") ||
                     command.equalsIgnoreCase("/clear") ||
                     command.equalsIgnoreCase("/gamemode") ||
-                    //command.equalsIgnoreCase("/give") ||
+                    command.equalsIgnoreCase("/give") ||
                     command.equalsIgnoreCase("/setblock") ||
                     command.equalsIgnoreCase("/xp") ||
                     command.equalsIgnoreCase("/worldjump") ||
