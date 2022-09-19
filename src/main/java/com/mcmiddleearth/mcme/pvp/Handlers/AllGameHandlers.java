@@ -18,6 +18,7 @@
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
+import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
@@ -172,6 +173,11 @@ public class AllGameHandlers implements Listener{
     @EventHandler
     public void onPlayerToggleFlight(PlayerToggleFlightEvent playerToggleFlightEvent){
         Player player = playerToggleFlightEvent.getPlayer();
+        if(PVPCommand.getRunningGame() != null && BasePluginGamemode.isFrozen(player)){
+            playerToggleFlightEvent.setCancelled(true);
+            player.teleport(player.getLocation());
+            return;
+        }
         if(!player.hasPermission(Permissions.RUN.getPermissionNode())){
             playerToggleFlightEvent.setCancelled(true);
             player.setFlying(false);

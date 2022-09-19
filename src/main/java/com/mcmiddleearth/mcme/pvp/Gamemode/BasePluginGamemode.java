@@ -36,9 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.random;
@@ -52,6 +50,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     @JsonIgnore
     ArrayList<Player> players = new ArrayList<>();
+    static HashSet<UUID> frozen = new HashSet<>();
     /**
      * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
      * COUNTDOWN = /pvp game start has been performed, 5-second countdown before the game starts.
@@ -192,6 +191,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         p.teleport(p.getLocation().add(0,0.1,0));
         p.setFlying(true);
         p.setFlySpeed(0);
+        frozen.add(p.getUniqueId());
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
     }
 
@@ -199,6 +199,11 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         p.setAllowFlight(false);
         p.setFlying(false);
         p.setFlySpeed(0.1F);
+        frozen.remove(p.getUniqueId());
+    }
+
+    public static boolean isFrozen(Player p){
+        return frozen.contains(p.getUniqueId());
     }
 
     @Override

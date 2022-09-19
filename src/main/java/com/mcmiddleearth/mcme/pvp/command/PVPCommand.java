@@ -245,8 +245,8 @@ public class PVPCommand extends CommandDispatcher<Player>{
                 } else if(nextGame.getGm().getPlayers().size() == 0 ){
                     source.sendMessage(ChatColor.RED + "Can't start! No players have joined!");
                 } else if(runningGame == null){
-                    nextGame.getGm().Start(nextGame, parameter);
                     runningGame = nextGame;
+                    nextGame.getGm().Start(nextGame, parameter);
                     nextGame = null;
                 }
                 else{
