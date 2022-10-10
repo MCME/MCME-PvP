@@ -120,7 +120,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     doCommand("kickPlayer", c.getArgument("player", String.class), c.getSource());
                     return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("rules")
-                    .then(RequiredArgumentBuilder.<Player, String>argument("gamemode", new CommandStringArgument("infected", "teamslayer", "teamdeathmatch", "ringbearer", "oneinthequiver", "teamconquest", "deathrun", "capturetheflag","egghunt")).executes(c -> {
+                    .then(RequiredArgumentBuilder.<Player, String>argument("gamemode", new CommandStringArgument("infected", "teamslayer", "teamdeathmatch", "ringbearer", "oneinthequiver", "teamconquest", "deathrun", "capturetheflag","egghunt","conquest")).executes(c -> {
                         doCommand("rules", c.getArgument("gamemode", String.class), c.getSource());
                         return 1;} )))
             .then(LiteralArgumentBuilder.<Player>literal("pipe").executes(c -> {
@@ -174,7 +174,7 @@ public class PVPCommand extends CommandDispatcher<Player>{
                             return 1;
                         })))
                 .then(LiteralArgumentBuilder.<Player>literal("gm")
-                    .then(RequiredArgumentBuilder.<Player, String>argument("gm", new CommandStringArgument("FreeForAll", "Infected", "OneInTheQuiver", "Ringbearer", "TeamConquest", "TeamDeathmatch", "TeamSlayer", "DeathRun", "CaptureTheFlag","EggHunt")).executes(c -> {
+                    .then(RequiredArgumentBuilder.<Player, String>argument("gm", new CommandStringArgument("FreeForAll", "Infected", "OneInTheQuiver", "Ringbearer", "TeamConquest", "TeamDeathmatch", "TeamSlayer", "DeathRun", "CaptureTheFlag","EggHunt","Conquest")).executes(c -> {
                             doCommand("mapEditorGm", c.getArgument("map", String.class), c.getArgument("gm", String.class), c.getSource());
                             return 1;
                         })))
@@ -599,6 +599,9 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     case "egghunt":
                         source.sendMessage(ChatColor.GREEN + "Egg Hunt Rules");
                         source.sendMessage(ChatColor.GRAY + "Around the map, there are several eggs (wool blocks). Each one is worth a different amount of points. To 'take' the egg, right click on it, and a certain points will be added to your score. However, if you die, points will be reducted. Happy Hunting!");
+                    case "conquest":
+                        source.sendMessage(ChatColor.GREEN+"Conquest");
+                        source.sendMessage(ChatColor.GRAY+"Test");
                 }
                 break;
             case "deleteMap":
