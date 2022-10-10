@@ -376,13 +376,25 @@ public class Conquest extends BasePluginGamemode {
                 }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
                     blueTeamCaptureAttack.add(player);
                 }
+            }else if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area)).toBukkitLoc())<capturePointRadius){
+                if(Team.getRed().getMembers().contains(event.getPlayer())){
+                    redTeamCaptureAttack.remove(player);
+                }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
+                    blueTeamCaptureAttack.remove(player);
+                }
             }
             if(area != 1){
                 if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area-1)).toBukkitLoc())>capturePointRadius){
                     if(Team.getRed().getMembers().contains(event.getPlayer())){
                         redTeamCaptureDef.add(player);
-                    }else{
+                    }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
                         blueTeamCaptureDef.add(player);
+                    }
+                }else if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area-1)).toBukkitLoc())<capturePointRadius){
+                    if(Team.getRed().getMembers().contains(event.getPlayer())){
+                        redTeamCaptureDef.remove(player);
+                    }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
+                        blueTeamCaptureDef.remove(player);
                     }
                 }
             }
