@@ -7,6 +7,7 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Util.EventLocation;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
+import org.bouncycastle.asn1.gnu.GNUObjectIdentifiers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -55,6 +56,8 @@ public class Conquest extends BasePluginGamemode {
     private int redScore = 3;
     private int blueScore = 0;
 
+    private int flagTick = 5;
+
     private final int capturePointRadius = 3;
 
     private GameState state;
@@ -75,6 +78,7 @@ public class Conquest extends BasePluginGamemode {
     //  also decides which spawn is used
     //  reworking capturing with PlayerMoveEvent
     //  Maybe even capture faster when more people in area
+    //  Cleanup
 
     public Conquest(){ state = GameState.IDLE; }
 
@@ -113,49 +117,104 @@ public class Conquest extends BasePluginGamemode {
             if(area == 4){
                 blueTeamWin();
             }
-            if(GMHandlers.capAmount.get("CapturePoint"+area) == 100){
+            if(GMHandlers.capAmount.get("CapturePoint"+area) >= 100){
                 //Tea, captured
-                area++;
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
                     player.sendMessage(ChatColor.BLUE+"Blue team captured the next point.");
                 }
+                //Bukkit.getPlayer("Jubo").sendMessage(String.valueOf(area));
                 //Block b = e.getClickedBlock().getLocation().add(0, 1, 0).getBlock();
-                Block b = GMHandlers.points.get("CapturePoint"+area).add(0,1,0).getBlock();
+                Block b = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
+                b.setType(Material.AIR);
                 b.setType(Material.BLUE_STAINED_GLASS);
-                blueScore--;
-                redScore++;
+                blueScore++;
+                redScore--;
+                area++;
                 Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                 Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) == -100){
+                GMHandlers.blueTeamCaptureAttack.clear();
+                GMHandlers.redTeamCaptureAttack.clear();
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= -100){
                 //Tea, captured
-                area--;
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
                     player.sendMessage(ChatColor.RED+"Red team recaptured the point.");
                 }
-                Block b = GMHandlers.points.get("CapturePoint"+(area-1)).add(0,1,0).getBlock();
+                Block b = GMHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
+                b.setType(Material.AIR);
                 b.setType(Material.RED_STAINED_GLASS);
-                blueScore++;
-                redScore--;
+                blueScore--;
+                redScore++;
+                area--;
                 Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                 Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
+                GMHandlers.blueTeamCaptureDef.clear();
+                GMHandlers.redTeamCaptureDef.clear();
+            }else if(GMHandlers.capAmount.get("CapturePoint"+area) == 0){
+                Block b = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
+                b.setType(Material.AIR);
             }
             if(!captured) {
+                if(GMHandlers.redTeamCaptureAttack.isEmpty() && GMHandlers.blueTeamCaptureAttack.isEmpty()) {
+                    int capAmount = GMHandlers.capAmount.get("CapturePoint"+area);
+                    if(capAmount == 0 || capAmount == 100 || capAmount == -100){
+                        //Bukkit.getPlayer("Jubo").sendMessage("Jubo");
+                    }else if(capAmount <= 50 && capAmount > 0){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)-flagTick);
+                    }else if(capAmount >= 50 && capAmount < 100){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)+flagTick);
+                    }else if(capAmount >= -50 && capAmount < 0){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)+flagTick);
+                    } else if(capAmount <= -50 && capAmount > -100){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)-flagTick);
+                    }else if(capAmount > 0){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)-flagTick);
+                    }else if(capAmount < 0){
+                        GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)+flagTick);
+                    }
+                }
+                int playerCountAttack = GMHandlers.blueTeamCaptureAttack.size() - GMHandlers.redTeamCaptureAttack.size();
+                int playerCountDef = GMHandlers.blueTeamCaptureDef.size() - GMHandlers.redTeamCaptureDef.size();
+                int flagTickAttack = playerCountAttack * flagTick;
+                int flagTickDef = playerCountDef * flagTick;
+
                 if (GMHandlers.blueTeamCaptureAttack.size() < GMHandlers.redTeamCaptureAttack.size()) {
-                    GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)+3);
+                    if(GMHandlers.capAmount.get("CapturePoint"+area) != -100) {
+                        GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) - flagTickAttack);
+                    }
                 } else if (GMHandlers.blueTeamCaptureAttack.size() == GMHandlers.redTeamCaptureAttack.size()) {
                     //do nothing
                 } else if (GMHandlers.blueTeamCaptureAttack.size() > GMHandlers.redTeamCaptureAttack.size()) {
-                    GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)-3);
+                    GMHandlers.capAmount.replace("CapturePoint"+area,GMHandlers.capAmount.get("CapturePoint"+area)+flagTickAttack);
                 }
                 if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))) {
+                    if(GMHandlers.redTeamCaptureDef.isEmpty() && GMHandlers.blueTeamCaptureDef.isEmpty()){
+                        int capAmount = GMHandlers.capAmount.get("CapturePoint"+(area-1));
+                        if(capAmount == 0 || capAmount == 100 || capAmount == -100){
+                            //Bukkit.getPlayer("Jubo").sendMessage("Jubo");
+                        }else if(capAmount <= 50 && capAmount > 0){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
+                        }else if(capAmount >= 50 && capAmount < 100){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
+                        }else if(capAmount >= -50 && capAmount < 0){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
+                        } else if(capAmount <= -50 && capAmount > -100){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
+                        }else if(capAmount > 0){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
+                        }else if(capAmount < 0){
+                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
+                        }
+                    }
                     if (GMHandlers.blueTeamCaptureDef.size() < GMHandlers.redTeamCaptureDef.size()) {
-                        GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) + 3);
+                            GMHandlers.capAmount.replace("CapturePoint" + (area-1), GMHandlers.capAmount.get("CapturePoint" + (area-1)) - flagTickDef);
                     } else if (GMHandlers.blueTeamCaptureDef.size() == GMHandlers.redTeamCaptureDef.size()) {
                         //do nothing
                     } else if (GMHandlers.blueTeamCaptureDef.size() > GMHandlers.redTeamCaptureDef.size()) {
-                        GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) - 3);
+                    if(GMHandlers.capAmount.get("CapturePoint"+(area-1)) != 100) {
+                        GMHandlers.capAmount.replace("CapturePoint" + (area - 1), GMHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
+                        }
                     }
                 }
                 for(Player player : GMHandlers.blueTeamCaptureAttack){
@@ -173,14 +232,14 @@ public class Conquest extends BasePluginGamemode {
                     }
                 }
                 for(Player player : GMHandlers.blueTeamCaptureDef){
-                    if(GMHandlers.capAmount.get("CapturePoint"+area) >= 0){
+                    if(GMHandlers.capAmount.get("CapturePoint"+(area-1)) >= 0){
                         player.sendMessage(ChatColor.BLUE+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
                     }else{
                         player.sendMessage(ChatColor.RED+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))*-1+"%");
                     }
                 }
                 for(Player player : GMHandlers.redTeamCaptureDef){
-                    if(GMHandlers.capAmount.get("CapturePoint"+area) >= 0){
+                    if(GMHandlers.capAmount.get("CapturePoint"+(area-1)) >= 0){
                         player.sendMessage(ChatColor.BLUE+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
                     }else{
                         player.sendMessage(ChatColor.RED+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))*-1+"%");
@@ -223,16 +282,17 @@ public class Conquest extends BasePluginGamemode {
             l.getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
+            l.getBlock().getRelative(0,1,0).setType(Material.RED_STAINED_GLASS);
         }
         for(Player p : Bukkit.getOnlinePlayers()) {
             if(players.contains(p)){
-                if (Team.getBlue().size() <= Team.getBlue().size()){
-                    Team.getRed().add(p);
-                    p.teleport(m.getImportantPoints().get("Redspawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                }else if(Team.getBlue().size() < Team.getRed().size()){
+                if (Team.getBlue().size() <= Team.getRed().size()){
                     Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("Bluespawn1").toBukkitLoc().add(0,2,0));
+                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                    freezePlayer(p,140);
+                }else if(Team.getRed().size() < Team.getBlue().size()){
+                    Team.getRed().add(p);
+                    p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
                     freezePlayer(p,140);
                 }
             } else{
@@ -258,7 +318,23 @@ public class Conquest extends BasePluginGamemode {
                     Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                     Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                    for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + "Game Start!");
+                        p.setScoreboard(getScoreboard());
+                    }
+
+                    for(Player p : Team.getRed().getMembers()){
+                        GearHandler.giveGear(p, ChatColor.RED, GearHandler.SpecialGear.NONE);
+                    }
+                    for(Player p : Team.getBlue().getMembers()){
+                        GearHandler.giveGear(p, ChatColor.BLUE, GearHandler.SpecialGear.NONE);
+                    }
                     state = GameState.RUNNING;
+                    count = -1;
+                    for(Player p : players){
+                        p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
+                    }
                 }else if(count != -1){
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN+"Game begins in "+count);
@@ -271,6 +347,11 @@ public class Conquest extends BasePluginGamemode {
 
     public void End(Map m){
         state = GameState.IDLE;
+
+        for(Location l: GMHandlers.points.values()){
+            l.getBlock().setType(Material.AIR);
+            l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
+        }
 
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
@@ -368,33 +449,45 @@ public class Conquest extends BasePluginGamemode {
         @EventHandler
         public void onPlayerMove(PlayerMoveEvent event){
             // check if player enters area of beacon
-            Player player = event.getPlayer();
-            Location loc = player.getLocation();
-            if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area)).toBukkitLoc())>capturePointRadius){
-                if(Team.getRed().getMembers().contains(event.getPlayer())){
-                    redTeamCaptureAttack.add(player);
-                }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
-                    blueTeamCaptureAttack.add(player);
-                }
-            }else if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area)).toBukkitLoc())<capturePointRadius){
-                if(Team.getRed().getMembers().contains(event.getPlayer())){
-                    redTeamCaptureAttack.remove(player);
-                }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
-                    blueTeamCaptureAttack.remove(player);
-                }
-            }
-            if(area != 1){
-                if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area-1)).toBukkitLoc())>capturePointRadius){
-                    if(Team.getRed().getMembers().contains(event.getPlayer())){
-                        redTeamCaptureDef.add(player);
-                    }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
-                        blueTeamCaptureDef.add(player);
+            if(state == GameState.RUNNING) {
+                Player player = event.getPlayer();
+                Location loc = player.getLocation();
+                if (loc.distance(map.getImportantPoints().get("CapturePoint" + String.valueOf(area)).toBukkitLoc()) < capturePointRadius) {
+                    /*
+                    Bukkit.getPlayer("Jubo").sendMessage("1");
+                    Bukkit.getPlayer("Jubo").sendMessage(redTeamCaptureAttack.toString());
+                    Bukkit.getPlayer("Jubo").sendMessage(blueTeamCaptureAttack.toString());
+                    Bukkit.getPlayer("Jubo").sendMessage(redTeamCaptureDef.toString());
+                    Bukkit.getPlayer("Jubo").sendMessage(blueTeamCaptureDef.toString());
+                     */
+                    if (Team.getRed().getMembers().contains(event.getPlayer())) {
+                        if(!redTeamCaptureAttack.contains(player)) redTeamCaptureAttack.add(player);
+                    } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
+                        if(!blueTeamCaptureAttack.contains(player)) blueTeamCaptureAttack.add(player);
                     }
-                }else if(loc.distance(map.getImportantPoints().get("CapturePoint"+String.valueOf(area-1)).toBukkitLoc())<capturePointRadius){
-                    if(Team.getRed().getMembers().contains(event.getPlayer())){
-                        redTeamCaptureDef.remove(player);
-                    }else if(Team.getBlue().getMembers().contains(event.getPlayer())){
-                        blueTeamCaptureDef.remove(player);
+                } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + String.valueOf(area)).toBukkitLoc()) > capturePointRadius) {
+                    //Bukkit.getPlayer("Jubo").sendMessage("2");
+                    if (Team.getRed().getMembers().contains(event.getPlayer())) {
+                        redTeamCaptureAttack.remove(player);
+                    } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
+                        blueTeamCaptureAttack.remove(player);
+                    }
+                }
+                if (area != 1) {
+                    if (loc.distance(map.getImportantPoints().get("CapturePoint" + String.valueOf(area - 1)).toBukkitLoc()) < capturePointRadius) {
+                        //Bukkit.getPlayer("Jubo").sendMessage("3");
+                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
+                            if(!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
+                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
+                            if(!blueTeamCaptureDef.contains(player)) blueTeamCaptureDef.add(player);
+                        }
+                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + String.valueOf(area - 1)).toBukkitLoc()) > capturePointRadius) {
+                        //Bukkit.getPlayer("Jubo").sendMessage("4");
+                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
+                            redTeamCaptureDef.remove(player);
+                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
+                            blueTeamCaptureDef.remove(player);
+                        }
                     }
                 }
             }
@@ -407,8 +500,10 @@ public class Conquest extends BasePluginGamemode {
                     Player player = (Player) event.getEntity();
                     if(Team.getRed().getMembers().contains(player)){
                         redTeamCaptureAttack.remove(player);
+                        redTeamCaptureDef.remove(player);
                     }else if(Team.getBlue().getMembers().contains(player)){
                         blueTeamCaptureAttack.remove(player);
+                        blueTeamCaptureDef.remove(player);
                     }
                 }
             }
@@ -431,10 +526,10 @@ public class Conquest extends BasePluginGamemode {
         public void onPlayerRespawn(PlayerRespawnEvent event){
             if(state == GameState.RUNNING){
                 if(Team.getBlue().getMembers().contains(event.getPlayer())){
-                    event.setRespawnLocation(map.getImportantPoints().get("Bluespawn"
+                    event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn"
                             +String.valueOf(area)).toBukkitLoc().add(0,2,0));
                 }else if(Team.getRed().getMembers().contains(event.getPlayer())){
-                    event.setRespawnLocation(map.getImportantPoints().get("Redspawn"
+                    event.setRespawnLocation(map.getImportantPoints().get("RedSpawn"
                             +String.valueOf(area)).toBukkitLoc().add(0,2,0));
                 }
             }
