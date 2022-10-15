@@ -78,11 +78,11 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         @Override
         public void run(){
             time--;
-            
-            if(time % 60 == 0){
-                points.setDisplayName("Time: " + (time / 60) + "m");
-            }else if(time < 60){
-                points.setDisplayName("Time: " + time + "s");
+
+            if(time < 60 ){
+                points.setDisplayName("Time: "+ time + "s");
+            }else{
+                points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
             }
 
             if(time == 120){
