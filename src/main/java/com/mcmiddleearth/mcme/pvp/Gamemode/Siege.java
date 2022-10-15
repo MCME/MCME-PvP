@@ -89,11 +89,14 @@ public class Siege extends BasePluginGamemode {
     //  OTs cant overlap x
     //  bossbar for all players  x
     //  maybe even 2??  x nope
-    //  testing and balancing OT
+    //  testing and balancing OT   x
     //  Cleanup
     //  reset Flags after recap  x
     //  recapping only when other cap is still red x
     //  OT problems x
+    //  area-1 if not completly taken glass doesnt appear (??) needs to be tested again   x
+    //  OT for red team. red team recaptures . weird error message    x
+    //  OT for red team. red team doesnt recapture both teams win  x
 
     public Siege(){ state = GameState.IDLE; }
 
@@ -101,10 +104,10 @@ public class Siege extends BasePluginGamemode {
         @Override
         public void run() {
             time--;
-            if(time % 60 == 0){
-                Points.setDisplayName(overtime+"Time: "+(time / 60) + "m");
-            }else if(time < 60 ){
+            if(time < 60 ){
                 Points.setDisplayName(overtime+"Time: "+ time + "s");
+            }else{
+                Points.setDisplayName(overtime+"Time: "+(time / 60) + "m "+time%60+"s");
             }
             if(time == 30){
                 for(Player player : Bukkit.getOnlinePlayers()){
@@ -121,7 +124,7 @@ public class Siege extends BasePluginGamemode {
             }
             if(time == 0){
                 if(redOvertimeBool && !overtimeFinished) blueTeamWin();
-                if(!overtimeBool && !GMHandlers.blueTeamCaptureAttack.isEmpty() && area == maxArea-1){
+                else if(!overtimeBool && !GMHandlers.blueTeamCaptureAttack.isEmpty() && area == maxArea-1){
                     overtime = "Overtime: ";
                     time = 121;
                     overtimeBool = true;
@@ -152,7 +155,7 @@ public class Siege extends BasePluginGamemode {
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "The game is going into overtime! Red Team: Try to recapture the point.");
                     }
-                }else if(!redOvertimeBool){
+                }else if(!redOvertimeBool ^ overtimeFinished){
                     blueTeamWin();
                 }
             }
@@ -189,16 +192,18 @@ public class Siege extends BasePluginGamemode {
                 bar.setProgress(1.0);
                 sendCaptureSound();
             }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= -100){
-                if(overtimeBool && redOvertimeBool){
+                if(overtimeBool && redOvertimeBool && !overtimeFinished){
                     time = tempOTtime;
                     bar.setVisible(true);
                     overtime = "";
                     overtimeFinished = true;
                 }
-                GMHandlers.capAmount.replace("CapturePoint"+area,-100);
-                Block b2 = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
-                b2.setType(Material.AIR);
-                b2.setType(Material.BLUE_STAINED_GLASS);
+                if(GMHandlers.capAmount.containsKey("CaptpturePoint"+area)){
+                    GMHandlers.capAmount.replace("CapturePoint"+area,-100); //error
+                    Block b2 = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
+                    b2.setType(Material.AIR);
+                    b2.setType(Material.BLUE_STAINED_GLASS);
+                }
                 //Tea, captured
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
@@ -426,7 +431,7 @@ public class Siege extends BasePluginGamemode {
 
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tickCQ,0,20);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),flagPoints,0,20);
-                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),arrowHandler,0,20*10);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),arrowHandler,0,20*5);
 
                     Points = getScoreboard().registerNewObjective("Score","dummy");
                     Points.setDisplayName("Time: " + time + "m");
@@ -483,7 +488,7 @@ public class Siege extends BasePluginGamemode {
 
         area = 1;
 
-        redScore = 3;
+        redScore = GMHandlers.areaTemp;
         blueScore = 0;
 
         bar.removeAll();
@@ -595,7 +600,7 @@ public class Siege extends BasePluginGamemode {
                     capAmount.put(e.getKey(),-100);
                     areaTemp = areaTemp + 1;
                     capturePointNames.add("Capture Point "+areaTemp);
-                    Bukkit.getPlayer("Jubo").sendMessage(String.valueOf(areaTemp));
+                    //Bukkit.getPlayer("Jubo").sendMessage(String.valueOf(areaTemp));
                 }
             }
             maxArea = areaTemp + 1;
@@ -646,6 +651,11 @@ public class Siege extends BasePluginGamemode {
                         } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
                             blueTeamCaptureDef.remove(player);
                         }
+                    }
+                    if(loc.getBlockY() > 90){
+                        if(!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
+                    }else{
+                        redTeamCaptureDef.remove(player);
                     }
                 }
             }
