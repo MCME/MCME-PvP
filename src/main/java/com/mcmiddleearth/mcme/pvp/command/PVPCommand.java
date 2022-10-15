@@ -599,9 +599,10 @@ public class PVPCommand extends CommandDispatcher<Player>{
                     case "egghunt":
                         source.sendMessage(ChatColor.GREEN + "Egg Hunt Rules");
                         source.sendMessage(ChatColor.GRAY + "Around the map, there are several eggs (wool blocks). Each one is worth a different amount of points. To 'take' the egg, right click on it, and a certain points will be added to your score. However, if you die, points will be reducted. Happy Hunting!");
-                    case "conquest":
-                        source.sendMessage(ChatColor.GREEN+"Conquest");
-                        source.sendMessage(ChatColor.GRAY+"Test");
+                    case "siege":
+                        source.sendMessage(ChatColor.GREEN+"Siege");
+                        source.sendMessage(ChatColor.GRAY+"Two Teams. There are 3 beacons, but on a linear format. You are forced to take one beacon at a time.");
+                        source.sendMessage(ChatColor.GRAY+"Each time the attacking team captures a beacon, they spawn near that beacon, until otherwise reclaimed by the defending team.");
                 }
                 break;
             case "deleteMap":
