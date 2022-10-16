@@ -26,8 +26,10 @@ import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,12 +37,17 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.logging.Logger;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {
 
@@ -70,7 +77,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private GamemodeHandlers GMHandlers;
 
     private boolean midgameJoin = true;
 
@@ -97,15 +104,16 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         }//if not all points are set this error pops up
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            GMHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(GMHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         for(Player p : players) {//this distributes players evenly across teams
             if (Team.getRed().size() <= Team.getBlue().size()) {
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }//case goes from 1 to x,where x is the number of spawns
             //cycles through different spawn points
 
@@ -221,7 +229,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         return "whatever it is the gamemode needs to end, the goal basically, like kills or time";
     }
 
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         /*
         This is where the logic of the game goes. This example below is Team Slayer, but put your own work in
          */

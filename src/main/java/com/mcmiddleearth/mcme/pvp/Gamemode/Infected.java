@@ -18,6 +18,7 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
@@ -28,13 +29,17 @@ import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -50,10 +55,8 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "InfectedSpawn",
-        "SurvivorSpawn",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("InfectedSpawn",
+            "SurvivorSpawn"));
     
     private GameState state;
     
@@ -61,9 +64,9 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     
     private int count;
     
-    private Objective Points;
+    private Objective points;
     
-    private Gamepvp pvp;
+    private GameHandlers INFHandlers;
     
     private int time;
     
@@ -75,33 +78,37 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         @Override
         public void run(){
             time--;
-            
-            if(time % 60 == 0){
-                Points.setDisplayName("Time: " + (time / 60) + "m");
-            }else if(time < 60){
-                Points.setDisplayName("Time: " + time + "s");
+
+            if(time < 60 ){
+                points.setDisplayName("Time: "+ time + "s");
+            }else{
+                points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
             }
-            
+
+            if(time == 120){
+                for(Player player: Bukkit.getOnlinePlayers()) {
+                    ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
+                    player.getInventory().setItem(3, COMPASS);
+                }
+                Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), compass, 0, 20);
+            }
+
             if(time == 30){
-                
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendMessage(ChatColor.GREEN + "30 seconds remaining!");
                 }
-                
             }
+
             else if(time <= 10 && time > 1){
-                
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " seconds remaining!");
                 }
-                
             }
+
             else if(time == 1){
-                
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
                 }
-                
             }
             
             if(time == 0){
@@ -109,7 +116,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                 int loopnum = 0;
                 for(Player p : Team.getSurvivor().getMembers()){
                     if(Team.getSurvivor().size() > 1 && loopnum == (Team.getSurvivor().size() - 1)){
-                
                         remainingPlayers += (", and " + p.getName());
                     }
                     else if(Team.getSurvivor().size() == 1 || loopnum == 0){
@@ -118,7 +124,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     else{
                         remainingPlayers += (", " + p.getName());
                     }
-            
                     loopnum++;
                 }
                 
@@ -154,24 +159,28 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            INFHandlers = new GameHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(INFHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
         int c = 0;
         int infected = rand.nextInt(players.size());
         for(Player p : players){
-            
             if(c == infected){
                 Team.getInfected().add(p);
                 p.teleport(m.getImportantPoints().get("InfectedSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
+                GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             }
             
             else{
                 Team.getSurvivor().add(p);
                 p.teleport(m.getImportantPoints().get("SurvivorSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
+                GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
             }
             
             c++;
@@ -192,13 +201,14 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         }
                         
                         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), tick, 0, 20);
-                        
-                        Points = getScoreboard().registerNewObjective("Remaining", "dummy");
-                        Points.setDisplayName("Time: " + time + "m");
+
+                        if (points == null)
+                        points = getScoreboard().registerNewObjective("Remaining", "dummy");
+                        points.setDisplayName("Time: " + time + "m");
                         time *= 60;
-                        Points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
-                        Points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
-                        Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+                        points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
+                        points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
+                        points.setDisplaySlot(DisplaySlot.SIDEBAR);
                         
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -231,7 +241,39 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
 
             }, 40, 20);
     }
-    
+
+    /**
+     * Sets target of compass for each player from team infected to location of the nearest player of team survivor.
+     */
+    Runnable compass = new Runnable() {
+        @Override
+        public void run() {
+            for (Player player : Team.getInfected().getMembers()) {
+                player.setCompassTarget(getNearest(player).getLocation());
+                ActionBarHandler.sendActionBarMessage(player, ChatColor.RED + "" + ChatColor.BOLD + "Tracking survivors!");
+            }
+        }
+    };
+
+    /**
+     * Determines the closest player of team survivor to the given player.
+     *
+     * @param sourcePlayer Represents a player.
+     * @return Closest survivor to given player.
+     */
+    public Player getNearest(Player sourcePlayer) {
+        double distance = Double.POSITIVE_INFINITY;
+        Player target = null;
+        for (Player targetPlayer : Team.getSurvivor().getMembers()) {
+            double distanceTo = sourcePlayer.getLocation().distance(targetPlayer.getLocation());
+            if (distanceTo > distance)
+                continue;
+            distance = distanceTo;
+            target = targetPlayer;
+        }
+        return target;
+    }
+
     @Override
     public void End(Map m){
         state = GameState.IDLE;
@@ -255,24 +297,57 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             return false;
         }
     }
-    
-    private class Gamepvp implements Listener{
+    @Override
+    public void checkWin(){
+        if(Team.getSurvivor().size() < 1) {
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(ChatColor.DARK_RED + "Game over!");
+                player.sendMessage(ChatColor.DARK_RED + "Infected Wins!");
+            }
+            PlayerStat.addGameWon(Teams.INFECTED);
+            PlayerStat.addGameLost(Teams.SURVIVORS);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+            return;
+        }
+        if(Team.getInfected().size() < 1){
+                for(Player player : Bukkit.getOnlinePlayers()){
+                    player.sendMessage(ChatColor.DARK_RED + "Game over!");
+                    player.sendMessage(ChatColor.DARK_RED + "Survivor Wins!");
+            }
+            PlayerStat.addGameWon(Teams.SURVIVORS);
+            PlayerStat.addGameLost(Teams.INFECTED);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+    }
+    private class GameHandlers implements Listener{
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
             
-            if(e.getEntity() instanceof Player && state == GameState.RUNNING){
+            if(state == GameState.RUNNING){
                 Player p = e.getEntity();
                 
                 if(Team.getSurvivor().getMembers().contains(p)){
-                    e.setDeathMessage(ChatColor.BLUE + p.getName() + ChatColor.GRAY + " was infected by " + ChatColor.DARK_RED + p.getKiller().getName());
-                    Points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size() - 1);
-                    Points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size() + 1);
+                    if(p.getKiller() ==  null){
+                        e.setDeathMessage(ChatColor.BLUE + p.getName() + ChatColor.GRAY + " was infected by " + ChatColor.DARK_RED + "stupidity");
+                    }
+                    else {
+                        e.setDeathMessage(ChatColor.BLUE + p.getName() + ChatColor.GRAY + " was infected by " + ChatColor.DARK_RED + p.getKiller().getName());
+                    }
+                    points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size() - 1);
+                    points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size() + 1);
 
                     GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
+                    if(time < 120){
+                        ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
+                        p.getInventory().setItem(3, COMPASS);
+                    }
                     Team.getInfected().add(p);
                     if(Team.getSurvivor().size() < 1){
-
                         for(Player player : Bukkit.getOnlinePlayers()){
                             player.sendMessage(ChatColor.DARK_RED + "Game over!");
                             player.sendMessage(ChatColor.DARK_RED + "Infected Wins!");
@@ -289,22 +364,9 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
-            
-            final Player p = e.getPlayer();
-
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+            final Player player = e.getPlayer();
+            if(state == GameState.RUNNING && players.contains(player)){
                 e.setRespawnLocation(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
-                
-                Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), new Runnable(){
-                    
-                    @Override
-                    public void run(){
-                     
-                        GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
-                        Team.getInfected().add(p);
-                    }
-                    
-                }, 40);
             }
         }
         
@@ -315,8 +377,8 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                 
                 Team.removeFromTeam(e.getPlayer());
                 
-                Points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
-                Points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
+                points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
+                points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
                 
                 if(Team.getSurvivor().size() <= 0){
                 
@@ -336,7 +398,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     int loopnum = 0;
                     for(Player p : Team.getSurvivor().getMembers()){
                         if(Team.getSurvivor().size() > 1 && loopnum == (Team.getSurvivor().size() - 1)){
-                
                             remainingPlayers += (", and " + p.getName());
                         }
                         else if(Team.getSurvivor().size() == 1 || loopnum == 0){
@@ -365,25 +426,12 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     
     @Override
     public boolean midgamePlayerJoin(Player p){
-        if(time >= 120 && (!Team.getInfected().getAllMembers().contains(p) || !Team.getSurvivor().getAllMembers().contains(p))){
-            if(Team.getInfected().getAllMembers().contains(p)){
-                Team.getInfected().add(p);
-                p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
-                Points.getScore(ChatColor.DARK_RED + "Survivors:").setScore(Team.getInfected().size());
-                super.midgamePlayerJoin(p);
-                
-                GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
-                
-                return true;
-            }
-            
-            Team.getSurvivor().add(p);
-            p.teleport(map.getImportantPoints().get("SurvivorSpawn").toBukkitLoc().add(0, 2, 0));
-            Points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size());
+        if(time >= 120){
+            Team.getInfected().add(p);
+            p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 2, 0));
+            points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
             super.midgamePlayerJoin(p);
-            
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
-            
+            GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
             return true;
         }else{
             return false;
@@ -401,6 +449,6 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     }
 
     public Objective getPoints() {
-        return Points;
+        return points;
     }
 }

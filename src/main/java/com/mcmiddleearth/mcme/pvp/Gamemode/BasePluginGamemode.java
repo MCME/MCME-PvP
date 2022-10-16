@@ -19,26 +19,27 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
-import com.mcmiddleearth.mcme.pvp.Handlers.ArrowHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
-import com.mcmiddleearth.mcme.pvp.Gamemode.*;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.entity.Arrow;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static java.lang.Math.random;
 
 /**
  *
@@ -46,51 +47,60 @@ import java.util.ArrayList;
  */
 public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.Gamemode.Gamemode {
 
+
     @JsonIgnore
     ArrayList<Player> players = new ArrayList<>();
+    static HashSet<UUID> frozen = new HashSet<>();
+    /**
+     * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
+     * COUNTDOWN = /pvp game start has been performed, 5-second countdown before the game starts.
+     * RUNNING = The game is running.
+     */
     public enum GameState {
         IDLE, COUNTDOWN, RUNNING
     }
 
-    
     private static Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
     
     public void playerLeave(Player p){
         players.remove(p);
+        checkWin();
     }
     
     @Override
     public void Start(Map m, int parameter){
+
         PVPCommand.toggleVoxel("true");
-        
-        ArrowHandler.initializeArrowHandling();
-        
         for(Player p : players){
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
-        /*if(m.getResourcePackURL() != null){
-            for(Player p : Bukkit.getOnlinePlayers()){
-                if(!players.contains(p)){
-                    try{
-                        p.setResourcePack(m.getResourcePackURL());
+        HashMap<Player, Location> lastLocation = new HashMap<>();
+        HashMap<String, Long> lastOutOfBounds = new HashMap<>();
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
+            @Override
+            public void run() {
+                for(Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    Location currentLoc = player.getLocation();
+                    if (!PVPCommand.getRunningGame().getRegion().contains(BlockVector3.at(currentLoc.getX(), currentLoc.getY(), currentLoc.getZ()))) {
+                        player.teleport(lastLocation.get(player));
+                        if (!lastOutOfBounds.containsKey(player.getName())) {
+                            player.sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
+                            lastOutOfBounds.put(player.getName(), System.currentTimeMillis());
+                        } else if (System.currentTimeMillis() - lastOutOfBounds.get(player.getName()) > 3000) {
+                            player.sendMessage(ChatColor.RED + "You aren't allowed to leave the map!");
+                            lastOutOfBounds.put(player.getName(), System.currentTimeMillis());
+                        }
                     }
-                    catch(NullPointerException e){
-                        p.sendMessage(ChatColor.RED + "No resource pack was set for this map!");
-                    }
+                    lastLocation.put(player, player.getLocation());
                 }
             }
-        }*/
-        
+        }, 0, 10);
     }
     
     @Override
     public void End(Map m){
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
-        
-        /*for(Player p : Bukkit.getOnlinePlayers()){
-            p.setResourcePack("http://www.mcmiddleearth.com/content/Eriador.zip");
-        }*/
         
         Team.resetAllTeams();
         
@@ -102,16 +112,15 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         ChatHandler.getPlayerColors().clear();
         
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
+            ActionBarHandler.sendActionBarMessage(p, "");
             BukkitTeamHandler.removeFromBukkitTeam(p);
             ChatHandler.getPlayerColors().put(p.getName(), ChatColor.WHITE);
-            p.teleport(PVPPlugin.getSpawn());
+            p.teleport(PVPPlugin.getLobby());
             p.setDisplayName(ChatColor.WHITE + p.getName());
             p.setPlayerListName(ChatColor.WHITE + p.getName());
             p.getInventory().clear();
             p.setTotalExperience(0);
             p.setExp(0);
-            p.getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
-            new ItemStack(Material.AIR), new ItemStack(Material.AIR)});
             p.setGameMode(GameMode.ADVENTURE);
             p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
             ChatHandler.getPlayerPrefixes().remove(p.getName());
@@ -120,12 +129,21 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
                 p.setHealth(20);
             }
         }
-        for(Arrow arrow : Bukkit.getWorld(m.getSpawn().getWorld()).getEntitiesByClass(Arrow.class)) {
-            arrow.remove();
-        }
     }
-    
-    
+
+    /**
+     * Sorts players by kd.
+     */
+    public void kdSort(){
+        players.sort((Player p1, Player p2) -> {
+            double offset = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            if (PlayerStat.getKD(p1) + offset > PlayerStat.getKD(p2) + offset)
+                return 1;
+            else
+                return -1;
+        });
+    }
+
     public boolean midgamePlayerJoin(Player p){
         PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         String message = "";
@@ -156,15 +174,36 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         }
         
         else if(PVPCommand.getRunningGame().getGm() instanceof Infected){
-            
-            message = ChatColor.BLUE + p.getName() + ChatColor.GRAY + " has joined the fight as a " + ChatColor.BLUE + "Survivor!";
-            
+            message = ChatColor.DARK_RED + p.getName() + ChatColor.GRAY + " has joined the fight as a " + ChatColor.DARK_RED + "Infected!";
         }
         for(Player pl : Bukkit.getOnlinePlayers()){
             pl.sendMessage(message);
         }
         
         return true;
+    }
+
+    public void checkWin(){
+    }
+
+    public void freezePlayer(Player p, int ticks){
+        p.setAllowFlight(true);
+        p.teleport(p.getLocation().add(0,0.1,0));
+        p.setFlying(true);
+        p.setFlySpeed(0);
+        frozen.add(p.getUniqueId());
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
+    }
+
+    public void unFreezePlayer(Player p){
+        p.setAllowFlight(false);
+        p.setFlying(false);
+        p.setFlySpeed(0.1F);
+        frozen.remove(p.getUniqueId());
+    }
+
+    public static boolean isFrozen(Player p){
+        return frozen.contains(p.getUniqueId());
     }
 
     @Override

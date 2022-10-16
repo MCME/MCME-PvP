@@ -66,7 +66,8 @@ public class AntiCheatListeners implements Listener{
         if((e.getPlayer().getName().equals("DSESGH") || 
                 e.getPlayer().getName().equals("Dallen") || 
                 e.getPlayer().getName().equals("q220") || 
-                e.getPlayer().getName().equals("Finrod_Amandil") || 
+                e.getPlayer().getName().equals("Finrod_Amandil") ||
+                e.getPlayer().getName().equals("barteldvn") ||
                 e.getPlayer().getName().equals("DynoDaring")) && !command.equalsIgnoreCase("/stop")){
             return;
         }
@@ -203,27 +204,27 @@ public class AntiCheatListeners implements Listener{
         return lastInteract;
     }
 
-    @EventHandler
-    public static void onPlayerClick(PlayerInteractEvent e){
-        
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK) || e.getAction().equals(Action.RIGHT_CLICK_AIR)){
-            if(!lastInteract.containsKey(e.getPlayer().getName())){
-                lastInteract.put(e.getPlayer().getName(), (System.currentTimeMillis() - 100));
-            }
-            
-            if(System.currentTimeMillis() - lastInteract.get(e.getPlayer().getName()) <= 85){
-                e.setCancelled(true);
-            }
-        
-            if(lastInteract.keySet().contains(e.getPlayer().getName())){
-                lastInteract.remove(e.getPlayer().getName());
-                lastInteract.put(e.getPlayer().getName(), System.currentTimeMillis());
-            }else{
-                lastInteract.put(e.getPlayer().getName(), System.currentTimeMillis());
-            }
-        }
-        
-    }
+//    @EventHandler
+//    public static void onPlayerClick(PlayerInteractEvent e){
+//
+//        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) || e.getAction().equals(Action.LEFT_CLICK_AIR) || e.getAction().equals(Action.LEFT_CLICK_BLOCK) || e.getAction().equals(Action.RIGHT_CLICK_AIR)){
+//            if(!lastInteract.containsKey(e.getPlayer().getName())){
+//                lastInteract.put(e.getPlayer().getName(), (System.currentTimeMillis() - 100));
+//            }
+//
+//            if(System.currentTimeMillis() - lastInteract.get(e.getPlayer().getName()) <= 85){
+//                e.setCancelled(true);
+//            }
+//
+//            if(lastInteract.keySet().contains(e.getPlayer().getName())){
+//                lastInteract.remove(e.getPlayer().getName());
+//                lastInteract.put(e.getPlayer().getName(), System.currentTimeMillis());
+//            }else{
+//                lastInteract.put(e.getPlayer().getName(), System.currentTimeMillis());
+//            }
+//        }
+//
+//    }
     
     private static String truncateAtFirstSpace(String s){
         

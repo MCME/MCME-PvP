@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -46,13 +47,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static org.bukkit.potion.PotionEffectType.GLOWING;
+
 /**
  *
  * @author Donovan <dallen@dallen.xyz>
  */
 public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {//Handled by plugin
-    
-    private final int target = 100;
     
     private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
         "RedSpawn",
@@ -64,21 +65,17 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private int count;
     
     private GameState state;
-    
-    boolean hasTeams = false;
-    
+    private GamemodeHandlers pvp;
+
     private Player redBearer = null;
+    private Player blueBearer = null;
     
     private boolean redCanRespawn;
     private boolean redBearerHasRespawned;
     
-    private Player blueBearer = null;
-    
     private boolean blueCanRespawn;
     private boolean blueBearerHasRespawned;
-    
-    private Gamepvp pvp;
-    
+
     private boolean pvpRegistered = false;
     
     private Objective Points;
@@ -99,7 +96,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         if((redBearer.getInventory().getHelmet() == null || redBearer.getInventory().getHelmet().getType() != Material.GLOWSTONE) &&
-                                redCanRespawn){
+                                redCanRespawn&& (!redBearer.hasPotionEffect(PotionEffectType.INVISIBILITY))){
                             redBearer.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE));
                         }
                         
@@ -111,7 +108,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         if((blueBearer.getInventory().getHelmet() == null || blueBearer.getInventory().getHelmet().getType() != Material.GLOWSTONE) &&
-                                blueCanRespawn){
+                                blueCanRespawn && (!blueBearer.hasPotionEffect(PotionEffectType.INVISIBILITY))){
                             blueBearer.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE));
                         }
                         
@@ -123,6 +120,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     @Override
     public void Start(Map m,int parameter) {
+        kdSort();
         super.Start(m,parameter);
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
@@ -136,7 +134,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            pvp = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
             pm.registerEvents(pvp, PVPPlugin.getPlugin());
             pvpRegistered = true;
@@ -157,9 +155,11 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 if(Team.getBlue().size() >= Team.getRed().size()){
                     Team.getRed().add(p);
                     p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }else if(Team.getBlue().size() < Team.getRed().size()){
                     Team.getBlue().add(p);
                     p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    freezePlayer(p, 140);
                 }
             }else{
                 Team.getSpectator().add(p);
@@ -288,10 +288,13 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         else if((redCanRespawn && !blueCanRespawn)){
-            addToTeam(p, Teams.RED);
+            return false;
         }
         else if((blueCanRespawn && !redCanRespawn) || Team.getBlue().getAllMembers().contains(p)){
-            addToTeam(p, Teams.BLUE);
+            return false;
+        }
+        else if((!redCanRespawn && !blueCanRespawn)){
+            return false;
         }
         else if(redCanRespawn && blueCanRespawn){
             
@@ -321,60 +324,94 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
         }
     }
-    
+
+    public void checkWin(){
+        if(Team.getRed().size() <= 0){
+
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                pl.sendMessage(ChatColor.BLUE + "Game over!");
+                pl.sendMessage(ChatColor.BLUE + "Blue Team Wins!");
+            }
+            PlayerStat.addGameWon(Teams.BLUE);
+            PlayerStat.addGameLost(Teams.RED);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+        else if(Team.getBlue().size() <= 0){
+
+            for(Player pl : Bukkit.getOnlinePlayers()){
+                pl.sendMessage(ChatColor.RED + "Game over!");
+                pl.sendMessage(ChatColor.RED + "Red Team Wins!");
+            }
+            PlayerStat.addGameWon(Teams.RED);
+            PlayerStat.addGameLost(Teams.BLUE);
+            PlayerStat.addGameSpectatedAll();
+            End(map);
+        }
+    }
     public String requiresParameter(){
         return "none";
     }
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
             
-            if(state == GameState.RUNNING && e.getEntity() instanceof Player){
-                Player p = (Player) e.getEntity();
+            if(state == GameState.RUNNING){
+                Player player = playerDeathEvent.getEntity();
                 
-                if(Team.getRed().getMembers().contains(p)){
+                if(Team.getRed().getMembers().contains(player)){
                     
-                    if(redBearer.equals(p) && redCanRespawn){
+                    if(redBearer.equals(player) && redCanRespawn){
                         redCanRespawn = false;
-                        GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
-                        BukkitTeamHandler.addToBukkitTeam(p, ChatColor.RED);
+                        GearHandler.giveGear(player, ChatColor.RED, SpecialGear.NONE);
+                        BukkitTeamHandler.addToBukkitTeam(player, ChatColor.RED);
+                        if(blueCanRespawn){
+                        getBlueBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));
+                        }
                         
                         for(Player pl : Bukkit.getOnlinePlayers()){
                             pl.sendMessage(ChatColor.RED + "Red Team's Ringbearer has been killed!");
                             pl.sendMessage(ChatColor.RED + "They can't respawn!");
                         }
                     }
-                    else if(p.equals(redBearer) && redBearerHasRespawned){
-                        Team.getSpectator().add(p);
+                    else if(player.equals(redBearer) && redBearerHasRespawned){
+                        Team.getSpectator().add(player);
                     }
                     
                     else if(!redCanRespawn){
-                        Team.getSpectator().add(p);
+                        Team.getSpectator().add(player);
+                    }
+                    for(PotionEffect effect:player.getActivePotionEffects()) {
+                        player.removePotionEffect(effect.getType());
                     }
                     
                 }
-                else if(Team.getBlue().getMembers().contains(p)){
+                else if(Team.getBlue().getMembers().contains(player)){
                     
-                    if(blueBearer.equals(p) && blueCanRespawn){
+                    if(blueBearer.equals(player) && blueCanRespawn){
                         blueCanRespawn = false;
-                        GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
-                        BukkitTeamHandler.addToBukkitTeam(p, ChatColor.BLUE);
-                        
+                        GearHandler.giveGear(player, ChatColor.BLUE, SpecialGear.NONE);
+                        BukkitTeamHandler.addToBukkitTeam(player, ChatColor.BLUE);
+                        if(redCanRespawn){
+                            getRedBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));
+                        }
                         for(Player pl : Bukkit.getOnlinePlayers()){
                             pl.sendMessage(ChatColor.BLUE + "Blue Team's Ringbearer has been killed!");
                             pl.sendMessage(ChatColor.BLUE + "They can't respawn!");
                         }
                     }
                     
-                    else if(p.equals(blueBearer) && blueBearerHasRespawned){
-                        Team.getSpectator().add(p);
+                    else if(player.equals(blueBearer) && blueBearerHasRespawned){
+                        Team.getSpectator().add(player);
                     }
                     
                     else if(!blueCanRespawn){
-                        Team.getSpectator().add(p);
+                        Team.getSpectator().add(player);
                     }
-                    
+                    for(PotionEffect effect:player.getActivePotionEffects()) {
+                        player.removePotionEffect(effect.getType());
+                    }
                 }
                 
                 Points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());
@@ -506,13 +543,10 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
     }
 
-    public int getTarget() {
-        return target;
-    }
 
     @Override
     public ArrayList<String> getNeededPoints() {
-        return NeededPoints;
+        return new ArrayList<>(this.NeededPoints);
     }
 
     @Override
@@ -527,4 +561,5 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     public Player getBlueBearer() {
         return blueBearer;
     }
+
 }

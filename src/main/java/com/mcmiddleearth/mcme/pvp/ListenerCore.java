@@ -49,9 +49,6 @@ public class ListenerCore implements Listener{
     }
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent e){
-//        World pw = e.getEntity().getWorld();
-//        if(Main.getPlugin().getNoHunger().contains(pw.getName())){
             e.setFoodLevel(20);
-//        }
     }
 }

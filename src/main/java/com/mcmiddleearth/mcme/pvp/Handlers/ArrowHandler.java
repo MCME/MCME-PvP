@@ -18,46 +18,71 @@
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
+import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
+import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
+import org.bukkit.inventory.ItemStack;
 
 /**
  *
- * @author Eric
+ * @author barteldvn
  */
-public class ArrowHandler implements Listener{
-    
-    public static void initializeArrowHandling(){
-        Bukkit.getPluginManager().registerEvents(new ArrowHandler(), PVPPlugin.getPlugin());
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), despawnArrows, 0, 5);
-    }
-    
-    public static Runnable despawnArrows = new Runnable(){
-        @Override
-        public void run(){
-            if(Bukkit.getOnlinePlayers().size() > 0){
-                Player p = (Player) Bukkit.getOnlinePlayers().toArray()[0];
-            
-                for(Arrow arrow : p.getWorld().getEntitiesByClass(Arrow.class)){
-                
-                    if(arrow.isOnGround()){
-                        arrow.remove();
-                    }
-                
-                }
-            }
-            
-        }
-    };
-    
+public class ArrowHandler implements Listener {
+
+    /**
+     * Removes arrow 9 seconds after it hits a block.
+     *
+     * @param projectileHitEvent Projectile hitting an object event.
+     */
     @EventHandler
-    public void onArrowPickup (PlayerPickupArrowEvent e){
-        e.setCancelled(true);
+    public void onArrowHitBlock(ProjectileHitEvent projectileHitEvent) {
+        Projectile projectile = projectileHitEvent.getEntity();
+        if (projectile instanceof Arrow && projectileHitEvent.getHitBlock() != null) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), projectile::remove, 180);
+        }
     }
-    
+
+    /**
+     * Cancels players picking up any arrows in OITQ and Deathrun.
+     * Cancels players picking up more than 24 arrows in all GM.
+     *
+     * @param arrowPickupEvent Player arrow pickup event.
+     */
+    @EventHandler
+    public void onArrowPickup(PlayerPickupArrowEvent arrowPickupEvent) {
+        if (PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver || PVPCommand.getRunningGame().getGm() instanceof DeathRun || arrowPickupEvent.getPlayer().getInventory().contains(Material.ARROW, 24)) {
+            arrowPickupEvent.setCancelled(true);
+        }
+    }
+
+    /**
+     * Adds arrow back to player's inventory after shooting one.
+     *
+     * @param entityShootBowEvent Entity shoots bow.
+     */
+    @EventHandler
+    public void onArrowShoot(EntityShootBowEvent entityShootBowEvent) {
+        if (entityShootBowEvent.getEntity() instanceof Player) {
+            Player shooter = (Player) entityShootBowEvent.getEntity();
+            ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> {
+                if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {
+                    shooter.getInventory().setItem(8, Arrow);
+                }
+            }, 1);
+        }
+    }
+
+
 }

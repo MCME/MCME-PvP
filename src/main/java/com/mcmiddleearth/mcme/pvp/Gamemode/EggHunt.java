@@ -22,6 +22,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -55,7 +57,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private GamemodeHandlers EHHandlers;
 
     private HashMap<String, String> playerDeaths = new HashMap<String, String>();
 
@@ -157,9 +159,9 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            EHHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(EHHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
 
@@ -167,6 +169,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
                 p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
                 }
@@ -421,7 +424,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         return "time in minutes";
     }
 
-    private class Gamepvp implements Listener {
+    private class GamemodeHandlers implements Listener {
 
     //Red Wool = 1 points, Orange Wool = 2 points, Green Wool = 3 points, Blue Wool = 4 points, Pink Wool = 5 points
 

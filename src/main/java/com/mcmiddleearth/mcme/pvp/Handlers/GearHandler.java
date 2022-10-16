@@ -17,11 +17,9 @@
  * 
  */
 package com.mcmiddleearth.mcme.pvp.Handlers;
+import com.mcmiddleearth.mcme.pvp.Gamemode.*;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
-import com.mcmiddleearth.mcme.pvp.Gamemode.Ringbearer;
-import com.mcmiddleearth.mcme.pvp.Gamemode.TeamConquest;
-import com.mcmiddleearth.mcme.pvp.Gamemode.TeamSlayer;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import java.util.Arrays;
 import java.util.Random;
@@ -108,13 +106,15 @@ public class GearHandler {
                     case BLACK:
                         lam.setColor(DyeColor.BLACK.getColor());
                 }
-                
+
                 items[i].setItemMeta(lam);
             }
             else{
-                items[i].addUnsafeEnchantment(Enchantment.DURABILITY, 10);
             }
-            items[i].getItemMeta().setUnbreakable(true);
+            ItemMeta itemmeta;
+            itemmeta = items[i].getItemMeta();
+            itemmeta.setUnbreakable(true);
+            items[i].setItemMeta(itemmeta);
         }
         p.getInventory().clear();
         p.getInventory().setHelmet(new ItemStack(Material.AIR));
@@ -122,18 +122,22 @@ public class GearHandler {
         p.getInventory().setLeggings(new ItemStack(Material.AIR));
         p.getInventory().setBoots(new ItemStack(Material.AIR));
         
-        if(sg == SpecialGear.RINGBEARER){
+        if(sg == SpecialGear.RINGBEARER ){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
-            
+            p.getInventory().setChestplate(items[1]);
+            p.getInventory().setLeggings(items[2]);
+            p.getInventory().setBoots(items[3]);
         }
-        
-        else if(sg != SpecialGear.INFECTED){
+
+
+        if(sg != SpecialGear.INFECTED){
             p.getInventory().setHelmet(items[0]);
         }
         
         
         if(sg == SpecialGear.INFECTED){
             p.getInventory().setChestplate(items[1]);
+            p.getInventory().addItem(items[6]);
         }
         else{
             p.getInventory().setChestplate(items[1]);
@@ -142,19 +146,17 @@ public class GearHandler {
             
         }
         
-        if(sg == SpecialGear.ONEINTHEQUIVER){
-            items[5].addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 13);
-        }
-        else{
-            items[5].addEnchantment(Enchantment.ARROW_INFINITE, 1);
-            p.getInventory().addItem(items[6]);
-        }
-        
         p.getInventory().addItem(items[4]);
         p.getInventory().addItem(items[5]);
-        
-        ItemStack Arrows = new ItemStack(Material.ARROW, 1);
-        p.getInventory().addItem(Arrows);
+
+        if(sg == SpecialGear.ONEINTHEQUIVER) {
+            ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+            p.getInventory().setItem(8, Arrow);
+        }
+        else {
+            ItemStack Arrows = new ItemStack(Material.ARROW, 24);
+            p.getInventory().setItem(8, Arrows);
+        }
         
         if(sg == SpecialGear.RINGBEARER){
             giveCustomItem(p, CustomItem.RING);
@@ -197,16 +199,16 @@ public class GearHandler {
         
         @EventHandler
         public void onPlayerInteract(PlayerInteractEvent e){
+
             if(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 final Player p = e.getPlayer();
-                ItemStack item = null;
-                
+                ItemStack item;
                 if(p.getInventory().getItemInMainHand() != null){
                     item = p.getInventory().getItemInMainHand();
                 }else{
                     return;
                 }
-                
+
                 if(item.getType().equals(Material.GHAST_TEAR)){
                     p.getWorld().playEffect(p.getLocation().add(Dir('x', p.getLocation().getYaw())+ 0.5, 1.0, Dir('z', p.getLocation().getYaw())), Effect.SMOKE, 4);
                     return;
@@ -255,7 +257,7 @@ public class GearHandler {
                                     else{
                                         GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.RINGBEARER);
                                     }
-                                    p.getInventory().setHeldItemSlot(0);
+                                    p.getInventory().setHeldItemSlot(1);
                                 }
                             }, 500);
                         }else{
@@ -284,28 +286,21 @@ public class GearHandler {
                 }
             }
         }
-        //return accidentally-dropped items
-        @EventHandler
-        public void returnDroppedItems(PlayerDropItemEvent e){
-            if(PVPCommand.getRunningGame() != null){
-                e.setCancelled(true);
-            }
-        }
-        
+
         //handle tnt on death
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
-            if(PVPCommand.getRunningGame() != null && e.getEntity() instanceof Player){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
+            if(PVPCommand.getRunningGame() != null){
                 
                 if(PVPCommand.getRunningGame().getTitle().equals("Helms_Deep") &&
                         (PVPCommand.getRunningGame().getGm() instanceof TeamSlayer ||
                         PVPCommand.getRunningGame().getGm() instanceof TeamConquest)){
                     
-                    Player p = e.getEntity();
-                    PlayerInventory inv = p.getInventory();
+                    Player player = playerDeathEvent.getEntity();
+                    PlayerInventory inv = player.getInventory();
                     
                     if(inv.contains(Material.TNT)){
-                        p.sendMessage(ChatColor.RED + "You no longer have the BOMB");
+                        player.sendMessage(ChatColor.RED + "You no longer have the BOMB");
                         
                         for(ItemStack i : inv.getContents()){
                             if(i!= null && i.getType().equals(Material.TNT)){
