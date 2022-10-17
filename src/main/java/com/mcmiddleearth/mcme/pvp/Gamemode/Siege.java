@@ -206,7 +206,16 @@ public class Siege extends BasePluginGamemode {
                 if(bar.getColor() == BarColor.BLUE) bar.setColor(BarColor.RED);
                 else if(bar.getColor() == BarColor.RED) bar.setColor(BarColor.BLUE);
                 bar.setProgress(0.0);
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) == 0){
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) >= 0){
+                bar.setColor(BarColor.RED);
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) <= 0){
+                bar.setColor(BarColor.BLUE);
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) >= 0){
+                bar.setColor(BarColor.RED);
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
+                bar.setColor(BarColor.BLUE);
+            }
+            else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) == 0){
                 Block b = GMHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
             }
@@ -479,8 +488,8 @@ public class Siege extends BasePluginGamemode {
 
     private void redTeamWin(){
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendMessage(ChatColor.BLUE+"Game over!");
-            player.sendMessage(ChatColor.BLUE+"Red team wins!");
+            player.sendMessage(ChatColor.RED+"Game over!");
+            player.sendMessage(ChatColor.RED+"Red team wins!");
         }
         PlayerStat.addGameWon(Team.Teams.RED);
         PlayerStat.addGameLost(Team.Teams.BLUE);
@@ -546,21 +555,21 @@ public class Siege extends BasePluginGamemode {
 
     private class GamemodeHandlers implements Listener {
         private HashMap<String, Location> points = new HashMap<>();
-        private HashMap<String,Integer> capAmount = new HashMap<>();
+        private HashMap<String, Integer> capAmount = new HashMap<>();
         private List<Player> redTeamCaptureAttack = new ArrayList<>();
         private List<Player> blueTeamCaptureAttack = new ArrayList<>();
         private List<Player> redTeamCaptureDef = new ArrayList<>();
         private List<Player> blueTeamCaptureDef = new ArrayList<>();
         int areaTemp = 0;
 
-        public GamemodeHandlers(){
+        public GamemodeHandlers() {
             int i = 1;
-            for(java.util.Map.Entry<String, EventLocation> e: map.getImportantPoints().entrySet()){
-                if(e.getKey().contains("Point")){
-                    points.put(e.getKey(),e.getValue().toBukkitLoc());
-                    capAmount.put(e.getKey(),-100);
+            for (java.util.Map.Entry<String, EventLocation> e : map.getImportantPoints().entrySet()) {
+                if (e.getKey().contains("Point")) {
+                    points.put(e.getKey(), e.getValue().toBukkitLoc());
+                    capAmount.put(e.getKey(), -100);
                     areaTemp = areaTemp + 1;
-                    capturePointNames.add("Capture Point "+areaTemp);
+                    capturePointNames.add("Capture Point " + areaTemp);
                 }
             }
             maxArea = areaTemp + 1;
@@ -568,11 +577,11 @@ public class Siege extends BasePluginGamemode {
         }
 
         @EventHandler
-        public void onPlayerMove(PlayerMoveEvent event){
-            if(state == GameState.RUNNING) {
+        public void onPlayerMove(PlayerMoveEvent event) {
+            if (state == GameState.RUNNING) {
                 Player player = event.getPlayer();
                 Location loc = player.getLocation();
-                if(map.getImportantPoints().containsKey("CapturePoint"+area)) {
+                if (map.getImportantPoints().containsKey("CapturePoint" + area)) {
                     if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius) {
                         if (Team.getRed().getMembers().contains(event.getPlayer())) {
                             if (!redTeamCaptureAttack.contains(player)) redTeamCaptureAttack.add(player);
@@ -590,11 +599,11 @@ public class Siege extends BasePluginGamemode {
                 if (area != 1) {
                     if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius) {
                         if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                            if(!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
+                            if (!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
                         } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                            if(!blueTeamCaptureDef.contains(player)) blueTeamCaptureDef.add(player);
+                            if (!blueTeamCaptureDef.contains(player)) blueTeamCaptureDef.add(player);
                         }
-                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" +(area - 1)).toBukkitLoc()) > capturePointRadius) {
+                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) > capturePointRadius) {
                         if (Team.getRed().getMembers().contains(event.getPlayer())) {
                             redTeamCaptureDef.remove(player);
                         } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
@@ -606,14 +615,14 @@ public class Siege extends BasePluginGamemode {
         }
 
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent event){
-            if(state == GameState.RUNNING){
-                if(event.getEntity() instanceof Player){
+        public void onPlayerDeath(PlayerDeathEvent event) {
+            if (state == GameState.RUNNING) {
+                if (event.getEntity() instanceof Player) {
                     Player player = (Player) event.getEntity();
-                    if(Team.getRed().getMembers().contains(player)){
+                    if (Team.getRed().getMembers().contains(player)) {
                         redTeamCaptureAttack.remove(player);
                         redTeamCaptureDef.remove(player);
-                    }else if(Team.getBlue().getMembers().contains(player)){
+                    } else if (Team.getBlue().getMembers().contains(player)) {
                         blueTeamCaptureAttack.remove(player);
                         blueTeamCaptureDef.remove(player);
                     }
@@ -622,21 +631,21 @@ public class Siege extends BasePluginGamemode {
         }
 
         @EventHandler
-        public void onPlayerLeave(PlayerQuitEvent event){
-            if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
+        public void onPlayerLeave(PlayerQuitEvent event) {
+            if (state == GameState.RUNNING || state == GameState.COUNTDOWN) {
                 Team.removeFromTeam(event.getPlayer());
-                if(Team.getRed().size() <= 0){
+                if (Team.getRed().size() <= 0) {
                     blueTeamWin();
                 }
-                if(Team.getBlue().size() <= 0){
+                if (Team.getBlue().size() <= 0) {
                     redTeamWin();
                 }
             }
         }
 
         @EventHandler
-        public void onPlayerRespawn(PlayerRespawnEvent event){
-            if(state == GameState.RUNNING) {
+        public void onPlayerRespawn(PlayerRespawnEvent event) {
+            if (state == GameState.RUNNING) {
                 if (map.getImportantPoints().containsKey("BlueSpawn" + area)) {
                     if (Team.getBlue().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 2, 0));
@@ -644,11 +653,12 @@ public class Siege extends BasePluginGamemode {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
                     }
                 }
-            }else if(map.getImportantPoints().containsKey("BlueSpawn" + (area-1))){
-                if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                    event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area-1)).toBukkitLoc().add(0, 2, 0));
-                } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                    event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area-1)).toBukkitLoc().add(0, 2, 0));
+                if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
+                    if (Team.getBlue().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                    } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                    }
                 }
             }
         }
