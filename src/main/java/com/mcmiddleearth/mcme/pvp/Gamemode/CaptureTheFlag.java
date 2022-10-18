@@ -207,6 +207,8 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         return;
                     }
 
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tick,0,20);
+
                     Points = getScoreboard().registerNewObjective("Score", "dummy");
                     Points.setDisplayName("Time: " + time + "m");
                     time *= 60;
