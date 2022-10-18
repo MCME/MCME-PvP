@@ -207,13 +207,13 @@ public class Siege extends BasePluginGamemode {
                 else if(bar.getColor() == BarColor.RED) bar.setColor(BarColor.BLUE);
                 bar.setProgress(0.0);
             }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) >= 0){
-                bar.setColor(BarColor.RED);
+                bar.setColor(BarColor.BLUE);
             }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) <= 0){
-                bar.setColor(BarColor.BLUE);
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) >= 0){
                 bar.setColor(BarColor.RED);
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) >= 0){
                 bar.setColor(BarColor.BLUE);
+            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1)) && GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
+                bar.setColor(BarColor.RED);
             }
             else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) == 0){
                 Block b = GMHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
@@ -652,8 +652,7 @@ public class Siege extends BasePluginGamemode {
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
                     }
-                }
-                if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
+                }else if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
                     if (Team.getBlue().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
