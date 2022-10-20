@@ -25,18 +25,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
  * @author Eric
  */
 public class AntiCheatListeners implements Listener{
+
+    private static List<String> rpVanilla = Arrays.asList("/rp v","/rp va","/rp van","/rp vani","/rp vanil","/rp vanill","/rp vanilla");
     
     //Prevent trolling or cheating with commands
     @EventHandler
@@ -60,6 +62,10 @@ public class AntiCheatListeners implements Listener{
         }
         if(command.equalsIgnoreCase("/stop") && !e.getPlayer().getName().equals("q220")){
             cs.sendMessage(ChatColor.RED + "You can't stop the server!");
+            e.setCancelled(true);
+        }
+        if(rpVanilla.contains(e.getMessage().toLowerCase())){
+            cs.sendMessage(ChatColor.GRAY + "You can´t change into vanilla textures here.");
             e.setCancelled(true);
         }
         
