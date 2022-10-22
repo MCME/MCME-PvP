@@ -481,16 +481,16 @@ public class Siege extends BasePluginGamemode {
         }
         for(Player p : Bukkit.getOnlinePlayers()) {
             if(players.contains(p)){
-                if (Team.getBlue().size() <= Team.getRed().size()){
-                    Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                    blueTeam.add(p);
-                }else if(Team.getRed().size() < Team.getBlue().size()){
+                 if(Team.getRed().size() < Team.getBlue().size()){
                     Team.getRed().add(p);
                     p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
                     freezePlayer(p,140);
                     redTeam.add(p);
+                }else if (Team.getBlue().size() <= Team.getRed().size()){
+                    Team.getBlue().add(p);
+                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                    freezePlayer(p,140);
+                    blueTeam.add(p);
                 }
             } else{
                 Team.getSpectator().add(p);
