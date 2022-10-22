@@ -618,6 +618,7 @@ public class Siege extends BasePluginGamemode {
     public boolean midgamePlayerJoin(Player p){
         if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
 
+            if(deathList.containsKey(p)) return false;
             if(Team.getRed().getAllMembers().contains(p)){
                 addToTeam(p, Team.Teams.RED);
             }
