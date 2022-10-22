@@ -393,6 +393,57 @@ public class Siege extends BasePluginGamemode {
         }
     };
 
+    Runnable playerMove = new Runnable() {
+        @Override
+        public void run() {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Location loc = player.getLocation();
+                if (map.getImportantPoints().containsKey("CapturePoint" + area)) {
+                    if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
+                            && (loc.getBlock().getRelative(0, -2, 0).getType() == Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
+                        if (Team.getRed().getMembers().contains(player)) {
+                            if (!GMHandlers.redTeamCaptureAttack.contains(player)) GMHandlers.redTeamCaptureAttack.add(player);
+                        } else if (Team.getBlue().getMembers().contains(player)) {
+                            if (!GMHandlers.blueTeamCaptureAttack.contains(player)) GMHandlers.blueTeamCaptureAttack.add(player);
+                        }
+                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
+                            && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
+                        if (Team.getRed().getMembers().contains(player)) {
+                            GMHandlers.redTeamCaptureAttack.remove(player);
+                        } else if (Team.getBlue().getMembers().contains(player)) {
+                            GMHandlers.blueTeamCaptureAttack.remove(player);
+                        }
+                    }
+                }
+                if (area != 1) {
+                    if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
+                            && (loc.getBlock().getRelative(0, -2, 0).getType() == Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
+                        if (Team.getRed().getMembers().contains(player)) {
+                            if (!GMHandlers.redTeamCaptureDef.contains(player)) GMHandlers.redTeamCaptureDef.add(player);
+                        } else if (Team.getBlue().getMembers().contains(player)) {
+                            if (!GMHandlers.blueTeamCaptureDef.contains(player)) GMHandlers.blueTeamCaptureDef.add(player);
+                        }
+                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
+                            && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
+                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
+                        if (Team.getRed().getMembers().contains(player)) {
+                            GMHandlers.redTeamCaptureDef.remove(player);
+                        } else if (Team.getBlue().getMembers().contains(player)) {
+                            GMHandlers.blueTeamCaptureDef.remove(player);
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     @Override
     public void Start(Map m, int parameter){
         count = PVPPlugin.getCountdownTime();
@@ -462,6 +513,7 @@ public class Siege extends BasePluginGamemode {
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),flagPoints,0,20);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),arrowHandler,0,20*5);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),respawnTimer,0,20);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),playerMove,0,20);
 
                     Points = getScoreboard().registerNewObjective("Score","dummy");
                     Points.setDisplayName("Time: " + time + "m");
@@ -630,6 +682,7 @@ public class Siege extends BasePluginGamemode {
             redScore = areaTemp;
         }
 
+        /*
         @EventHandler
         public void onPlayerMove(PlayerMoveEvent event) {
             if (state == GameState.RUNNING) {
@@ -688,10 +741,9 @@ public class Siege extends BasePluginGamemode {
                     redTeamCaptureDef.remove(player);
                     //Bukkit.getPlayer("Jubo").sendMessage("Test2");
                 }
-                 */
             }
         }
-
+*/
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent event) {
             if (state == GameState.RUNNING) {
