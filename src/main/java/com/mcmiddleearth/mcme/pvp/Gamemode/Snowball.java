@@ -474,9 +474,9 @@ public class Snowball extends BasePluginGamemode {
                 PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
                 ItemStack Snowball = new ItemStack(Material.SNOWBALL, 3);
                 if(killerInv.contains(Snowball)){
-                    killerInv.setItem(0,Snowball);
-                }else{
                     killerInv.addItem(Snowball);
+                }else{
+                    killerInv.setItem(0,Snowball);
                 }
                 if(playerDeaths.containsKey(e.getEntity().getName())){
                     tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
