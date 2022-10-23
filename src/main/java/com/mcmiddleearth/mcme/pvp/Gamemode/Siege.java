@@ -71,6 +71,10 @@ public class Siege extends BasePluginGamemode {
 
     private final int capturePointRadius = 10;
 
+    private final int respawnTime = 5;
+
+    private final int arrowTime = 5;
+
     private GameState state;
 
     Map map;
@@ -497,7 +501,7 @@ public class Siege extends BasePluginGamemode {
 
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tickCQ,0,20);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),flagPoints,0,20);
-                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),arrowHandler,0,20*5);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),arrowHandler,0,20*arrowTime);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),respawnTimer,0,20);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),playerMove,0,20);
 
@@ -691,7 +695,7 @@ public class Siege extends BasePluginGamemode {
                         blueTeamCaptureDef.remove(player);
                     }
                     //Logger.getLogger("TestDeath");
-                    deathList.put(player,5);
+                    deathList.put(player,respawnTime);
                     Team.getSpectator().add(event.getEntity());
                 }
             }
