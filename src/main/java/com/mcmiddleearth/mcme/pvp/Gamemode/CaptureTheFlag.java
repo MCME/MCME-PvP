@@ -95,7 +95,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         goldenFlag = true;
                         Points.setDisplayName("Overtime");
                         for (Player player : Bukkit.getOnlinePlayers()) {
-                            player.sendMessage("Overtime! The next captured flag wins!");
+                            player.sendMessage(ChatColor.LIGHT_PURPLE+"Overtime! The next captured flag wins!");
                         }
                     } else if (Points.getScore(ChatColor.RED + "Red:").getScore() > Points.getScore(ChatColor.RED + "Blue:").getScore()) {
                         redTeamWin();
