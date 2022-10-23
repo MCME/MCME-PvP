@@ -467,16 +467,16 @@ public class Siege extends BasePluginGamemode {
         }
         for(Player p : Bukkit.getOnlinePlayers()) {
             if(players.contains(p)){
-                 if(Team.getRed().size() < Team.getBlue().size()){
-                    Team.getRed().add(p);
-                    p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                    redTeam.add(p);
-                }else if (Team.getBlue().size() <= Team.getRed().size()){
-                    Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                    blueTeam.add(p);
+                 if(Team.getRed().size() <= Team.getBlue().size()){
+                     Team.getRed().add(p);
+                     p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
+                     freezePlayer(p,140);
+                     redTeam.add(p);
+                }else if (Team.getBlue().size() < Team.getRed().size()){
+                     Team.getBlue().add(p);
+                     p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                     freezePlayer(p,140);
+                     blueTeam.add(p);
                 }
             } else{
                 Team.getSpectator().add(p);
@@ -722,7 +722,7 @@ public class Siege extends BasePluginGamemode {
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
                     }else{
-                        event.getPlayer().teleport(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
                     }
                 }else if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
                     if (Team.getBlue().getMembers().contains(event.getPlayer())) {
@@ -730,7 +730,7 @@ public class Siege extends BasePluginGamemode {
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
                     }else{
-                        event.getPlayer().teleport(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
                     }
                 }
             }
