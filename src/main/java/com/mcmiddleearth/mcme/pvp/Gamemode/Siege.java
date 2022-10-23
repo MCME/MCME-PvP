@@ -37,23 +37,11 @@ public class Siege extends BasePluginGamemode {
 
     /*
     TODO:
-     better PlayerMoveEvent
-     msgs for RespawnTimer  x
-     test RespawnTimer  (what happens if you do /pvp join when dead)
-     Reset Beacon Colors, still some weird issue    x
-     check for Honeyblocks below the cap areas instead of just radius   x
+     set up spawn for spectator x
+     OT spawn is broken x
+     spawn message two times x
+     ctf text for OT
 
-     better way:
-     public void initializePlayerMoveRunnable() {
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    Location playerLocation = player.getLocation();
-
-                }
-            }
-        }, 0L, 20L);
      */
 
     private int time = 15;
@@ -379,10 +367,8 @@ public class Siege extends BasePluginGamemode {
                 if(deathList.get(player) == 0){
                     deathList.remove(player);
                     if(redTeam.contains(player)){
-                        Team.getRed().add(player);
                         addToTeam(player,Team.Teams.RED);
                     }else if(blueTeam.contains(player)){
-                        Team.getBlue().add(player);
                         addToTeam(player,Team.Teams.BLUE);
                     }
                 }else{
@@ -645,12 +631,20 @@ public class Siege extends BasePluginGamemode {
     private void addToTeam(Player player, Team.Teams team){
         if(team == Team.Teams.RED){
             Team.getRed().add(player);
-            player.teleport(map.getImportantPoints().get("RedSpawn"+String.valueOf(area)).toBukkitLoc().add(0,2,0));
+            if(map.getImportantPoints().containsKey("RedSpawn"+area)){
+                player.teleport(map.getImportantPoints().get("RedSpawn"+area).toBukkitLoc().add(0,2,0));
+            }else if(map.getImportantPoints().containsKey("RedSpawn"+(area-1))){
+                player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+            }
             GearHandler.giveGear(player,ChatColor.RED, GearHandler.SpecialGear.NONE);
             redTeam.add(player);
         }else{
             Team.getBlue().add(player);
-            player.teleport(map.getImportantPoints().get("BlueSpawn"+String.valueOf(area)).toBukkitLoc().add(0,2,0));
+            if(map.getImportantPoints().containsKey("BlueSpawn"+area)){
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+area).toBukkitLoc().add(0,2,0));
+            }else if(map.getImportantPoints().containsKey("BlueSpawn"+(area-1))){
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+            }
             GearHandler.giveGear(player,ChatColor.BLUE, GearHandler.SpecialGear.NONE);
             blueTeam.add(player);
         }
@@ -683,68 +677,7 @@ public class Siege extends BasePluginGamemode {
             redScore = areaTemp;
         }
 
-        /*
-        @EventHandler
-        public void onPlayerMove(PlayerMoveEvent event) {
-            if (state == GameState.RUNNING) {
-                int y;
-                Player player = event.getPlayer();
-                Location loc = player.getLocation();
-                if (map.getImportantPoints().containsKey("CapturePoint" + area)) {
-                    y = map.getImportantPoints().get("CapturePoint" + area).getY();
-                    if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
-                        && (loc.getBlock().getRelative(0,-2,0).getType() == Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-3,0).getType() == Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-4,0).getType() == Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                            if (!redTeamCaptureAttack.contains(player)) redTeamCaptureAttack.add(player);
-                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                            if (!blueTeamCaptureAttack.contains(player)) blueTeamCaptureAttack.add(player);
-                        }
-                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
-                            && (loc.getBlock().getRelative(0,-2,0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-3,0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-4,0).getType() != Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                            redTeamCaptureAttack.remove(player);
-                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                            blueTeamCaptureAttack.remove(player);
-                        }
-                    }
-                }
-                if (area != 1) {
-                    y = map.getImportantPoints().get("CapturePoint" + (area - 1)).getY();
-                    if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
-                            && (loc.getBlock().getRelative(0,-2,0).getType() == Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-3,0).getType() == Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-4,0).getType() == Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                            if (!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
-                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                            if (!blueTeamCaptureDef.contains(player)) blueTeamCaptureDef.add(player);
-                        }
-                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
-                            && (loc.getBlock().getRelative(0,-2,0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-3,0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0,-4,0).getType() != Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                            redTeamCaptureDef.remove(player);
-                        } else if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                            blueTeamCaptureDef.remove(player);
-                        }
-                    }
-                }
-                /*
-                if(player.getLocation().getBlockY() > 90){
-                    if(!redTeamCaptureDef.contains(player)) redTeamCaptureDef.add(player);
-                    //Bukkit.getPlayer("Jubo").sendMessage("Test");
-                }else{
-                    redTeamCaptureDef.remove(player);
-                    //Bukkit.getPlayer("Jubo").sendMessage("Test2");
-                }
-            }
-        }
-*/
+
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent event) {
             if (state == GameState.RUNNING) {
@@ -788,12 +721,16 @@ public class Siege extends BasePluginGamemode {
                         event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 2, 0));
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
+                    }else{
+                        event.getPlayer().teleport(map.getSpawn().toBukkitLoc().add(0,2,0));
                     }
                 }else if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
                     if (Team.getBlue().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
                     } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
                         event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                    }else{
+                        event.getPlayer().teleport(map.getSpawn().toBukkitLoc().add(0,2,0));
                     }
                 }
             }
