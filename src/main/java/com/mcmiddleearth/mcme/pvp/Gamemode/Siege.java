@@ -54,7 +54,7 @@ public class Siege extends BasePluginGamemode {
 
      */
 
-    private int time = 15;
+    private int time = 2;
 
     private int tempOTtime = 0;
 
