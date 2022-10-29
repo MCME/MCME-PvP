@@ -215,6 +215,8 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         time *= 60;
                         Points.setDisplaySlot(DisplaySlot.SIDEBAR);
 
+                        FFAHandlers.spawn = new Random().nextInt(spawns.length-1);
+
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
                             p.setScoreboard(getScoreboard());
@@ -441,6 +443,8 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     }
     
     private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
@@ -467,9 +471,17 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                /*
                 Random random = new Random();
 
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+
+                 */
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 2, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
             
                 //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
