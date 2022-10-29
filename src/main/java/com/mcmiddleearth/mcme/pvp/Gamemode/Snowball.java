@@ -473,7 +473,7 @@ public class Snowball extends BasePluginGamemode {
                 Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
                 PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
                 ItemStack Snowball = new ItemStack(Material.SNOWBALL, 3);
-                if(killerInv.contains(Snowball)){
+                if(killerInv.contains(Snowball.getType())){
                     killerInv.addItem(Snowball);
                 }else{
                     killerInv.setItem(0,Snowball);

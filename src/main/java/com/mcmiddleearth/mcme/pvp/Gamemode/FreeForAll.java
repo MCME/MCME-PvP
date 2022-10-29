@@ -44,10 +44,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -167,7 +164,12 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         count = PVPPlugin.getCountdownTime();
         time = parameter;
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = (EventLocation[]) spawnsTemp.toArray();
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -426,7 +428,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[FFAHandlers.spawn++].toBukkitLoc().add(0, 2, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         
