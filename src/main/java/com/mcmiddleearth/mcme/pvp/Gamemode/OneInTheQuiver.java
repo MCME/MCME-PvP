@@ -46,10 +46,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 /**
  *
@@ -106,7 +103,12 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         map = m;
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = (EventLocation[]) spawnsTemp.toArray();
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -349,7 +351,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[OITQHandlers.spawn++].toBukkitLoc().add(0, 2, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         super.midgamePlayerJoin(p);

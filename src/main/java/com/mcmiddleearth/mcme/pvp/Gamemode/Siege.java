@@ -47,9 +47,9 @@ public class Siege extends BasePluginGamemode {
      greens randomness in matchmaking
 
      if(loc.getBlockY() >= 85){
-                    if(!GMHandlers.redTeamCaptureDef.contains(player)) GMHandlers.redTeamCaptureDef.add(player);
+                    if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
                 }else{
-                    GMHandlers.redTeamCaptureDef.remove(player);
+                    SGHandlers.redTeamCaptureDef.remove(player);
                 }
 
      */
@@ -77,7 +77,7 @@ public class Siege extends BasePluginGamemode {
     private int redScore = 3;
     private int blueScore = 0;
 
-    private final int flagTick = 15;
+    private final int flagTick = 2;
 
     private final int capturePointRadius = 10;
 
@@ -95,7 +95,7 @@ public class Siege extends BasePluginGamemode {
 
     private Objective Points;
 
-    private GamemodeHandlers GMHandlers;
+    private GamemodeHandlers SGHandlers;
 
     private BossBar bar;
 
@@ -135,7 +135,7 @@ public class Siege extends BasePluginGamemode {
             }
             if(time == 0){
                 if(redOvertimeBool && !overtimeFinished) blueTeamWin();
-                else if(!overtimeBool && !GMHandlers.blueTeamCaptureAttack.isEmpty() && area == maxArea-1){
+                else if(!overtimeBool && !SGHandlers.blueTeamCaptureAttack.isEmpty() && area == maxArea-1){
                     overtime = "Overtime: ";
                     time = 121;
                     overtimeBool = true;
@@ -169,18 +169,18 @@ public class Siege extends BasePluginGamemode {
                     blueTeamWin();
                 }
             }
-            if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) >= 100){
+            if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) >= 100){
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
                     player.sendMessage(ChatColor.BLUE+"Blue team captured the next point.");
                 }
-                GMHandlers.capAmount.replace("CapturePoint"+area,100);
-                Block b = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
+                SGHandlers.capAmount.replace("CapturePoint"+area,100);
+                Block b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
                 b.setType(Material.BLUE_STAINED_GLASS);
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))){
-                    GMHandlers.capAmount.replace("CapturePoint"+(area-1),100);
-                    Block b2 = GMHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))){
+                    SGHandlers.capAmount.replace("CapturePoint"+(area-1),100);
+                    Block b2 = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
                     b2.setType(Material.BLUE_STAINED_GLASS);
                 }
@@ -189,24 +189,24 @@ public class Siege extends BasePluginGamemode {
                 area++;
                 Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                 Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
-                GMHandlers.blueTeamCaptureAttack.clear();
-                GMHandlers.redTeamCaptureAttack.clear();
+                SGHandlers.blueTeamCaptureAttack.clear();
+                SGHandlers.redTeamCaptureAttack.clear();
                 if(capturePointNames.contains("Capture Point "+area)){
                     bar.setTitle(capturePointNames.get(area-1));
                 }
                 bar.setColor(BarColor.RED);
                 bar.setProgress(0);
                 sendCaptureSound();
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))&&GMHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
+            }else if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))&& SGHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
                 if(overtimeBool && redOvertimeBool && !overtimeFinished){
                     time = tempOTtime;
                     bar.setVisible(true);
                     overtime = "";
                     overtimeFinished = true;
                 }
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+area)){
-                    GMHandlers.capAmount.replace("CapturePoint"+area,0);
-                    Block b2 = GMHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+area)){
+                    SGHandlers.capAmount.replace("CapturePoint"+area,0);
+                    Block b2 = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
                     b2.setType(Material.RED_STAINED_GLASS);
                 }
@@ -214,8 +214,8 @@ public class Siege extends BasePluginGamemode {
                 for(Player player : Bukkit.getOnlinePlayers()){
                     player.sendMessage(ChatColor.RED+"Red team recaptured the point.");
                 }
-                GMHandlers.capAmount.replace("CapturePoint"+(area-1),0);
-                Block b = GMHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
+                SGHandlers.capAmount.replace("CapturePoint"+(area-1),0);
+                Block b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
                 b.setType(Material.RED_STAINED_GLASS);
                 blueScore--;
@@ -223,97 +223,121 @@ public class Siege extends BasePluginGamemode {
                 area--;
                 Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                 Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
-                GMHandlers.blueTeamCaptureDef.clear();
-                GMHandlers.redTeamCaptureDef.clear();
+                SGHandlers.blueTeamCaptureDef.clear();
+                SGHandlers.redTeamCaptureDef.clear();
                 bar.setTitle(capturePointNames.get(area-1));
                 bar.setColor(BarColor.RED);
                 bar.setProgress(0);
                 sendCaptureSound();
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) == 0){
+            }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) == 0){
                 bar.setProgress(0);
                 bar.setColor(BarColor.RED);
-                Block b = GMHandlers.points.get("CapturePoint"+(area)).getBlock().getRelative(0,1,0);
+                Block b = SGHandlers.points.get("CapturePoint"+(area)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
                 b.setType(Material.RED_STAINED_GLASS);
-            }else if(GMHandlers.capAmount.containsKey("CapturePoint"+area) && GMHandlers.capAmount.get("CapturePoint"+area) > 0){
+            }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) > 0){
                 bar.setColor(BarColor.BLUE);
             }
             if(!captured) {
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+area)) {
-                    if (GMHandlers.redTeamCaptureAttack.isEmpty() && GMHandlers.blueTeamCaptureAttack.isEmpty()) {
-                        int capAmount = GMHandlers.capAmount.get("CapturePoint" + area);
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+area)) {
+                    if (SGHandlers.redTeamCaptureAttack.isEmpty() && SGHandlers.blueTeamCaptureAttack.isEmpty()) {
+                        int capAmount = SGHandlers.capAmount.get("CapturePoint" + area);
                         if (capAmount == 0 || capAmount == 100) {
                             //Bukkit.getPlayer("Jubo").sendMessage("Jubo");
                         } else if (capAmount <= 50 && capAmount > 0) {
-                            GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) - flagTick);
+                            SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) - flagTick);
                         } else if (capAmount >= 50 && capAmount < 100) {
-                            GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) + flagTick);
+                            SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) + flagTick);
                         }
                     }
-                    int flagTickAttack = flagTick * Math.abs(GMHandlers.blueTeamCaptureAttack.size() - GMHandlers.redTeamCaptureAttack.size());
-                    if (GMHandlers.blueTeamCaptureAttack.size() < GMHandlers.redTeamCaptureAttack.size()) {
-                        if (GMHandlers.capAmount.get("CapturePoint" + area) != 0) {
-                            GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) - flagTickAttack);
+                    int flagTickAttack = flagTick * Math.abs(SGHandlers.blueTeamCaptureAttack.size() - SGHandlers.redTeamCaptureAttack.size());
+                    if (SGHandlers.blueTeamCaptureAttack.size() < SGHandlers.redTeamCaptureAttack.size()) {
+                        if (SGHandlers.capAmount.get("CapturePoint" + area) != 0) {
+                            SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) - flagTickAttack);
                         }
-                    } else if (GMHandlers.blueTeamCaptureAttack.size() == GMHandlers.redTeamCaptureAttack.size()) {
+                    } else if (SGHandlers.blueTeamCaptureAttack.size() == SGHandlers.redTeamCaptureAttack.size()) {
                         //do nothing
-                    } else if (GMHandlers.blueTeamCaptureAttack.size() > GMHandlers.redTeamCaptureAttack.size()) {
-                        GMHandlers.capAmount.replace("CapturePoint" + area, GMHandlers.capAmount.get("CapturePoint" + area) + flagTickAttack);
+                    } else if (SGHandlers.blueTeamCaptureAttack.size() > SGHandlers.redTeamCaptureAttack.size()) {
+                        SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) + flagTickAttack);
                     }
                 }
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+(area-1))) {
-                    if(GMHandlers.redTeamCaptureDef.isEmpty() && GMHandlers.blueTeamCaptureDef.isEmpty()){
-                        int capAmount = GMHandlers.capAmount.get("CapturePoint"+(area-1));
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))) {
+                    if(SGHandlers.redTeamCaptureDef.isEmpty() && SGHandlers.blueTeamCaptureDef.isEmpty()){
+                        int capAmount = SGHandlers.capAmount.get("CapturePoint"+(area-1));
                         if(capAmount == 0 || capAmount == 100){
                             //do nothing
                         }else if(capAmount <= 50 && capAmount > 0){
-                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
+                            SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
                         }else if(capAmount >= 50 && capAmount < 100){
-                            GMHandlers.capAmount.replace("CapturePoint"+(area-1),GMHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
+                            SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
                         }
                     }
-                    int flagTickDef = flagTick * Math.abs(GMHandlers.blueTeamCaptureDef.size() - GMHandlers.redTeamCaptureDef.size());
+                    int flagTickDef = flagTick * Math.abs(SGHandlers.blueTeamCaptureDef.size() - SGHandlers.redTeamCaptureDef.size());
                     if(area == maxArea){
-                        if (GMHandlers.blueTeamCaptureDef.size() < GMHandlers.redTeamCaptureDef.size()) {
-                            GMHandlers.capAmount.replace("CapturePoint" + (area - 1), GMHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
-                        } else if (GMHandlers.blueTeamCaptureDef.size() == GMHandlers.redTeamCaptureDef.size()) {
+                        if (SGHandlers.blueTeamCaptureDef.size() < SGHandlers.redTeamCaptureDef.size()) {
+                            SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
+                        } else if (SGHandlers.blueTeamCaptureDef.size() == SGHandlers.redTeamCaptureDef.size()) {
                             //do nothing
-                        } else if (GMHandlers.blueTeamCaptureDef.size() > GMHandlers.redTeamCaptureDef.size()) {
-                            if (GMHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
-                                GMHandlers.capAmount.replace("CapturePoint" + (area - 1), GMHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
+                        } else if (SGHandlers.blueTeamCaptureDef.size() > SGHandlers.redTeamCaptureDef.size()) {
+                            if (SGHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
+                                SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
                             }
                         }
-                    }else if(GMHandlers.capAmount.get("CapturePoint"+area) <= 0) {
-                        if (GMHandlers.blueTeamCaptureDef.size() < GMHandlers.redTeamCaptureDef.size()) {
-                            GMHandlers.capAmount.replace("CapturePoint" + (area - 1), GMHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
-                        } else if (GMHandlers.blueTeamCaptureDef.size() == GMHandlers.redTeamCaptureDef.size()) {
+                    }else if(SGHandlers.capAmount.get("CapturePoint"+area) <= 0) {
+                        if (SGHandlers.blueTeamCaptureDef.size() < SGHandlers.redTeamCaptureDef.size()) {
+                            SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
+                        } else if (SGHandlers.blueTeamCaptureDef.size() == SGHandlers.redTeamCaptureDef.size()) {
                             //do nothing
-                        } else if (GMHandlers.blueTeamCaptureDef.size() > GMHandlers.redTeamCaptureDef.size()) {
-                            if (GMHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
-                                GMHandlers.capAmount.replace("CapturePoint" + (area - 1), GMHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
+                        } else if (SGHandlers.blueTeamCaptureDef.size() > SGHandlers.redTeamCaptureDef.size()) {
+                            if (SGHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
+                                SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
                             }
                         }
                     }
                 }
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+area)) {
-                    for (Player player : GMHandlers.blueTeamCaptureAttack) {
-                        player.sendMessage(ChatColor.BLUE + "Cap at " + GMHandlers.capAmount.get("CapturePoint" + area) + "%");
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+area)) {
+                    for (Player player : SGHandlers.blueTeamCaptureAttack) {
+                        if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                            player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                        }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                            player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                        }else{
+                            player.sendMessage(ChatColor.BLUE + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
+                        }
                     }
-                    for (Player player : GMHandlers.redTeamCaptureAttack) {
-                        player.sendMessage(ChatColor.BLUE + "Cap at " + GMHandlers.capAmount.get("CapturePoint" + area) + "%");
+                    for (Player player : SGHandlers.redTeamCaptureAttack) {
+                        if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                            player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                        }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                            player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                        }else{
+                            player.sendMessage(ChatColor.BLUE + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
+                        }
                     }
                 }
-                for(Player player : GMHandlers.blueTeamCaptureDef){
-                    player.sendMessage(ChatColor.BLUE+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                for(Player player : SGHandlers.blueTeamCaptureDef){
+                    if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                        player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                    }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                        player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                    }else{
+                        player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                    }
                 }
-                for(Player player : GMHandlers.redTeamCaptureDef){
-                    player.sendMessage(ChatColor.BLUE+"Cap at "+GMHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                for(Player player : SGHandlers.redTeamCaptureDef){
+                    if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                        player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                    }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                        player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                    }else{
+                        player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                    }
                 }
-                if(GMHandlers.capAmount.containsKey("CapturePoint"+area)){
-                    if((Math.abs((double)GMHandlers.capAmount.get("CapturePoint"+area)/100)<= 1.0)
-                        && (Math.abs((double)GMHandlers.capAmount.get("CapturePoint"+area)/100) >= 0)){
-                        bar.setProgress(Math.abs((double)GMHandlers.capAmount.get("CapturePoint"+area)/100));
-                    }else if(Math.abs((double)GMHandlers.capAmount.get("CapturePoint"+area)/100)> 1.0){
+                if(SGHandlers.capAmount.containsKey("CapturePoint"+area)){
+                    if((Math.abs((double) SGHandlers.capAmount.get("CapturePoint"+area)/100)<= 1.0)
+                        && (Math.abs((double) SGHandlers.capAmount.get("CapturePoint"+area)/100) >= 0)){
+                        bar.setProgress(Math.abs((double) SGHandlers.capAmount.get("CapturePoint"+area)/100));
+                    }else if(Math.abs((double) SGHandlers.capAmount.get("CapturePoint"+area)/100)> 1.0){
                         bar.setProgress(1.0);
                     }else{
                         bar.setProgress(0);
@@ -365,18 +389,18 @@ public class Siege extends BasePluginGamemode {
                             || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
                         if (Team.getRed().getMembers().contains(player)) {
-                            if (!GMHandlers.redTeamCaptureAttack.contains(player)) GMHandlers.redTeamCaptureAttack.add(player);
+                            if (!SGHandlers.redTeamCaptureAttack.contains(player)) SGHandlers.redTeamCaptureAttack.add(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
-                            if (!GMHandlers.blueTeamCaptureAttack.contains(player)) GMHandlers.blueTeamCaptureAttack.add(player);
+                            if (!SGHandlers.blueTeamCaptureAttack.contains(player)) SGHandlers.blueTeamCaptureAttack.add(player);
                         }
                     } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
                             && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
                         if (Team.getRed().getMembers().contains(player)) {
-                            GMHandlers.redTeamCaptureAttack.remove(player);
+                            SGHandlers.redTeamCaptureAttack.remove(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
-                            GMHandlers.blueTeamCaptureAttack.remove(player);
+                            SGHandlers.blueTeamCaptureAttack.remove(player);
                         }
                     }
                 }
@@ -386,18 +410,18 @@ public class Siege extends BasePluginGamemode {
                             || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
                         if (Team.getRed().getMembers().contains(player)) {
-                            if (!GMHandlers.redTeamCaptureDef.contains(player)) GMHandlers.redTeamCaptureDef.add(player);
+                            if (!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
-                            if (!GMHandlers.blueTeamCaptureDef.contains(player)) GMHandlers.blueTeamCaptureDef.add(player);
+                            if (!SGHandlers.blueTeamCaptureDef.contains(player)) SGHandlers.blueTeamCaptureDef.add(player);
                         }
                     } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
                             && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
                         if (Team.getRed().getMembers().contains(player)) {
-                            GMHandlers.redTeamCaptureDef.remove(player);
+                            SGHandlers.redTeamCaptureDef.remove(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
-                            GMHandlers.blueTeamCaptureDef.remove(player);
+                            SGHandlers.blueTeamCaptureDef.remove(player);
                         }
                     }
                 }
@@ -421,12 +445,12 @@ public class Siege extends BasePluginGamemode {
         }
 
         if(!pvpRegistered){
-            GMHandlers = new GamemodeHandlers();
+            SGHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(GMHandlers,PVPPlugin.getPlugin());
+            pm.registerEvents(SGHandlers,PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
-        for(Location l : GMHandlers.points.values()){
+        for(Location l : SGHandlers.points.values()){
             l.getBlock().setType(Material.BEACON);
 
             l.getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
@@ -513,19 +537,19 @@ public class Siege extends BasePluginGamemode {
 
     public void End(Map m){
         state = GameState.IDLE;
-        for(Location l: GMHandlers.points.values()){
+        for(Location l: SGHandlers.points.values()){
             l.getBlock().setType(Material.AIR);
             l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
         }
-        for(String key : GMHandlers.capAmount.keySet()){
-            GMHandlers.capAmount.replace(key,0);
+        for(String key : SGHandlers.capAmount.keySet()){
+            SGHandlers.capAmount.replace(key,0);
         }
-        GMHandlers.redTeamCaptureAttack.clear();
-        GMHandlers.blueTeamCaptureAttack.clear();
-        GMHandlers.redTeamCaptureDef.clear();
-        GMHandlers.blueTeamCaptureDef.clear();
+        SGHandlers.redTeamCaptureAttack.clear();
+        SGHandlers.blueTeamCaptureAttack.clear();
+        SGHandlers.redTeamCaptureDef.clear();
+        SGHandlers.blueTeamCaptureDef.clear();
         area = 1;
-        redScore = GMHandlers.areaTemp;
+        redScore = SGHandlers.areaTemp;
         blueScore = 0;
         bar.removeAll();
         overtime = "";
