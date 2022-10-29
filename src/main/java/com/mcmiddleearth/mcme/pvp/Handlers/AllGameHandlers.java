@@ -22,6 +22,7 @@ import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState;
 import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
+import com.mcmiddleearth.mcme.pvp.Gamemode.Snowball;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Permissions;
@@ -33,9 +34,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -69,7 +72,7 @@ public class AllGameHandlers implements Listener{
             if(PVPCommand.getRunningGame().getGm().getPlayers().contains(e.getPlayer())){
                 Map m = PVPCommand.getRunningGame();
                 if(m != null){
-                    if(!(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver || PVPCommand.getRunningGame().getGm() instanceof DeathRun)){
+                    if(!(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver || PVPCommand.getRunningGame().getGm() instanceof DeathRun || PVPCommand.getRunningGame().getGm() instanceof Snowball)){
                         if(!e.getPlayer().getInventory().contains(Material.ARROW, 24)){
                             ItemStack Arrows = new ItemStack(Material.ARROW, 24);
                             e.getPlayer().getInventory().setItem(8, Arrows);
@@ -111,7 +114,15 @@ public class AllGameHandlers implements Listener{
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e){
         Player damagee;
         Player damager = null;
+        boolean doAction = false;
 
+        if (doAction) {
+            EntityType type = e.getDamager().getType();
+            if (e.getEntity() instanceof org.bukkit.entity.Player)
+                if (type == EntityType.SNOWBALL) {
+                    e.setDamage(50);
+                }
+        }
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
@@ -137,6 +148,12 @@ public class AllGameHandlers implements Listener{
                     return;
                 if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)
                     e.setDamage(50);
+
+            }
+        }
+        if(e.getDamager() instanceof org.bukkit.entity.Snowball) {
+            if (PVPCommand.getRunningGame().getGm() instanceof Snowball) {
+                e.setDamage(50);
             }
         }
         if(Team.areTeamMates(damagee, damager)){

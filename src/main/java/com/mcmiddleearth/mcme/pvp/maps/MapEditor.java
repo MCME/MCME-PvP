@@ -19,6 +19,7 @@
 package com.mcmiddleearth.mcme.pvp.maps;
 
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
 import com.mcmiddleearth.mcme.pvp.Util.EventLocation;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.pluginutil.message.FancyMessage;
@@ -54,6 +55,7 @@ public class MapEditor{
         p.sendMessage(map + " spawn is: " + m.getSpawn().getX() + " " + m.getSpawn().getY() + " " + m.getSpawn().getZ());
         sendMapMessage(map, m, p);
         PVPCommand.reloadMaplist();
+        saveMap(map);
     }
 
     public static void MapNameEdit(String map, String name, Player p){
@@ -65,12 +67,14 @@ public class MapEditor{
         f.delete();
         sendMapMessage(name, m, p);
         PVPCommand.reloadMaplist();
+        saveMap(map);
     }
 
     public static void MapTitleEdit(String map, String title, Player p){
         Map m = com.mcmiddleearth.mcme.pvp.maps.Map.maps.get(map);
         m.setTitle(title);
         sendMapMessage(map, m, p);
+        saveMap(map);
     }
 
     public static void MapGamemodeSet(String map, String gamemode, Player p){
@@ -78,12 +82,14 @@ public class MapEditor{
         m.setGmType(gamemode);
         m.bindGamemode();
         sendMapMessage(map, m, p);
+        saveMap(map);
     }
 
     public static void MapMaxSet(String map, String amount, Player p){
         Map m = com.mcmiddleearth.mcme.pvp.maps.Map.maps.get(map);
         m.setMax(Integer.parseInt(amount));
         sendMapMessage(map, m, p);
+        saveMap(map);
     }
 
     public static void MapRPSet(String map, String rp, Player p){
@@ -109,6 +115,7 @@ public class MapEditor{
                 break;
         }
         sendMapMessage(map, m, p);
+        saveMap(map);
     }
     public static void MapAreaSet(String map, Player p){
         Map m = Map.maps.get(map);
@@ -136,21 +143,30 @@ public class MapEditor{
         catch(IncompleteRegionException e){
             p.sendMessage(ChatColor.RED + "You don't have a region selected!");
         }
+        saveMap(map);
     }
 
     public static void PointDelete(String map, String point, Player p){
         Map.maps.get(map).getImportantPoints().remove(point);
         sendSpawnMessage(map, p);
+        saveMap(map);
     }
 
     public static void PointCreate(String map, String point, Player p){
         Map.maps.get(map).getImportantPoints().put(point, new EventLocation(p.getLocation().add(0, -1, 0)));
         sendSpawnMessage(map, p);
+        saveMap(map);
     }
 
     public static void PointLocEdit(String map, String point, Player p){
         Map.maps.get(map).getImportantPoints().replace(point, new EventLocation(p.getLocation().add(0, -1, 0)));
         sendSpawnMessage(map, p);
+        saveMap(map);
+    }
+
+    private static void saveMap(String map){
+        Map.maps.get(map).setCurr(0);
+        DBmanager.saveObj(Map.maps.get(map),new File(PVPPlugin.getPluginDirectory()+PVPPlugin.getFileSep()+"maps"),map);
     }
 
     public static void ShowSpawns(String map, Player p){

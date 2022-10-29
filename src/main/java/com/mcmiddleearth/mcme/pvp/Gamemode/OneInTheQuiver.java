@@ -149,6 +149,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 points.setDisplayName("Kills");
                 points.setDisplaySlot(DisplaySlot.SIDEBAR);
 
+                OITQHandlers.spawn = new Random().nextInt(spawns.length-1);
+
                 for(Player p : Bukkit.getServer().getOnlinePlayers()){
                     p.sendMessage(ChatColor.GREEN + "Game Start!");
                     p.setScoreboard(getScoreboard());
@@ -363,6 +365,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     }
     
     private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
@@ -393,6 +397,18 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                e.getPlayer().getInventory().remove(Material.BOW);
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
+                if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
+                    e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
+                }
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 2, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
+
+                /*
                 Random random = new Random();
                 e.getPlayer().getInventory().remove(Material.BOW);
                 e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
@@ -400,6 +416,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
                 }
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+
+                 */
             }
         }
     }
