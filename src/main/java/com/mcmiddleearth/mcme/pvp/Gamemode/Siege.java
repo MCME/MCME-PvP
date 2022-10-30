@@ -43,8 +43,14 @@ public class Siege extends BasePluginGamemode {
      no neutral zones   x
      tick at 2 %    x
      multiply tick by people    x
-     better spawn system for ffa. iterate through spawns rathen than random
+     better spawn system for ffa. iterate through spawns rathen than random x
      greens randomness in matchmaking
+     OT doesnt recap    x
+     bossbar going up for red team  cant recreate it
+     CTF respawn timer doesnt work  x
+     no auto tick upwards   x
+     lower base time but time is added when captures (40 % rounded up)  x
+     stop overtime when blue isnt in the cap zone anymore   x
 
      if(loc.getBlockY() >= 85){
                     if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
@@ -55,6 +61,8 @@ public class Siege extends BasePluginGamemode {
      */
 
     private int time = 2;
+
+    private int addedTime = 1;
 
     private int tempOTtime = 0;
 
@@ -77,7 +85,7 @@ public class Siege extends BasePluginGamemode {
     private int redScore = 3;
     private int blueScore = 0;
 
-    private final int flagTick = 2;
+    private final int flagTick = 12;
 
     private final int capturePointRadius = 10;
 
@@ -133,6 +141,7 @@ public class Siege extends BasePluginGamemode {
                     p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
                 }
             }
+            if(blueOvertimeBool && overtimeBool && SGHandlers.blueTeamCaptureAttack.isEmpty()) redTeamWin();
             if(time == 0){
                 if(redOvertimeBool && !overtimeFinished) blueTeamWin();
                 else if(!overtimeBool && !SGHandlers.blueTeamCaptureAttack.isEmpty() && area == maxArea-1){
@@ -197,6 +206,7 @@ public class Siege extends BasePluginGamemode {
                 bar.setColor(BarColor.RED);
                 bar.setProgress(0);
                 sendCaptureSound();
+                time = time + addedTime;
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))&& SGHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
                 if(overtimeBool && redOvertimeBool && !overtimeFinished){
                     time = tempOTtime;
@@ -244,10 +254,8 @@ public class Siege extends BasePluginGamemode {
                         int capAmount = SGHandlers.capAmount.get("CapturePoint" + area);
                         if (capAmount == 0 || capAmount == 100) {
                             //Bukkit.getPlayer("Jubo").sendMessage("Jubo");
-                        } else if (capAmount <= 50 && capAmount > 0) {
+                        } else {
                             SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) - flagTick);
-                        } else if (capAmount >= 50 && capAmount < 100) {
-                            SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) + flagTick);
                         }
                     }
                     int flagTickAttack = flagTick * Math.abs(SGHandlers.blueTeamCaptureAttack.size() - SGHandlers.redTeamCaptureAttack.size());
@@ -264,11 +272,9 @@ public class Siege extends BasePluginGamemode {
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))) {
                     if(SGHandlers.redTeamCaptureDef.isEmpty() && SGHandlers.blueTeamCaptureDef.isEmpty()){
                         int capAmount = SGHandlers.capAmount.get("CapturePoint"+(area-1));
-                        if(capAmount == 0 || capAmount == 100){
+                        if(capAmount != 0 || capAmount != 100){
                             //do nothing
-                        }else if(capAmount <= 50 && capAmount > 0){
-                            SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))-flagTick);
-                        }else if(capAmount >= 50 && capAmount < 100){
+                        }else {
                             SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
                         }
                     }
@@ -316,18 +322,18 @@ public class Siege extends BasePluginGamemode {
                     }
                 }
                 for(Player player : SGHandlers.blueTeamCaptureDef){
-                    if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                    if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) > 100){
                         player.sendMessage(ChatColor.BLUE + "Cap at 100%");
-                    }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                    }else if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) < 0){
                         player.sendMessage(ChatColor.BLUE + "Cap at 0%");
                     }else{
                         player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
                     }
                 }
                 for(Player player : SGHandlers.redTeamCaptureDef){
-                    if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
+                    if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) > 100){
                         player.sendMessage(ChatColor.BLUE + "Cap at 100%");
-                    }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
+                    }else if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) < 0){
                         player.sendMessage(ChatColor.BLUE + "Cap at 0%");
                     }else{
                         player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
@@ -425,12 +431,18 @@ public class Siege extends BasePluginGamemode {
                         }
                     }
                 }
+                if(loc.getBlockY() >= 85){
+                    if(!SGHandlers.redTeamCaptureAttack.contains(player)) SGHandlers.redTeamCaptureAttack.add(player);
+                }else{
+                    SGHandlers.redTeamCaptureAttack.remove(player);
+                }
             }
         }
     };
 
     @Override
     public void Start(Map m, int parameter){
+        kdSort();
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
         super.Start(m,parameter);
@@ -466,16 +478,16 @@ public class Siege extends BasePluginGamemode {
         }
         for(Player p : Bukkit.getOnlinePlayers()) {
             if(players.contains(p)){
-                if(Team.getRed().size() <= Team.getBlue().size()){
-                     Team.getRed().add(p);
-                     p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
-                     freezePlayer(p,140);
-                     redTeam.add(p);
-                }else if (Team.getBlue().size() < Team.getRed().size()){
-                     Team.getBlue().add(p);
-                     p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
-                     freezePlayer(p,140);
-                     blueTeam.add(p);
+                if(Team.getBlue().size() <= Team.getRed().size()){
+                    Team.getBlue().add(p);
+                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                    freezePlayer(p,140);
+                    blueTeam.add(p);
+                }else if (Team.getRed().size() < Team.getBlue().size()){
+                    Team.getRed().add(p);
+                    p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
+                    freezePlayer(p,140);
+                    redTeam.add(p);
                 }
             } else{
                 Team.getSpectator().add(p);
@@ -503,6 +515,7 @@ public class Siege extends BasePluginGamemode {
                     Points = getScoreboard().registerNewObjective("Score","dummy");
                     Points.setDisplayName("Time: " + time + "m");
                     time *= 60;
+                    addedTime = (int) (time * 0.4);
                     Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
                     Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -612,7 +625,7 @@ public class Siege extends BasePluginGamemode {
             }
 
             else{
-                if(Team.getRed().size() >= Team.getBlue().size()){
+                if(Team.getRed().size() > Team.getBlue().size()){
                     addToTeam(p, Team.Teams.BLUE);
                 }
                 else{
@@ -636,7 +649,7 @@ public class Siege extends BasePluginGamemode {
                 player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
             }
             GearHandler.giveGear(player,ChatColor.RED, GearHandler.SpecialGear.NONE);
-            redTeam.add(player);
+            if(!redTeam.contains(player))redTeam.add(player);
         }else{
             Team.getBlue().add(player);
             if(map.getImportantPoints().containsKey("BlueSpawn"+area)){
@@ -645,7 +658,7 @@ public class Siege extends BasePluginGamemode {
                 player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
             }
             GearHandler.giveGear(player,ChatColor.BLUE, GearHandler.SpecialGear.NONE);
-            blueTeam.add(player);
+            if(!blueTeam.contains(player))blueTeam.add(player);
         }
     }
 

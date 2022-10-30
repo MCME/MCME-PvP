@@ -109,21 +109,18 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
     };
 
-    Runnable respawnTimer = new Runnable() {
-        @Override
-        public void run() {
-            for(Player player : deathList.keySet()){
-                if(deathList.get(player) == 0){
-                    deathList.remove(player);
-                    if(redTeam.contains(player)){
-                        addToTeam(player,Team.Teams.RED);
-                    }else if(blueTeam.contains(player)){
-                        addToTeam(player,Team.Teams.BLUE);
-                    }
-                }else{
-                    player.sendMessage(ChatColor.GREEN + "Respawn in "+deathList.get(player));
-                    deathList.replace(player,deathList.get(player)-1);
+    Runnable respawnTimer = () -> {
+        for(Player player : deathList.keySet()){
+            if(deathList.get(player) == 0){
+                deathList.remove(player);
+                if(redTeam.contains(player)){
+                    addToTeam(player, Teams.RED);
+                }else if(blueTeam.contains(player)){
+                    addToTeam(player, Teams.BLUE);
                 }
+            }else{
+                player.sendMessage(ChatColor.GREEN + "Respawn in "+deathList.get(player));
+                deathList.replace(player,deathList.get(player)-1);
             }
         }
     };
@@ -177,12 +174,14 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
                 freezePlayer(p, 140);
+                redTeam.add(p);
             }
 
             else if (Team.getBlue().size() < Team.getRed().size()) {
                 Team.getBlue().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
                 freezePlayer(p, 140);
+                blueTeam.add(p);
             }
         }
 
@@ -326,16 +325,18 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             Team.getRed().add(p);
             p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
             GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            if(!redTeam.contains(p))redTeam.add(p);
         }
         else{
             Team.getBlue().add(p);
             p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            if(!blueTeam.contains(p))blueTeam.add(p);
         }
     }
 
     public String requiresParameter(){
-        return "whatever it is the gamemode needs to end, the goal basically, like kills or time";
+        return "time in minutes";
     }
 
     /**
@@ -413,14 +414,11 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
-
             if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())){
                     e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
-                }
-            if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
+            }else if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
                 e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
-            }
-            if(state == GameState.RUNNING && Team.getSpectator().getMembers().contains(e.getPlayer())){
+            }else if(state == GameState.RUNNING && Team.getSpectator().getMembers().contains(e.getPlayer())){
                 e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
             }
         }
