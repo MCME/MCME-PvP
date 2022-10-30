@@ -51,6 +51,9 @@ public class ArrowHandler implements Listener {
         if (projectile instanceof Arrow && projectileHitEvent.getHitBlock() != null) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), projectile::remove, 180);
         }
+        if (projectile instanceof Arrow && projectileHitEvent.getHitBlock().getType() == Material.TARGET){
+            projectileHitEvent.setCancelled(true);
+        }
     }
 
     /**
