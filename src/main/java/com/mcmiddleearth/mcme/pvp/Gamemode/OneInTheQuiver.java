@@ -108,7 +108,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(int i = 1;i < map.getImportantPoints().size();i++){
             spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
         }
-        spawns = (EventLocation[]) spawnsTemp.toArray();
+        spawns = spawnsTemp.toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
