@@ -85,7 +85,7 @@ public class Siege extends BasePluginGamemode {
     private int redScore = 3;
     private int blueScore = 0;
 
-    private final int flagTick = 12;
+    private final int flagTick = 2;
 
     private final int capturePointRadius = 10;
 
@@ -430,11 +430,6 @@ public class Siege extends BasePluginGamemode {
                             SGHandlers.blueTeamCaptureDef.remove(player);
                         }
                     }
-                }
-                if(loc.getBlockY() >= 85){
-                    if(!SGHandlers.redTeamCaptureAttack.contains(player)) SGHandlers.redTeamCaptureAttack.add(player);
-                }else{
-                    SGHandlers.redTeamCaptureAttack.remove(player);
                 }
             }
         }
