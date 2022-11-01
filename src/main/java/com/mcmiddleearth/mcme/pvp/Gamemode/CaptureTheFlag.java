@@ -33,7 +33,7 @@ import java.util.*;
 
 public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {
 
-    private int target = 3;//points or time or other condition needed to end the game
+    private final int target = 3;//points or time or other condition needed to end the game
 
     private int time = 15;
 
@@ -424,23 +424,25 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
 
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
-            Player p = e.getEntity();
-            if(Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER){
-                blueFlagStolen = false;
-                blueFlagCarrier = null;
-                GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
-                map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
-            }
+        public void onPlayerDeath(PlayerDeathEvent e) {
+            if (state == GameState.RUNNING) {
+                Player p = e.getEntity();
+                if (Objects.requireNonNull(p.getInventory().getHelmet()).getType() == Material.BLUE_BANNER) {
+                    blueFlagStolen = false;
+                    blueFlagCarrier = null;
+                    GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                    map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.BLUE_BANNER);
+                }
 
-            if(p.getInventory().getHelmet().getType() == Material.RED_BANNER){
-                redFlagStolen = false;
-                redFlagCarrier = null;
-                GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
-                map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
-            }//dying with the banner returns it to spawn
-            deathList.put(p,5);
-            Team.getSpectator().add(p);
+                if (p.getInventory().getHelmet().getType() == Material.RED_BANNER) {
+                    redFlagStolen = false;
+                    redFlagCarrier = null;
+                    GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                    map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
+                }//dying with the banner returns it to spawn
+                deathList.put(p, 5);
+                Team.getSpectator().add(p);
+            }
         }
 
         @EventHandler
