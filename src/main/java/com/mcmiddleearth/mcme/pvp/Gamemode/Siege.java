@@ -51,6 +51,12 @@ public class Siege extends BasePluginGamemode {
      no auto tick upwards   x
      lower base time but time is added when captures (40 % rounded up)  x
      stop overtime when blue isnt in the cap zone anymore   x
+     you wont be set into spectator mode when dying, still in spectator team    x
+     cap message is spammed when dying in it probably   x
+     does recapping work (except for last zone)     x
+     auto cap for recapturing doesnt work as intended i think       x
+     ctf: OT when one point at blue and zero at red. red won when they capped the point
+     eiter remove glass when capping or move it more up
 
      if(loc.getBlockY() >= 85){
                     if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
@@ -86,6 +92,7 @@ public class Siege extends BasePluginGamemode {
     private int blueScore = 0;
 
     private final int flagTick = 2;
+    //private final int flagTick = 12;
 
     private final int capturePointRadius = 10;
 
@@ -272,7 +279,7 @@ public class Siege extends BasePluginGamemode {
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))) {
                     if(SGHandlers.redTeamCaptureDef.isEmpty() && SGHandlers.blueTeamCaptureDef.isEmpty()){
                         int capAmount = SGHandlers.capAmount.get("CapturePoint"+(area-1));
-                        if(capAmount != 0 || capAmount != 100){
+                        if(capAmount == 100){
                             //do nothing
                         }else {
                             SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
@@ -289,7 +296,7 @@ public class Siege extends BasePluginGamemode {
                                 SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
                             }
                         }
-                    }else if(SGHandlers.capAmount.get("CapturePoint"+area) <= 0) {
+                    }else{      // if(SGHandlers.capAmount.get("CapturePoint"+area) <= 0)
                         if (SGHandlers.blueTeamCaptureDef.size() < SGHandlers.redTeamCaptureDef.size()) {
                             SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
                         } else if (SGHandlers.blueTeamCaptureDef.size() == SGHandlers.redTeamCaptureDef.size()) {
@@ -399,10 +406,15 @@ public class Siege extends BasePluginGamemode {
                         } else if (Team.getBlue().getMembers().contains(player)) {
                             if (!SGHandlers.blueTeamCaptureAttack.contains(player)) SGHandlers.blueTeamCaptureAttack.add(player);
                         }
-                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
+                    } else
+                        /*
+                        if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
                             && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
+                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK))
+
+                         */
+                    {
                         if (Team.getRed().getMembers().contains(player)) {
                             SGHandlers.redTeamCaptureAttack.remove(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
@@ -420,10 +432,12 @@ public class Siege extends BasePluginGamemode {
                         } else if (Team.getBlue().getMembers().contains(player)) {
                             if (!SGHandlers.blueTeamCaptureDef.contains(player)) SGHandlers.blueTeamCaptureDef.add(player);
                         }
-                    } else if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
+                    } else /*if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
                             && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK)) {
+                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK))
+                            */
+                    {
                         if (Team.getRed().getMembers().contains(player)) {
                             SGHandlers.redTeamCaptureDef.remove(player);
                         } else if (Team.getBlue().getMembers().contains(player)) {
@@ -471,22 +485,23 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(0,1,0).setType(Material.RED_STAINED_GLASS);
         }
-        for(Player p : Bukkit.getOnlinePlayers()) {
-            if(players.contains(p)){
-                if(Team.getBlue().size() <= Team.getRed().size()){
-                    Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                    blueTeam.add(p);
-                }else if (Team.getRed().size() < Team.getBlue().size()){
-                    Team.getRed().add(p);
-                    p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
-                    freezePlayer(p,140);
-                    redTeam.add(p);
-                }
-            } else{
-                Team.getSpectator().add(p);
-                p.teleport(m.getSpawn().toBukkitLoc().add(0,2,0));
+        for(Player p: players){
+            if(Team.getBlue().size() <= Team.getRed().size()){
+                Team.getBlue().add(p);
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                freezePlayer(p,140);
+                blueTeam.add(p);
+            }else if (Team.getRed().size() < Team.getBlue().size()){
+                Team.getRed().add(p);
+                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
+                freezePlayer(p,140);
+                redTeam.add(p);
+            }
+        }
+        for(Player player : Bukkit.getServer().getOnlinePlayers()){
+            if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
+                Team.getSpectator().add(player);
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
         }
 
