@@ -56,14 +56,13 @@ public class Siege extends BasePluginGamemode {
      does recapping work (except for last zone)     x
      auto cap for recapturing doesnt work as intended i think       x
      ctf: OT when one point at blue and zero at red. red won when they capped the point x
-     eiter remove glass when capping or move it more up
      Change Team Colors:    x
        Blue:Green       x
        Red:Black        x
      Message in ActionBar that red started recapping
      look at balancing during start and midgamejoin again   x
-     OT: after recapping time is too high
-     cover beacons that arent capturable
+     OT: after recapping time seems to be too high  x
+     cover beacons that arent capturable    x
      fix freezeplayer (collision is weird) make them invis and collision off for 7 seconds at the start
      dont have them tp in the air
 
@@ -100,8 +99,8 @@ public class Siege extends BasePluginGamemode {
     private int redScore = 3;
     private int blueScore = 0;
 
-    private final int flagTick = 2;
-    //private final int flagTick = 12;
+    //private final int flagTick = 2;
+    private final int flagTick = 12;
 
     private final int capturePointRadius = 10;
 
@@ -182,7 +181,7 @@ public class Siege extends BasePluginGamemode {
             if(area == maxArea){
                 if(!overtimeBool){
                     overtime = "Overtime: ";
-                    tempOTtime = time + 1 - 120;
+                    tempOTtime = time - addedTime;
                     time = 121;
                     overtimeBool = true;
                     redOvertimeBool = true;
@@ -202,12 +201,12 @@ public class Siege extends BasePluginGamemode {
                 SGHandlers.capAmount.replace("CapturePoint"+area,100);
                 Block b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.BLUE_STAINED_GLASS);
+                b.setType(Material.GREEN_STAINED_GLASS);
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))){
                     SGHandlers.capAmount.replace("CapturePoint"+(area-1),100);
                     Block b2 = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.BLUE_STAINED_GLASS);
+                    b2.setType(Material.GREEN_STAINED_GLASS);
                 }
                 blueScore++;
                 redScore--;
@@ -219,13 +218,14 @@ public class Siege extends BasePluginGamemode {
                 if(capturePointNames.contains("Capture Point "+area)){
                     bar.setTitle(capturePointNames.get(area-1));
                 }
-                bar.setColor(BarColor.GREEN);
+                bar.setColor(BarColor.WHITE);
                 bar.setProgress(0);
                 sendCaptureSound();
                 time = time + addedTime;
+                activateBeacons();
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))&& SGHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
                 if(overtimeBool && redOvertimeBool && !overtimeFinished){
-                    time = tempOTtime;
+                    time = tempOTtime - time;
                     bar.setVisible(true);
                     overtime = "";
                     overtimeFinished = true;
@@ -234,7 +234,7 @@ public class Siege extends BasePluginGamemode {
                     SGHandlers.capAmount.replace("CapturePoint"+area,0);
                     Block b2 = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.RED_STAINED_GLASS);
+                    b2.setType(Material.BLACK_STAINED_GLASS);
                 }
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
@@ -243,7 +243,7 @@ public class Siege extends BasePluginGamemode {
                 SGHandlers.capAmount.replace("CapturePoint"+(area-1),0);
                 Block b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.RED_STAINED_GLASS);
+                b.setType(Material.BLACK_STAINED_GLASS);
                 blueScore--;
                 redScore++;
                 area--;
@@ -252,15 +252,16 @@ public class Siege extends BasePluginGamemode {
                 SGHandlers.blueTeamCaptureDef.clear();
                 SGHandlers.redTeamCaptureDef.clear();
                 bar.setTitle(capturePointNames.get(area-1));
-                bar.setColor(BarColor.GREEN);
+                bar.setColor(BarColor.WHITE);
                 bar.setProgress(0);
                 sendCaptureSound();
+                activateBeacons();
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) == 0){
                 bar.setProgress(0);
-                bar.setColor(BarColor.GREEN);
+                bar.setColor(BarColor.WHITE);
                 Block b = SGHandlers.points.get("CapturePoint"+(area)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.RED_STAINED_GLASS);
+                b.setType(Material.BLACK_STAINED_GLASS);
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) > 0){
                 bar.setColor(BarColor.WHITE);
             }
@@ -454,6 +455,11 @@ public class Siege extends BasePluginGamemode {
                         }
                     }
                 }
+                if(loc.getBlockY() >= 85){
+                    if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
+                }else{
+                    SGHandlers.redTeamCaptureDef.remove(player);
+                }
             }
         }
     };
@@ -492,9 +498,15 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
-            l.getBlock().getRelative(0,1,0).setType(Material.RED_STAINED_GLASS);
+            l.getBlock().getRelative(0,1,0).setType(Material.BLACK_STAINED_GLASS);
         }
         for(Player p: players){
+            if(p == Bukkit.getPlayer("Jubo")){
+                Team.getBlacks().add(p);
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                freezePlayer(p,140);
+                blueTeam.add(p);
+            }else
             if(Team.getBlacks().size() < Team.getGreens().size()){
                 Team.getBlacks().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
@@ -539,6 +551,8 @@ public class Siege extends BasePluginGamemode {
                     Points.getScore(ChatColor.DARK_GREEN+"The Greens' Flags:").setScore(redScore);
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
 
+                    activateBeacons();
+
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game Start!");
                         p.setScoreboard(getScoreboard());
@@ -572,6 +586,7 @@ public class Siege extends BasePluginGamemode {
         for(Location l: SGHandlers.points.values()){
             l.getBlock().setType(Material.AIR);
             l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
+            l.getBlock().getRelative(0, 2, 0).setType(Material.AIR);
         }
         for(String key : SGHandlers.capAmount.keySet()){
             SGHandlers.capAmount.replace(key,0);
@@ -599,10 +614,10 @@ public class Siege extends BasePluginGamemode {
     }
 
     private void sendCaptureSound(){
-        for(Player player : Team.getRed().getMembers()){
+        for(Player player : Team.getGreens().getMembers()){
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL,10.0F,1.0F);
         }
-        for(Player player : Team.getBlue().getMembers()){
+        for(Player player : Team.getBlacks().getMembers()){
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL,10.0F,1.0F);
         }
     }
@@ -627,6 +642,23 @@ public class Siege extends BasePluginGamemode {
         PlayerStat.addGameLost(Team.Teams.RED);
         PlayerStat.addGameSpectatedAll();
         End(map);
+    }
+
+    private void activateBeacons(){
+        Block b;
+        for(int i = 1; i < maxArea;i++){
+            b = SGHandlers.points.get("CapturePoint"+(i)).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+            b.setType(Material.STONE);
+        }
+        if(SGHandlers.points.containsKey("CapturePoint"+(area-1))){
+            b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+        }
+        if(SGHandlers.points.containsKey("CapturePoint"+area)){
+            b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+        }
     }
 
     @Override
