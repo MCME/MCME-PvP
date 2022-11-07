@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
@@ -182,12 +183,12 @@ public class Siege extends BasePluginGamemode {
                 SGHandlers.capAmount.replace("CapturePoint"+area,100);
                 Block b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.GREEN_STAINED_GLASS);
+                b.setType(Material.BLACK_STAINED_GLASS);
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))){
                     SGHandlers.capAmount.replace("CapturePoint"+(area-1),100);
                     Block b2 = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.GREEN_STAINED_GLASS);
+                    b2.setType(Material.BLACK_STAINED_GLASS);
                 }
                 blueScore++;
                 redScore--;
@@ -215,7 +216,7 @@ public class Siege extends BasePluginGamemode {
                     SGHandlers.capAmount.replace("CapturePoint"+area,0);
                     Block b2 = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.BLACK_STAINED_GLASS);
+                    b2.setType(Material.GREEN_STAINED_GLASS);
                 }
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
@@ -224,7 +225,7 @@ public class Siege extends BasePluginGamemode {
                 SGHandlers.capAmount.replace("CapturePoint"+(area-1),0);
                 Block b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.BLACK_STAINED_GLASS);
+                b.setType(Material.GREEN_STAINED_GLASS);
                 blueScore--;
                 redScore++;
                 area--;
@@ -242,7 +243,7 @@ public class Siege extends BasePluginGamemode {
                 bar.setColor(BarColor.WHITE);
                 Block b = SGHandlers.points.get("CapturePoint"+(area)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.BLACK_STAINED_GLASS);
+                b.setType(Material.GREEN_STAINED_GLASS);
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) > 0){
                 bar.setColor(BarColor.WHITE);
             }
@@ -407,7 +408,10 @@ public class Siege extends BasePluginGamemode {
                             || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
                         if (Team.getGreens().getMembers().contains(player)) {
-                            if (!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
+                            if (!SGHandlers.redTeamCaptureDef.contains(player)) {
+                                SGHandlers.redTeamCaptureDef.add(player);
+                                sendActionBarReCap();
+                            }
                         } else if (Team.getBlacks().getMembers().contains(player)) {
                             if (!SGHandlers.blueTeamCaptureDef.contains(player)) SGHandlers.blueTeamCaptureDef.add(player);
                         }
@@ -457,7 +461,7 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
-            l.getBlock().getRelative(0,1,0).setType(Material.BLACK_STAINED_GLASS);
+            l.getBlock().getRelative(0,1,0).setType(Material.GREEN_STAINED_GLASS);
         }
         for(Player p: players){
             if(Team.getBlacks().size() < Team.getGreens().size()){
@@ -564,6 +568,12 @@ public class Siege extends BasePluginGamemode {
         m.playerLeaveAll();
         PVPCommand.queueNextGame();
         super.End(m);
+    }
+
+    private void sendActionBarReCap(){
+        for(Player player : Team.getBlacks().getMembers()){
+            ActionBarHandler.sendActionBarMessage(player,ChatColor.DARK_RED+"The Greens started recapturing your point!");
+        }
     }
 
     private void sendCaptureSound(){
