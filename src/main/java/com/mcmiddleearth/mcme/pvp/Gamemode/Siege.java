@@ -1,5 +1,6 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
@@ -34,38 +35,6 @@ import java.util.List;
  */
 public class Siege extends BasePluginGamemode {
 
-    /*
-    TODO:
-     set up spawn for spectator x
-     OT spawn is broken x
-     spawn message two times x
-     ctf text for OT    x
-     no neutral zones   x
-     tick at 2 %    x
-     multiply tick by people    x
-     better spawn system for ffa. iterate through spawns rathen than random x
-     greens randomness in matchmaking
-     OT doesnt recap    x
-     bossbar going up for red team  cant recreate it
-     CTF respawn timer doesnt work  x
-     no auto tick upwards   x
-     lower base time but time is added when captures (40 % rounded up)  x
-     stop overtime when blue isnt in the cap zone anymore   x
-     you wont be set into spectator mode when dying, still in spectator team    x
-     cap message is spammed when dying in it probably   x
-     does recapping work (except for last zone)     x
-     auto cap for recapturing doesnt work as intended i think       x
-     ctf: OT when one point at blue and zero at red. red won when they capped the point
-     eiter remove glass when capping or move it more up
-
-     if(loc.getBlockY() >= 85){
-                    if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
-                }else{
-                    SGHandlers.redTeamCaptureDef.remove(player);
-                }
-
-     */
-
     private int time = 2;
 
     private int addedTime = 1;
@@ -92,13 +61,12 @@ public class Siege extends BasePluginGamemode {
     private int blueScore = 0;
 
     private final int flagTick = 2;
-    //private final int flagTick = 12;
 
     private final int capturePointRadius = 10;
 
     private final int respawnTime = 5;
 
-    private final int arrowTime = 5;
+    private final int arrowTime = 8;
 
     private GameState state;
 
@@ -157,7 +125,7 @@ public class Siege extends BasePluginGamemode {
                     overtimeBool = true;
                     blueOvertimeBool = true;
                     for(Player p : Bukkit.getOnlinePlayers()){
-                        p.sendMessage(ChatColor.GREEN + "The game is going into overtime! Blue Team: Try to capture this point!");
+                        p.sendMessage(ChatColor.GREEN + "The game is going into overtime! Blacks: Try to capture this point!");
                     }
                 }else{
                     redTeamWin();
@@ -173,13 +141,13 @@ public class Siege extends BasePluginGamemode {
             if(area == maxArea){
                 if(!overtimeBool){
                     overtime = "Overtime: ";
-                    tempOTtime = time + 1;
+                    tempOTtime = time - addedTime;
                     time = 121;
                     overtimeBool = true;
                     redOvertimeBool = true;
                     bar.setVisible(false);
                     for(Player p : Bukkit.getOnlinePlayers()){
-                        p.sendMessage(ChatColor.GREEN + "The game is going into overtime! Red Team: Try to recapture the point.");
+                        p.sendMessage(ChatColor.GREEN + "The game is going into overtime! Greens: Try to recapture the point.");
                     }
                 }else if(!redOvertimeBool ^ overtimeFinished){
                     blueTeamWin();
@@ -188,35 +156,36 @@ public class Siege extends BasePluginGamemode {
             if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) >= 100){
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
-                    player.sendMessage(ChatColor.BLUE+"Blue team captured the next point.");
+                    player.sendMessage(ChatColor.BLACK+"The Blacks captured the next point.");
                 }
                 SGHandlers.capAmount.replace("CapturePoint"+area,100);
                 Block b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.BLUE_STAINED_GLASS);
+                b.setType(Material.BLACK_STAINED_GLASS);
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))){
                     SGHandlers.capAmount.replace("CapturePoint"+(area-1),100);
                     Block b2 = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.BLUE_STAINED_GLASS);
+                    b2.setType(Material.BLACK_STAINED_GLASS);
                 }
                 blueScore++;
                 redScore--;
                 area++;
-                Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
-                Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
+                Points.getScore(ChatColor.BLACK+"The Blacks' Flags:").setScore(blueScore);
+                Points.getScore(ChatColor.DARK_GREEN+"The Greens' Flags:").setScore(redScore);
                 SGHandlers.blueTeamCaptureAttack.clear();
                 SGHandlers.redTeamCaptureAttack.clear();
                 if(capturePointNames.contains("Capture Point "+area)){
                     bar.setTitle(capturePointNames.get(area-1));
                 }
-                bar.setColor(BarColor.RED);
+                bar.setColor(BarColor.WHITE);
                 bar.setProgress(0);
                 sendCaptureSound();
                 time = time + addedTime;
+                activateBeacons();
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+(area-1))&& SGHandlers.capAmount.get("CapturePoint"+(area-1)) <= 0){
                 if(overtimeBool && redOvertimeBool && !overtimeFinished){
-                    time = tempOTtime;
+                    time = tempOTtime - time;
                     bar.setVisible(true);
                     overtime = "";
                     overtimeFinished = true;
@@ -225,42 +194,42 @@ public class Siege extends BasePluginGamemode {
                     SGHandlers.capAmount.replace("CapturePoint"+area,0);
                     Block b2 = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,1,0);
                     b2.setType(Material.AIR);
-                    b2.setType(Material.RED_STAINED_GLASS);
+                    b2.setType(Material.GREEN_STAINED_GLASS);
                 }
                 captured = true;
                 for(Player player : Bukkit.getOnlinePlayers()){
-                    player.sendMessage(ChatColor.RED+"Red team recaptured the point.");
+                    player.sendMessage(ChatColor.DARK_GREEN+"The Greens recaptured the point.");
                 }
                 SGHandlers.capAmount.replace("CapturePoint"+(area-1),0);
                 Block b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.RED_STAINED_GLASS);
+                b.setType(Material.GREEN_STAINED_GLASS);
                 blueScore--;
                 redScore++;
                 area--;
-                Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
-                Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
+                Points.getScore(ChatColor.BLACK+"The Blacks' Flags:").setScore(blueScore);
+                Points.getScore(ChatColor.DARK_GREEN+"The Greens' Flags:").setScore(redScore);
                 SGHandlers.blueTeamCaptureDef.clear();
                 SGHandlers.redTeamCaptureDef.clear();
                 bar.setTitle(capturePointNames.get(area-1));
-                bar.setColor(BarColor.RED);
+                bar.setColor(BarColor.WHITE);
                 bar.setProgress(0);
                 sendCaptureSound();
+                activateBeacons();
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) == 0){
                 bar.setProgress(0);
-                bar.setColor(BarColor.RED);
+                bar.setColor(BarColor.WHITE);
                 Block b = SGHandlers.points.get("CapturePoint"+(area)).getBlock().getRelative(0,1,0);
                 b.setType(Material.AIR);
-                b.setType(Material.RED_STAINED_GLASS);
+                b.setType(Material.GREEN_STAINED_GLASS);
             }else if(SGHandlers.capAmount.containsKey("CapturePoint"+area) && SGHandlers.capAmount.get("CapturePoint"+area) > 0){
-                bar.setColor(BarColor.BLUE);
+                bar.setColor(BarColor.WHITE);
             }
             if(!captured) {
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+area)) {
                     if (SGHandlers.redTeamCaptureAttack.isEmpty() && SGHandlers.blueTeamCaptureAttack.isEmpty()) {
                         int capAmount = SGHandlers.capAmount.get("CapturePoint" + area);
                         if (capAmount == 0 || capAmount == 100) {
-                            //Bukkit.getPlayer("Jubo").sendMessage("Jubo");
                         } else {
                             SGHandlers.capAmount.replace("CapturePoint" + area, SGHandlers.capAmount.get("CapturePoint" + area) - flagTick);
                         }
@@ -280,7 +249,6 @@ public class Siege extends BasePluginGamemode {
                     if(SGHandlers.redTeamCaptureDef.isEmpty() && SGHandlers.blueTeamCaptureDef.isEmpty()){
                         int capAmount = SGHandlers.capAmount.get("CapturePoint"+(area-1));
                         if(capAmount == 100){
-                            //do nothing
                         }else {
                             SGHandlers.capAmount.replace("CapturePoint"+(area-1), SGHandlers.capAmount.get("CapturePoint"+(area-1))+flagTick);
                         }
@@ -290,17 +258,15 @@ public class Siege extends BasePluginGamemode {
                         if (SGHandlers.blueTeamCaptureDef.size() < SGHandlers.redTeamCaptureDef.size()) {
                             SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
                         } else if (SGHandlers.blueTeamCaptureDef.size() == SGHandlers.redTeamCaptureDef.size()) {
-                            //do nothing
                         } else if (SGHandlers.blueTeamCaptureDef.size() > SGHandlers.redTeamCaptureDef.size()) {
                             if (SGHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
                                 SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
                             }
                         }
-                    }else{      // if(SGHandlers.capAmount.get("CapturePoint"+area) <= 0)
+                    }else{
                         if (SGHandlers.blueTeamCaptureDef.size() < SGHandlers.redTeamCaptureDef.size()) {
                             SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) - flagTickDef);
                         } else if (SGHandlers.blueTeamCaptureDef.size() == SGHandlers.redTeamCaptureDef.size()) {
-                            //do nothing
                         } else if (SGHandlers.blueTeamCaptureDef.size() > SGHandlers.redTeamCaptureDef.size()) {
                             if (SGHandlers.capAmount.get("CapturePoint" + (area - 1)) != 100) {
                                 SGHandlers.capAmount.replace("CapturePoint" + (area - 1), SGHandlers.capAmount.get("CapturePoint" + (area - 1)) + flagTickDef);
@@ -311,39 +277,39 @@ public class Siege extends BasePluginGamemode {
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+area)) {
                     for (Player player : SGHandlers.blueTeamCaptureAttack) {
                         if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
-                            player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at 100%");
                         }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
-                            player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at 0%");
                         }else{
-                            player.sendMessage(ChatColor.BLUE + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
                         }
                     }
                     for (Player player : SGHandlers.redTeamCaptureAttack) {
                         if(SGHandlers.capAmount.get("CapturePoint" + area) > 100){
-                            player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at 100%");
                         }else if(SGHandlers.capAmount.get("CapturePoint" + area) < 0){
-                            player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at 0%");
                         }else{
-                            player.sendMessage(ChatColor.BLUE + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
+                            player.sendMessage(ChatColor.GRAY + "Cap at " + SGHandlers.capAmount.get("CapturePoint" + area) + "%");
                         }
                     }
                 }
                 for(Player player : SGHandlers.blueTeamCaptureDef){
                     if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) > 100){
-                        player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                        player.sendMessage(ChatColor.GRAY + "Cap at 100%");
                     }else if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) < 0){
-                        player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                        player.sendMessage(ChatColor.GRAY + "Cap at 0%");
                     }else{
-                        player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                        player.sendMessage(ChatColor.GRAY+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
                     }
                 }
                 for(Player player : SGHandlers.redTeamCaptureDef){
                     if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) > 100){
-                        player.sendMessage(ChatColor.BLUE + "Cap at 100%");
+                        player.sendMessage(ChatColor.GRAY + "Cap at 100%");
                     }else if(SGHandlers.capAmount.get("CapturePoint" + (area-1)) < 0){
-                        player.sendMessage(ChatColor.BLUE + "Cap at 0%");
+                        player.sendMessage(ChatColor.GRAY + "Cap at 0%");
                     }else{
-                        player.sendMessage(ChatColor.BLUE+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
+                        player.sendMessage(ChatColor.GRAY+"Cap at "+ SGHandlers.capAmount.get("CapturePoint"+(area-1))+"%");
                     }
                 }
                 if(SGHandlers.capAmount.containsKey("CapturePoint"+area)){
@@ -380,9 +346,9 @@ public class Siege extends BasePluginGamemode {
             if(deathList.get(player) == 0){
                 deathList.remove(player);
                 if(redTeam.contains(player)){
-                    addToTeam(player,Team.Teams.RED);
+                    addToTeam(player,Team.Teams.GREENS);
                 }else if(blueTeam.contains(player)){
-                    addToTeam(player,Team.Teams.BLUE);
+                    addToTeam(player,Team.Teams.BLACKS);
                 }
             }else{
                 player.sendMessage(ChatColor.GREEN + "Respawn in "+deathList.get(player));
@@ -401,23 +367,15 @@ public class Siege extends BasePluginGamemode {
                             && (loc.getBlock().getRelative(0, -2, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(player)) {
+                        if (Team.getGreens().getMembers().contains(player)) {
                             if (!SGHandlers.redTeamCaptureAttack.contains(player)) SGHandlers.redTeamCaptureAttack.add(player);
-                        } else if (Team.getBlue().getMembers().contains(player)) {
+                        } else if (Team.getBlacks().getMembers().contains(player)) {
                             if (!SGHandlers.blueTeamCaptureAttack.contains(player)) SGHandlers.blueTeamCaptureAttack.add(player);
                         }
-                    } else
-                        /*
-                        if (loc.distance(map.getImportantPoints().get("CapturePoint" + area).toBukkitLoc()) < capturePointRadius
-                            && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK))
-
-                         */
-                    {
-                        if (Team.getRed().getMembers().contains(player)) {
+                    } else {
+                        if (Team.getGreens().getMembers().contains(player)) {
                             SGHandlers.redTeamCaptureAttack.remove(player);
-                        } else if (Team.getBlue().getMembers().contains(player)) {
+                        } else if (Team.getBlacks().getMembers().contains(player)) {
                             SGHandlers.blueTeamCaptureAttack.remove(player);
                         }
                     }
@@ -427,20 +385,18 @@ public class Siege extends BasePluginGamemode {
                             && (loc.getBlock().getRelative(0, -2, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -3, 0).getType() == Material.HONEY_BLOCK
                             || loc.getBlock().getRelative(0, -4, 0).getType() == Material.HONEY_BLOCK)) {
-                        if (Team.getRed().getMembers().contains(player)) {
-                            if (!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
-                        } else if (Team.getBlue().getMembers().contains(player)) {
+                        if (Team.getGreens().getMembers().contains(player)) {
+                            if (!SGHandlers.redTeamCaptureDef.contains(player)) {
+                                SGHandlers.redTeamCaptureDef.add(player);
+                                sendActionBarReCap();
+                            }
+                        } else if (Team.getBlacks().getMembers().contains(player)) {
                             if (!SGHandlers.blueTeamCaptureDef.contains(player)) SGHandlers.blueTeamCaptureDef.add(player);
                         }
-                    } else /*if (loc.distance(map.getImportantPoints().get("CapturePoint" + (area - 1)).toBukkitLoc()) < capturePointRadius
-                            && (loc.getBlock().getRelative(0, -2, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -3, 0).getType() != Material.HONEY_BLOCK
-                            || loc.getBlock().getRelative(0, -4, 0).getType() != Material.HONEY_BLOCK))
-                            */
-                    {
-                        if (Team.getRed().getMembers().contains(player)) {
+                    } else {
+                        if (Team.getGreens().getMembers().contains(player)) {
                             SGHandlers.redTeamCaptureDef.remove(player);
-                        } else if (Team.getBlue().getMembers().contains(player)) {
+                        } else if (Team.getBlacks().getMembers().contains(player)) {
                             SGHandlers.blueTeamCaptureDef.remove(player);
                         }
                     }
@@ -483,23 +439,23 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(-1, -1, -1).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 0).setType(Material.IRON_BLOCK);
             l.getBlock().getRelative(-1, -1, 1).setType(Material.IRON_BLOCK);
-            l.getBlock().getRelative(0,1,0).setType(Material.RED_STAINED_GLASS);
+            l.getBlock().getRelative(0,1,0).setType(Material.GREEN_STAINED_GLASS);
         }
         for(Player p: players){
-            if(Team.getBlue().size() <= Team.getRed().size()){
-                Team.getBlue().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+            if(Team.getBlacks().size() < Team.getGreens().size()){
+                Team.getBlacks().add(p);
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,1,0));
                 freezePlayer(p,140);
                 blueTeam.add(p);
-            }else if (Team.getRed().size() < Team.getBlue().size()){
-                Team.getRed().add(p);
-                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
+            }else if (Team.getGreens().size() <= Team.getBlacks().size()){
+                Team.getGreens().add(p);
+                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,1,0));
                 freezePlayer(p,140);
                 redTeam.add(p);
             }
         }
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
-            if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
+            if(!Team.getGreens().getMembers().contains(player) && !Team.getBlacks().getMembers().contains(player)){
                 Team.getSpectator().add(player);
                 player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
             }
@@ -512,7 +468,7 @@ public class Siege extends BasePluginGamemode {
                     if(state == GameState.RUNNING){
                         return;
                     }
-                    bar = Bukkit.createBossBar(ChatColor.WHITE+capturePointNames.get(area-1), BarColor.RED, BarStyle.SOLID);
+                    bar = Bukkit.createBossBar(ChatColor.WHITE+capturePointNames.get(area-1), BarColor.GREEN, BarStyle.SOLID);
                     bar.setProgress(0);
                     bar.setVisible(true);
 
@@ -526,21 +482,23 @@ public class Siege extends BasePluginGamemode {
                     Points.setDisplayName("Time: " + time + "m");
                     time *= 60;
                     addedTime = (int) (time * 0.4);
-                    Points.getScore(ChatColor.BLUE+"Blue team flags:").setScore(blueScore);
-                    Points.getScore(ChatColor.RED+"Red team flags:").setScore(redScore);
+                    Points.getScore(ChatColor.BLACK+"The Blacks' Flags:").setScore(blueScore);
+                    Points.getScore(ChatColor.DARK_GREEN+"The Greens' Flags:").setScore(redScore);
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                    activateBeacons();
 
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game Start!");
                         p.setScoreboard(getScoreboard());
                     }
 
-                    for(Player p : Team.getRed().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.RED, GearHandler.SpecialGear.NONE);
+                    for(Player p : Team.getGreens().getMembers()){
+                        GearHandler.giveGear(p, ChatColor.DARK_GREEN, GearHandler.SpecialGear.NONE);
                         bar.addPlayer(p);
                     }
-                    for(Player p : Team.getBlue().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.BLUE, GearHandler.SpecialGear.NONE);
+                    for(Player p : Team.getBlacks().getMembers()){
+                        GearHandler.giveGear(p, ChatColor.BLACK, GearHandler.SpecialGear.NONE);
                         bar.addPlayer(p);
                     }
                     state = GameState.RUNNING;
@@ -563,6 +521,7 @@ public class Siege extends BasePluginGamemode {
         for(Location l: SGHandlers.points.values()){
             l.getBlock().setType(Material.AIR);
             l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
+            l.getBlock().getRelative(0, 2, 0).setType(Material.AIR);
         }
         for(String key : SGHandlers.capAmount.keySet()){
             SGHandlers.capAmount.replace(key,0);
@@ -589,19 +548,25 @@ public class Siege extends BasePluginGamemode {
         super.End(m);
     }
 
+    private void sendActionBarReCap(){
+        for(Player player : Team.getBlacks().getMembers()){
+            ActionBarHandler.sendActionBarMessage(player,ChatColor.DARK_RED+"The Greens started recapturing your point!");
+        }
+    }
+
     private void sendCaptureSound(){
-        for(Player player : Team.getRed().getMembers()){
+        for(Player player : Team.getGreens().getMembers()){
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL,10.0F,1.0F);
         }
-        for(Player player : Team.getBlue().getMembers()){
+        for(Player player : Team.getBlacks().getMembers()){
             player.playSound(player.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL,10.0F,1.0F);
         }
     }
 
     private void redTeamWin(){
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendMessage(ChatColor.RED+"Game over!");
-            player.sendMessage(ChatColor.RED+"Red team wins!");
+            player.sendMessage(ChatColor.DARK_GREEN+"Game over!");
+            player.sendMessage(ChatColor.DARK_GREEN+"The Greens win!");
         }
         PlayerStat.addGameWon(Team.Teams.RED);
         PlayerStat.addGameLost(Team.Teams.BLUE);
@@ -611,13 +576,30 @@ public class Siege extends BasePluginGamemode {
 
     private void blueTeamWin(){
         for(Player player : Bukkit.getOnlinePlayers()){
-            player.sendMessage(ChatColor.BLUE+"Game over!");
-            player.sendMessage(ChatColor.BLUE+"Blue team wins!");
+            player.sendMessage(ChatColor.BLACK+"Game over!");
+            player.sendMessage(ChatColor.BLACK+"The Blacks win!");
         }
         PlayerStat.addGameWon(Team.Teams.BLUE);
         PlayerStat.addGameLost(Team.Teams.RED);
         PlayerStat.addGameSpectatedAll();
         End(map);
+    }
+
+    private void activateBeacons(){
+        Block b;
+        for(int i = 1; i < maxArea;i++){
+            b = SGHandlers.points.get("CapturePoint"+(i)).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+            b.setType(Material.STONE);
+        }
+        if(SGHandlers.points.containsKey("CapturePoint"+(area-1))){
+            b = SGHandlers.points.get("CapturePoint"+(area-1)).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+        }
+        if(SGHandlers.points.containsKey("CapturePoint"+area)){
+            b = SGHandlers.points.get("CapturePoint"+area).getBlock().getRelative(0,2,0);
+            b.setType(Material.AIR);
+        }
     }
 
     @Override
@@ -627,19 +609,19 @@ public class Siege extends BasePluginGamemode {
         if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
 
             if(deathList.containsKey(p)) return false;
-            if(Team.getRed().getAllMembers().contains(p)){
-                addToTeam(p, Team.Teams.RED);
+            if(Team.getGreens().getAllMembers().contains(p)){
+                addToTeam(p, Team.Teams.GREENS);
             }
-            else if(Team.getBlue().getAllMembers().contains(p)){
-                addToTeam(p, Team.Teams.BLUE);
+            else if(Team.getBlacks().getAllMembers().contains(p)){
+                addToTeam(p, Team.Teams.BLACKS);
             }
 
             else{
-                if(Team.getRed().size() > Team.getBlue().size()){
-                    addToTeam(p, Team.Teams.BLUE);
+                if(Team.getGreens().size() > Team.getBlacks().size()){
+                    addToTeam(p, Team.Teams.BLACKS);
                 }
                 else{
-                    addToTeam(p, Team.Teams.RED);
+                    addToTeam(p, Team.Teams.GREENS);
                 }
             }
             super.midgamePlayerJoin(p);
@@ -651,23 +633,23 @@ public class Siege extends BasePluginGamemode {
     }
 
     private void addToTeam(Player player, Team.Teams team){
-        if(team == Team.Teams.RED){
-            Team.getRed().add(player);
+        if(team == Team.Teams.GREENS){
+            Team.getGreens().add(player);
             if(map.getImportantPoints().containsKey("RedSpawn"+area)){
-                player.teleport(map.getImportantPoints().get("RedSpawn"+area).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("RedSpawn"+area).toBukkitLoc().add(0,1,0));
             }else if(map.getImportantPoints().containsKey("RedSpawn"+(area-1))){
-                player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
-            GearHandler.giveGear(player,ChatColor.RED, GearHandler.SpecialGear.NONE);
+            GearHandler.giveGear(player,ChatColor.DARK_GREEN, GearHandler.SpecialGear.NONE);
             if(!redTeam.contains(player))redTeam.add(player);
         }else{
-            Team.getBlue().add(player);
+            Team.getBlacks().add(player);
             if(map.getImportantPoints().containsKey("BlueSpawn"+area)){
-                player.teleport(map.getImportantPoints().get("BlueSpawn"+area).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+area).toBukkitLoc().add(0,1,0));
             }else if(map.getImportantPoints().containsKey("BlueSpawn"+(area-1))){
-                player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
-            GearHandler.giveGear(player,ChatColor.BLUE, GearHandler.SpecialGear.NONE);
+            GearHandler.giveGear(player,ChatColor.BLACK, GearHandler.SpecialGear.NONE);
             if(!blueTeam.contains(player))blueTeam.add(player);
         }
     }
@@ -705,10 +687,10 @@ public class Siege extends BasePluginGamemode {
             if (state == GameState.RUNNING) {
                 if (event.getEntity() instanceof Player) {
                     Player player = (Player) event.getEntity();
-                    if (Team.getRed().getMembers().contains(player)) {
+                    if (Team.getGreens().getMembers().contains(player)) {
                         redTeamCaptureAttack.remove(player);
                         redTeamCaptureDef.remove(player);
-                    } else if (Team.getBlue().getMembers().contains(player)) {
+                    } else if (Team.getBlacks().getMembers().contains(player)) {
                         blueTeamCaptureAttack.remove(player);
                         blueTeamCaptureDef.remove(player);
                     }
@@ -725,10 +707,10 @@ public class Siege extends BasePluginGamemode {
                 deathList.remove(event.getPlayer());
                 blueTeam.remove(event.getPlayer());
                 redTeam.remove(event.getPlayer());
-                if (Team.getRed().size() <= 0) {
+                if (Team.getGreens().size() <= 0) {
                     blueTeamWin();
                 }
-                if (Team.getBlue().size() <= 0) {
+                if (Team.getBlacks().size() <= 0) {
                     redTeamWin();
                 }
             }
@@ -738,20 +720,20 @@ public class Siege extends BasePluginGamemode {
         public void onPlayerRespawn(PlayerRespawnEvent event) {
             if (state == GameState.RUNNING) {
                 if (map.getImportantPoints().containsKey("BlueSpawn" + area)) {
-                    if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 2, 0));
-                    } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
+                    if (Team.getBlacks().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 1, 0));
+                    } else if (Team.getGreens().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 1, 0));
                     }else{
-                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,1,0));
                     }
                 }else if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
-                    if (Team.getBlue().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
-                    } else if (Team.getRed().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                    if (Team.getBlacks().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 1, 0));
+                    } else if (Team.getGreens().getMembers().contains(event.getPlayer())) {
+                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 1, 0));
                     }else{
-                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,1,0));
                     }
                 }
             }

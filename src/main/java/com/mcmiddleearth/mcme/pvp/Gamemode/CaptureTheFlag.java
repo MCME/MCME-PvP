@@ -172,14 +172,14 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(Player p : players) {//this distributes players evenly across teams
             if (Team.getRed().size() <= Team.getBlue().size()) {
                 Team.getRed().add(p);
-                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 redTeam.add(p);
             }
 
             else if (Team.getBlue().size() < Team.getRed().size()) {
                 Team.getBlue().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 blueTeam.add(p);
             }
@@ -188,7 +188,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }//players that didn't join become spectators
 
@@ -323,13 +323,13 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);
-            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
             GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
             if(!redTeam.contains(p))redTeam.add(p);
         }
         else{
             Team.getBlue().add(p);
-            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
             if(!blueTeam.contains(p))blueTeam.add(p);
         }
@@ -415,11 +415,11 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
             if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
             }else if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
-                e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
             }else if(state == GameState.RUNNING && Team.getSpectator().getMembers().contains(e.getPlayer())){
-                e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
+                e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,1,0));
             }
         }
 
