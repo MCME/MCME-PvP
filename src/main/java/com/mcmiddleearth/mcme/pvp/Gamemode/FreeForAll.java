@@ -187,7 +187,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
@@ -428,7 +428,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[FFAHandlers.spawn++].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[FFAHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         
@@ -479,7 +479,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
 
                  */
-                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
 
                 if(spawn >= spawns.length){
                     spawn = 0;

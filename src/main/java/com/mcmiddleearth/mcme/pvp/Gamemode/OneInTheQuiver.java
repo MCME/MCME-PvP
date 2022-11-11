@@ -126,7 +126,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
@@ -351,7 +351,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[OITQHandlers.spawn++].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[OITQHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         super.midgamePlayerJoin(p);
@@ -404,7 +404,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
                 }
-                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
 
                 if(spawn >= spawns.length){
                     spawn = 0;

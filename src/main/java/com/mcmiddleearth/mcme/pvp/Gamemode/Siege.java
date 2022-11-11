@@ -35,28 +35,6 @@ import java.util.List;
  */
 public class Siege extends BasePluginGamemode {
 
-    /*
-    TODO:
-     Message in ActionBar that red started recapping    x
-     fix freezeplayer (collision is weird) make them invis and collision off for 7 seconds at the start x
-     dont have them tp in the air
-
-     if(loc.getBlockY() >= 85){
-                    if(!SGHandlers.redTeamCaptureDef.contains(player)) SGHandlers.redTeamCaptureDef.add(player);
-                }else{
-                    SGHandlers.redTeamCaptureDef.remove(player);
-                }
-
-     if(p == Bukkit.getPlayer("Jubo")){
-                Team.getBlacks().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
-                freezePlayer(p,140);
-                blueTeam.add(p);
-            }else
-
-            private final int flagTick = 12;
-     */
-
     private int time = 2;
 
     private int addedTime = 1;
@@ -423,14 +401,6 @@ public class Siege extends BasePluginGamemode {
                         }
                     }
                 }
-                if(loc.getBlockY() >= 85){
-                    if (!SGHandlers.redTeamCaptureDef.contains(player)) {
-                        SGHandlers.redTeamCaptureDef.add(player);
-                        sendActionBarReCap();
-                    }
-                }else{
-                    SGHandlers.redTeamCaptureDef.remove(player);
-                }
             }
         }
     };
@@ -472,12 +442,6 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(0,1,0).setType(Material.GREEN_STAINED_GLASS);
         }
         for(Player p: players){
-            if(p == Bukkit.getPlayer("Jubo")){
-                Team.getBlacks().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,1,0));
-                freezePlayer(p,140);
-                blueTeam.add(p);
-            }else
             if(Team.getBlacks().size() < Team.getGreens().size()){
                 Team.getBlacks().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,1,0));
