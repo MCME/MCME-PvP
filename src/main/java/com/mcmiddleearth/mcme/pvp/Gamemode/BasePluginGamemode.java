@@ -33,6 +33,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -61,6 +63,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     private static Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+    private static org.bukkit.scoreboard.Team team = scoreboard.registerNewTeam("collision");
     
     public void playerLeave(Player p){
         players.remove(p);
@@ -76,6 +80,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         }
         HashMap<Player, Location> lastLocation = new HashMap<>();
         HashMap<String, Long> lastOutOfBounds = new HashMap<>();
+        team.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
             @Override
             public void run() {
@@ -187,15 +192,19 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     public void freezePlayer(Player p, int ticks){
+        team.addPlayer(p);
         p.setAllowFlight(true);
         p.teleport(p.getLocation().add(0,0.1,0));
         p.setFlying(true);
         p.setFlySpeed(0);
         frozen.add(p.getUniqueId());
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 15));
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(),() -> p.removePotionEffect(PotionEffectType.INVISIBILITY),40+ticks);
     }
 
-    public void unFreezePlayer(Player p){
+    private void unFreezePlayer(Player p){
+        team.removePlayer(p);
         p.setAllowFlight(false);
         p.setFlying(false);
         p.setFlySpeed(0.1F);

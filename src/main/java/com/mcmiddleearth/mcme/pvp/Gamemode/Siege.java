@@ -37,8 +37,8 @@ public class Siege extends BasePluginGamemode {
 
     /*
     TODO:
-     Message in ActionBar that red started recapping
-     fix freezeplayer (collision is weird) make them invis and collision off for 7 seconds at the start
+     Message in ActionBar that red started recapping    x
+     fix freezeplayer (collision is weird) make them invis and collision off for 7 seconds at the start x
      dont have them tp in the air
 
      if(loc.getBlockY() >= 85){
@@ -423,6 +423,14 @@ public class Siege extends BasePluginGamemode {
                         }
                     }
                 }
+                if(loc.getBlockY() >= 85){
+                    if (!SGHandlers.redTeamCaptureDef.contains(player)) {
+                        SGHandlers.redTeamCaptureDef.add(player);
+                        sendActionBarReCap();
+                    }
+                }else{
+                    SGHandlers.redTeamCaptureDef.remove(player);
+                }
             }
         }
     };
@@ -464,14 +472,20 @@ public class Siege extends BasePluginGamemode {
             l.getBlock().getRelative(0,1,0).setType(Material.GREEN_STAINED_GLASS);
         }
         for(Player p: players){
+            if(p == Bukkit.getPlayer("Jubo")){
+                Team.getBlacks().add(p);
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,1,0));
+                freezePlayer(p,140);
+                blueTeam.add(p);
+            }else
             if(Team.getBlacks().size() < Team.getGreens().size()){
                 Team.getBlacks().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,2,0));
+                p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0,1,0));
                 freezePlayer(p,140);
                 blueTeam.add(p);
             }else if (Team.getGreens().size() <= Team.getBlacks().size()){
                 Team.getGreens().add(p);
-                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,2,0));
+                p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0,1,0));
                 freezePlayer(p,140);
                 redTeam.add(p);
             }
@@ -658,18 +672,18 @@ public class Siege extends BasePluginGamemode {
         if(team == Team.Teams.GREENS){
             Team.getGreens().add(player);
             if(map.getImportantPoints().containsKey("RedSpawn"+area)){
-                player.teleport(map.getImportantPoints().get("RedSpawn"+area).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("RedSpawn"+area).toBukkitLoc().add(0,1,0));
             }else if(map.getImportantPoints().containsKey("RedSpawn"+(area-1))){
-                player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
             GearHandler.giveGear(player,ChatColor.DARK_GREEN, GearHandler.SpecialGear.NONE);
             if(!redTeam.contains(player))redTeam.add(player);
         }else{
             Team.getBlacks().add(player);
             if(map.getImportantPoints().containsKey("BlueSpawn"+area)){
-                player.teleport(map.getImportantPoints().get("BlueSpawn"+area).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+area).toBukkitLoc().add(0,1,0));
             }else if(map.getImportantPoints().containsKey("BlueSpawn"+(area-1))){
-                player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,2,0));
+                player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
             GearHandler.giveGear(player,ChatColor.BLACK, GearHandler.SpecialGear.NONE);
             if(!blueTeam.contains(player))blueTeam.add(player);
@@ -743,19 +757,19 @@ public class Siege extends BasePluginGamemode {
             if (state == GameState.RUNNING) {
                 if (map.getImportantPoints().containsKey("BlueSpawn" + area)) {
                     if (Team.getBlacks().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 2, 0));
+                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + area).toBukkitLoc().add(0, 1, 0));
                     } else if (Team.getGreens().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 2, 0));
+                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + area).toBukkitLoc().add(0, 1, 0));
                     }else{
-                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,1,0));
                     }
                 }else if (map.getImportantPoints().containsKey("BlueSpawn" + (area - 1))) {
                     if (Team.getBlacks().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                        event.setRespawnLocation(map.getImportantPoints().get("BlueSpawn" + (area - 1)).toBukkitLoc().add(0, 1, 0));
                     } else if (Team.getGreens().getMembers().contains(event.getPlayer())) {
-                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 2, 0));
+                        event.setRespawnLocation(map.getImportantPoints().get("RedSpawn" + (area - 1)).toBukkitLoc().add(0, 1, 0));
                     }else{
-                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,2,0));
+                        event.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0,1,0));
                     }
                 }
             }
