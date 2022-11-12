@@ -20,6 +20,7 @@ package com.mcmiddleearth.mcme.pvp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
 import com.mcmiddleearth.mcme.pvp.Gamemode.anticheat.AntiCheatListeners;
 import com.mcmiddleearth.mcme.pvp.Util.CLog;
 import com.mcmiddleearth.mcme.pvp.Util.DBmanager;
@@ -205,6 +206,7 @@ public class PVPPlugin extends JavaPlugin{
             }
         }, 20);
         this.commandDispatcher = new PVPCommand(this);
+        BasePluginGamemode.setTeamRule();
     }
 
     @Override

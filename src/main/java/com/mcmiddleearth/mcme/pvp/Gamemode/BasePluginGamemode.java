@@ -80,7 +80,6 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         }
         HashMap<Player, Location> lastLocation = new HashMap<>();
         HashMap<String, Long> lastOutOfBounds = new HashMap<>();
-        team.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
             @Override
             public void run() {
@@ -222,5 +221,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     public static Scoreboard getScoreboard() {
         return scoreboard;
+    }
+
+    public static void setTeamRule(){
+        team.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
     }
 }
