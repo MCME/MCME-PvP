@@ -199,10 +199,10 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         frozen.add(p.getUniqueId());
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 15));
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(),() -> p.removePotionEffect(PotionEffectType.INVISIBILITY),40+ticks);
     }
 
     private void unFreezePlayer(Player p){
+        p.removePotionEffect(PotionEffectType.INVISIBILITY);
         team.removePlayer(p);
         p.setAllowFlight(false);
         p.setFlying(false);
