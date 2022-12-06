@@ -166,6 +166,27 @@ public class Snowball extends BasePluginGamemode {
             }
         };
 
+    Runnable healer = new Runnable(){
+
+        public void run(){
+            boolean healed = false;
+
+            for(Player p : healing.keySet()){
+
+
+                if(System.currentTimeMillis() < healing.get(p)){
+                    p.setHealth(20);
+                    healed = true;
+                }
+
+            }
+            if(!healed){
+                healing.clear();
+            }
+        }
+
+    };
+
 
     Runnable snowballHandler = new Runnable() {
         @Override
@@ -241,8 +262,10 @@ public class Snowball extends BasePluginGamemode {
                     Points = getScoreboard().registerNewObjective("Kills", "dummy", "Time: " + time + "m");
                     time *= 60;
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),snowballHandler,0,20*snowBallTime);
                     Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tickSB,0,20);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),healer,0,20);
 
                     SnowBall.spawn = new Random().nextInt(spawns.length-1);
 
@@ -519,7 +542,7 @@ public class Snowball extends BasePluginGamemode {
                     spawn = 0;
                 }
 
-                //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+                healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
             Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }
