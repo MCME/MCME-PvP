@@ -80,6 +80,8 @@ public class Snowball extends BasePluginGamemode {
 
     private HashMap<Player, Long> healing = new HashMap<>();
 
+    private final Integer snowBallTime = 5;
+
     private boolean midgameJoin = true;
     private int time;
 
@@ -100,12 +102,18 @@ public class Snowball extends BasePluginGamemode {
 
     private EventLocation[] spawns;
 
+    //TODO:
+    // teleport after game end  x
+    // spawn protection for 1 second
+    // add better spawn system for this x
+    // oitq remove and give arrow back in oitq to stop people from shooting (does that work?)
+
     public Snowball(){
         state = GameState.IDLE;
     }
 
-    public void timer(){
-        new BukkitRunnable(){
+
+    Runnable tickSB = new BukkitRunnable(){
             @Override
             public void run() {
                 time--;
@@ -156,8 +164,29 @@ public class Snowball extends BasePluginGamemode {
                     healing.clear();
                 }
             }
-        }.runTaskTimerAsynchronously(PVPPlugin.getPlugin(),0, 20);
-    }
+        };
+
+    Runnable healer = new Runnable(){
+
+        public void run(){
+            boolean healed = false;
+
+            for(Player p : healing.keySet()){
+
+
+                if(System.currentTimeMillis() < healing.get(p)){
+                    p.setHealth(20);
+                    healed = true;
+                }
+
+            }
+            if(!healed){
+                healing.clear();
+            }
+        }
+
+    };
+
 
     Runnable snowballHandler = new Runnable() {
         @Override
@@ -233,7 +262,12 @@ public class Snowball extends BasePluginGamemode {
                     Points = getScoreboard().registerNewObjective("Kills", "dummy", "Time: " + time + "m");
                     time *= 60;
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
-                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),snowballHandler,20*10,20*10);
+
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),snowballHandler,0,20*snowBallTime);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tickSB,0,20);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),healer,0,20);
+
+                    SnowBall.spawn = new Random().nextInt(spawns.length-1);
 
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -272,7 +306,6 @@ public class Snowball extends BasePluginGamemode {
                     for(Player p : players){
                         p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
                     }
-                    timer();
                 }
                 else if(count != -1){
                     for(Player p : Bukkit.getOnlinePlayers()){
@@ -444,7 +477,7 @@ public class Snowball extends BasePluginGamemode {
             p.setPlayerListName(color + newName);
         }
 
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 1, 0));
+        p.teleport(spawns[SnowBall.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
 
@@ -461,6 +494,8 @@ public class Snowball extends BasePluginGamemode {
     }
 
     private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
 
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
@@ -497,12 +532,17 @@ public class Snowball extends BasePluginGamemode {
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                Random random = new Random();
+                //Random random = new Random();
                 e.getPlayer().getInventory().remove(Material.SNOWBALL);
                 e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL, 8));
-                e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 1, 0));
+                //e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 1, 0));
 
-                //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0,1,0));
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
+
+                healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
             Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }
