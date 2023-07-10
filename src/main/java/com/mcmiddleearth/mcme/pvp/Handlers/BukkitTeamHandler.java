@@ -21,6 +21,7 @@ package com.mcmiddleearth.mcme.pvp.Handlers;
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.entity.Player;
 
 /**
@@ -209,5 +210,21 @@ public class BukkitTeamHandler {
                 yellow.removePlayer(p);
             }
         }
+    }
+
+    public static Color getTeamColor(Player p){
+        if(aqua.hasPlayer(p)) return Color.fromRGB(0x55FFFF);
+        if(blue.hasPlayer(p)) return Color.fromRGB(0x0000AA);
+        if(darkAqua.hasPlayer(p)) return Color.fromRGB(0x00AAAA);
+        if(darkGreen.hasPlayer(p)) return Color.fromRGB(0x00AA00);
+        if(darkPurple.hasPlayer(p)) return Color.fromRGB(0xAA00AA);
+        if(darkRed.hasPlayer(p)) return Color.fromRGB(0xAA0000);
+        if(gold.hasPlayer(p)) return Color.fromRGB(0xFFAA00);
+        if(gray.hasPlayer(p)) return Color.fromRGB(0xAAAAAA);
+        if(green.hasPlayer(p)) return Color.fromRGB(0x55FF55);
+        if(lightPurple.hasPlayer(p)) return Color.fromRGB(0xFF55FF);
+        if(red.hasPlayer(p)) return Color.fromRGB(0xFF5555);;
+        if(yellow.hasPlayer(p)) return Color.fromRGB(0xFFFFFF);
+        return null;
     }
 }

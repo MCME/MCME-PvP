@@ -20,9 +20,11 @@ package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.DeathRun;
 import com.mcmiddleearth.mcme.pvp.Gamemode.OneInTheQuiver;
+import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -77,7 +79,10 @@ public class ArrowHandler implements Listener {
     @EventHandler
     public void onArrowShoot(EntityShootBowEvent entityShootBowEvent) {
         if (entityShootBowEvent.getEntity() instanceof Player) {
+            Arrow arrow = (Arrow) entityShootBowEvent.getProjectile();
             Player shooter = (Player) entityShootBowEvent.getEntity();
+            if(BukkitTeamHandler.getTeamColor(shooter) != null) arrow.setColor(BukkitTeamHandler.getTeamColor(shooter));
+            if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver) arrow.setDamage(100.0);
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
             Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> {
                 if ((PVPCommand.getRunningGame().getGm() instanceof DeathRun)) {

@@ -36,6 +36,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
@@ -114,41 +115,28 @@ public class AllGameHandlers implements Listener{
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e){
         Player damagee;
         Player damager = null;
-        boolean doAction = false;
-
-        if (doAction) {
-            EntityType type = e.getDamager().getType();
-            if (e.getEntity() instanceof org.bukkit.entity.Player)
-                if (type == EntityType.SNOWBALL) {
-                    e.setDamage(50);
-                }
-        }
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
         }
-        else{
-            if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING){
-                e.setCancelled(true);
-                return;
-            }
+        if (PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING) {
+            e.setCancelled(true);
+            return;
         }
-        if(e.getEntity() instanceof Player){
-            damagee = (Player) e.getEntity();
+        if(!(e.getEntity() instanceof Player)){
+            return;
         }
-        else return;
-
+        damagee = (Player) e.getEntity();
         if(e.getDamager() instanceof Player) {
             damager = (Player) e.getDamager();
         }
-        else if(e.getDamager() instanceof Arrow){
+        if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player) {
                 damager = (Player) ((Arrow) e.getDamager()).getShooter();
-                if (damager == damagee)
+                if (damager == damagee) {
+                    e.setCancelled(true);
                     return;
-                if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)
-                    e.setDamage(50);
-
+                }
             }
         }
         if(e.getDamager() instanceof org.bukkit.entity.Snowball) {

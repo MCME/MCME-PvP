@@ -59,7 +59,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private Player blueFlagCarrier;
     private Player redFlagCarrier;
 
-    private boolean goldenFlag = false;
+    private boolean goldenFlag;
 
     private List<Player> redTeam = new ArrayList<>();
     private List<Player> blueTeam = new ArrayList<>();
@@ -67,6 +67,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
     public CaptureTheFlag(){
         state = GameState.IDLE;
+        goldenFlag = false;
     }
 
     Runnable tick = new Runnable() {
@@ -280,8 +281,6 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().setType(Material.AIR);
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
-
-        goldenFlag = false;
         redTeam.clear();
         blueTeam.clear();
         deathList.clear();
@@ -440,7 +439,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
                     map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.RED_BANNER);
                 }//dying with the banner returns it to spawn
-                deathList.put(p, 5);
+                deathList.put(p, 8);
                 Team.getSpectator().add(p);
             }
         }
