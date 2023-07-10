@@ -1,9 +1,9 @@
 name: MCME-PVP
 main: com.mcmiddleearth.mcme.pvp.PVPPlugin
 version: ${project.version}
-authors: [DonoA, aaldim, lizzehface, meggawatts, Eriol_Eandur, NicoviçTheSixth]
+authors: [DonoA, aaldim, lizzehface, meggawatts, Eriol_Eandur, NicoviçTheSixth, barteldvn, Jubo]
 depend: [WorldEdit,PlaceholderAPI, PluginUtils]
-api-version: 1.15
+api-version: 1.18
 
 commands:
   WorldJump:

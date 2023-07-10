@@ -46,10 +46,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 /**
  *
@@ -106,7 +103,12 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         map = m;
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = spawnsTemp.toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -124,7 +126,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
@@ -148,6 +150,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 points = getScoreboard().registerNewObjective("Kills", "dummy");
                 points.setDisplayName("Kills");
                 points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                OITQHandlers.spawn = new Random().nextInt(spawns.length-1);
 
                 for(Player p : Bukkit.getServer().getOnlinePlayers()){
                     p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -347,7 +351,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[OITQHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         super.midgamePlayerJoin(p);
@@ -363,6 +367,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     }
     
     private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
@@ -372,6 +378,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).setScore(points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() + 1);
                     PlayerInventory killerInv = playerDeathEvent.getEntity().getKiller().getInventory();
                     ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+                    killerInv.remove(Arrow);
                     if(!killerInv.contains(Arrow)){
                         killerInv.setItem(8, Arrow);
                     }
@@ -393,6 +400,18 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                e.getPlayer().getInventory().remove(Material.BOW);
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
+                if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
+                    e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
+                }
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
+
+                /*
                 Random random = new Random();
                 e.getPlayer().getInventory().remove(Material.BOW);
                 e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
@@ -400,6 +419,8 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
                 }
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+
+                 */
             }
         }
     }

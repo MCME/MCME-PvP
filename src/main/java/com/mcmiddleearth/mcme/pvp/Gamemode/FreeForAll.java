@@ -44,10 +44,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -111,11 +108,10 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             public void run() {
                 time--;
 
-                if(time % 60 == 0){
-                    Points.setDisplayName("Time: " + (time/60) + "m");
-                }
-                else if(time < 60){
-                    Points.setDisplayName("Time: " + time + "s");
+                if(time < 60 ){
+                    Points.setDisplayName("Time: "+ time + "s");
+                }else{
+                    Points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
                 }
 
                 if(time == 30){
@@ -168,7 +164,12 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         count = PVPPlugin.getCountdownTime();
         time = parameter;
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = spawnsTemp.toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -186,7 +187,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
@@ -215,6 +216,8 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         Points = getScoreboard().registerNewObjective("Kills", "dummy", "Time: " + time + "m");
                         time *= 60;
                         Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                        FFAHandlers.spawn = new Random().nextInt(spawns.length-1);
 
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -425,7 +428,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[FFAHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         
@@ -442,6 +445,8 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     }
     
     private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
@@ -468,9 +473,17 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                /*
                 Random random = new Random();
 
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+
+                 */
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
             
                 //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }

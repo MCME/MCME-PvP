@@ -154,16 +154,16 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             if(players.contains(p)){
                 if(Team.getBlue().size() >= Team.getRed().size()){
                     Team.getRed().add(p);
-                    p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
                     freezePlayer(p, 140);
                 }else if(Team.getBlue().size() < Team.getRed().size()){
                     Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
                     freezePlayer(p, 140);
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }
         
@@ -313,13 +313,13 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);
-            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
             Points.getScore(ChatColor.RED + "Red:").setScore(Points.getScore(ChatColor.RED + "Red:").getScore() + 1);
             GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
         }
         else{
             Team.getBlue().add(p);
-            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
             Points.getScore(ChatColor.BLUE + "Blue:").setScore(Points.getScore(ChatColor.BLUE + "Blue:").getScore() + 1);
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
         }
@@ -448,7 +448,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
                 if(Team.getRed().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
                     
                     if(e.getPlayer().equals(redBearer) && !redBearerHasRespawned){
                         redBearerHasRespawned = true;
@@ -457,7 +457,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     
                 }
                 else if(Team.getBlue().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
                     
                     if(e.getPlayer().equals(blueBearer) && !blueBearerHasRespawned){
                         blueBearerHasRespawned = true;
@@ -465,7 +465,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     }
                 }
                 else{
-                    e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 2, 0));
+                    e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 1, 0));
                 }
             }
         }

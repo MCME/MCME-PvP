@@ -33,6 +33,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -61,6 +63,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     private static Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+    private static org.bukkit.scoreboard.Team team = scoreboard.registerNewTeam("collision");
     
     public void playerLeave(Player p){
         players.remove(p);
@@ -187,15 +191,19 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     public void freezePlayer(Player p, int ticks){
+        team.addPlayer(p);
         p.setAllowFlight(true);
         p.teleport(p.getLocation().add(0,0.1,0));
         p.setFlying(true);
         p.setFlySpeed(0);
         frozen.add(p.getUniqueId());
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 15));
         Bukkit.getScheduler().scheduleSyncDelayedTask(PVPPlugin.getPlugin(), () -> unFreezePlayer(p), ticks);
     }
 
-    public void unFreezePlayer(Player p){
+    private void unFreezePlayer(Player p){
+        p.removePotionEffect(PotionEffectType.INVISIBILITY);
+        team.removePlayer(p);
         p.setAllowFlight(false);
         p.setFlying(false);
         p.setFlySpeed(0.1F);
@@ -213,5 +221,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     public static Scoreboard getScoreboard() {
         return scoreboard;
+    }
+
+    public static void setTeamRule(){
+        team.setOption(org.bukkit.scoreboard.Team.Option.COLLISION_RULE, org.bukkit.scoreboard.Team.OptionStatus.NEVER);
     }
 }

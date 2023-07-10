@@ -118,22 +118,22 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 Team.getRed().add(p);
                 switch(lastRedSpawn){
                     case 1:
-                        p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
                         freezePlayer(p, 140);
                         lastRedSpawn = 2;
                         break;
                     case 2:
-                        p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
                         freezePlayer(p, 140);
                         lastRedSpawn = 3;
                         break;
                     case 3:
-                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                         freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                     default:
-                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                         freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
@@ -143,19 +143,19 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 Team.getBlue().add(p);
                 switch(lastBlueSpawn){
                     case 1:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 2;
                         break;
                     case 2:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 3;
                         break;
                     case 3:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 1;
                         break;
                     default:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 1;
                         break;
                 }
@@ -164,7 +164,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }
             Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
@@ -254,12 +254,12 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);
-            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
             GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
         }
         else{
             Team.getBlue().add(p);
-            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
             GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
         }
     }
@@ -347,26 +347,26 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())){
                 switch(spawn){
                     case 1:
-                        e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                         break;
                         case 2:
-                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
                             break;
                         case 3:
-                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
                             break;
                 }
             }
                 if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
                     switch(spawn){
                         case 1:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                             break;
                         case 2:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0));
                             break;
                         case 3:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 1, 0));
                             break;
                     }
                 }

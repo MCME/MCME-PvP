@@ -62,10 +62,10 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         public void run() {
             time--;
 
-            if (time % 60 == 0) {
-                Points.setDisplayName("Time: " + (time / 60) + "m");
-            } else if (time < 60) {
-                Points.setDisplayName("Time: " + time + "s");
+            if(time < 60 ){
+                Points.setDisplayName("Time: "+ time + "s");
+            }else{
+                Points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
             }
 
             if (time == 30) {
