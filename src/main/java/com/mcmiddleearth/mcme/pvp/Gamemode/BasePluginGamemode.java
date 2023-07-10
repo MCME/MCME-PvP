@@ -140,8 +140,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
      */
     public void kdSort(){
         players.sort((Player p1, Player p2) -> {
-            double offset = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
-            if (PlayerStat.getKD(p1) + offset > PlayerStat.getKD(p2) + offset)
+            double offset1 = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            double offset2 = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            if (PlayerStat.getKD(p1) + offset1 > PlayerStat.getKD(p2) + offset2)
                 return 1;
             else
                 return -1;
