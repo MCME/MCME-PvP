@@ -18,6 +18,7 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
@@ -92,15 +93,14 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             pvpRegistered = true;
         }
         for(Player p : players){
+            freezePlayer(p, 140);
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
-                freezePlayer(p, 140);
             }
             else if(Team.getBlue().size() < Team.getRed().size()){
                 Team.getBlue().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
-                freezePlayer(p, 140);
             }
         }
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
@@ -157,6 +157,26 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     @Override
     public void End(Map m){
         state = GameState.IDLE;
+
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
 
         for(Player p : Bukkit.getOnlinePlayers()){
             Team.removeFromTeam(p);

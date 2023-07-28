@@ -37,11 +37,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.lang.Math.random;
 
 /**
  *
@@ -52,7 +53,11 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     @JsonIgnore
     ArrayList<Player> players = new ArrayList<>();
-    static HashSet<UUID> frozen = new HashSet<>();
+    HashSet<UUID> frozen = new HashSet<>();
+
+    HashMap<Player, Integer> killCounter = new HashMap<>();
+    HashMap<Player, Integer> deathCounter = new HashMap<>();
+
     /**
      * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
      * COUNTDOWN = /pvp game start has been performed, 5-second countdown before the game starts.
@@ -211,7 +216,69 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         frozen.remove(p.getUniqueId());
     }
 
-    public static boolean isFrozen(Player p){
+    @Override
+    public void incrementPlayerKills(Player player) {
+        this.killCounter.put(player, this.killCounter.getOrDefault(player, 0));
+    }
+
+    @Override
+    public void incrementPlayerDeaths(Player player) {
+        this.deathCounter.put(player, this.deathCounter.getOrDefault(player, 0));
+    }
+
+    @Override
+    public HashMap<Player, Integer> getTopKDMap() {
+        HashMap<Player, Integer> kdMap = new HashMap<>();
+        DecimalFormat df = new DecimalFormat("#0.00");
+        this.killCounter.forEach((player, kills) -> kdMap.put(player, Integer.valueOf(df.format(kills / deathCounter.get(player)))));
+        return getTopPlayerIntegerMap(kdMap, 3);
+    }
+
+    @Override
+    public HashMap<Player, Integer> getTopDeathsMap() {
+        return getTopPlayerIntegerMap(deathCounter, 3);
+    }
+
+    @Override
+    public HashMap<Player, Integer> getTopKillsMap() {
+        return getTopPlayerIntegerMap(killCounter, 3);
+    }
+
+    /**
+     * Returns a Map of the top players given a HashMap of players linked to integers. The amount dictates the amount of
+     * players it will return. If multiple players share the top place they will all be returned, regardless of the amount specified.
+     * @param kdMap Map of players linked to integers.
+     * @param amount amount of players to return.
+     */
+    private HashMap<Player, Integer> getTopPlayerIntegerMap(HashMap<Player, Integer> kdMap, int amount) {
+        PriorityQueue<Player> pq = new PriorityQueue<>(new PlayerIntegerMapComparator(kdMap));
+        pq.addAll(kdMap.keySet());
+        HashMap<Player, Integer> topThreePlayers = new LinkedHashMap<>();
+        while (topThreePlayers.size() < amount && !pq.isEmpty()) {
+            Player player = pq.poll();
+            int kdValue = kdMap.get(player);
+            topThreePlayers.put(player, kdValue);
+        }
+
+        return topThreePlayers;
+    }
+
+    private class PlayerIntegerMapComparator implements Comparator<Player> {
+        private HashMap<Player, Integer> playerIntegerMap;
+
+        public PlayerIntegerMapComparator(HashMap<Player, Integer> kdMap) {
+            this.playerIntegerMap = kdMap;
+        }
+
+        @Override
+        public int compare(Player p1, Player p2) {
+            // Compare the KD values of the players in the map
+            return Integer.compare(playerIntegerMap.get(p2), playerIntegerMap.get(p1));
+        }
+    }
+
+
+    public boolean isFrozen(Player p){
         return frozen.contains(p.getUniqueId());
     }
 

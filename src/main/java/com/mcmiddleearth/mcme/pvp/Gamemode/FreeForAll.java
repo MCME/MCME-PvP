@@ -275,116 +275,31 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         PlayerStat.addGameSpectatedAll();
         state = GameState.IDLE;
         hasPlayed.clear();
-        
-        ArrayList<String> mostDeaths = new ArrayList<String>();
-        int mostDeathsNum = 0;
-        String killMessage = "";
-        
-        ArrayList<String> mostKills = new ArrayList<String>();
-        int mostKillsNum = 0;
-        String deathMessage = "";
-        
-        ArrayList<String> highestKd = new ArrayList<String>();
-        double highestKdNum = 0;
-        String kDMessage = "";
 
-        for(Player p : players){
-            
-            if(playerDeaths.containsKey(p.getName())){
-                if(Integer.parseInt(playerDeaths.get(p.getName())) > mostDeathsNum){
-                    mostDeaths.clear();
-                    mostDeathsNum = Integer.parseInt(playerDeaths.get(p.getName()));
-                    mostDeaths.add(p.getName());
-                }
-                else if(Integer.parseInt(playerDeaths.get(p.getName())) == mostDeathsNum){
-                    mostDeaths.add(p.getName());
-                }
-            }
-            if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() > mostKillsNum){
-                mostKills.clear();
-                mostKillsNum = Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore();
-                mostKills.add(p.getName());
-            }
-            else if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() == mostKillsNum){
-                mostKills.add(p.getName());
-            }
-            try{
-                if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) > highestKdNum && highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum =  Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() / Double.parseDouble(playerDeaths.get(p.getName()));
-                    highestKd.add(p.getName());
-                }
-                else if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) == highestKdNum){
-                    highestKd.add(p.getName());
-                }
-            }catch(NullPointerException e){
-                if(highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum = -1;
-                    highestKd.add(p.getName());
-                }
-                else if (highestKdNum == -1){
-                    highestKd.add(p.getName());
-                }
-            }
-            
+        ArrayList<String> killMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKillsMap().entrySet()){
+            killMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " with " + player.getValue() + " kills!");
         }
-        
-        int loops = 0;
-        for(String playerName : mostDeaths){
-            if(mostDeaths.size() == 1 && loops == 0){
-                deathMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }
-            else if(loops == (mostDeaths.size() - 1)){
-                deathMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }
-            else{
-                deathMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
-        
-        loops = 0;
-        for(String playerName : mostKills){
-            PlayerStat.getPlayerStats().get(playerName).addGameWon();
-            if(mostKills.size() == 1 && loops == 0){
-                killMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostKillsNum;
-            }
-            else if(loops == (mostKills.size() - 1)){
-                killMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostKillsNum;
-            }
-            else{
-                killMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
-        
-        loops = 0;
-        String highestKdNumString;
-        DecimalFormat df = new DecimalFormat("#0.00");
-        if(highestKdNum == -1.0){
-            highestKdNumString = "infinity";
-        }
-        else{
-            highestKdNumString = df.format(highestKdNum);
-        }
-        for(String playerName : highestKd){
-            if(highestKd.size() == 1 && loops == 0){
-                kDMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Winner: ");
+            player.sendMessage(killMessages.get(0));
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
             }
-            else if(loops == (highestKd.size() - 1)){
-                kDMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
             }
-            else{
-                kDMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
-        }
-        
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Most Kills: " + killMessage);
-            p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
-            p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
         
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -395,9 +310,6 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         m.playerLeaveAll();
         playerDeaths.clear();
         
-        mostDeaths.clear();
-        mostKills.clear();
-        highestKd.clear();
         PVPCommand.queueNextGame();
         super.End(m);
     }

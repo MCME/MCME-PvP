@@ -60,11 +60,15 @@ import java.util.HashMap;
 public class AllGameHandlers implements Listener{
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent e){
-        if(e.getEntity().getKiller() == null){
+    public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
+        Player player = playerDeathEvent.getEntity().getPlayer();
+        if(player == null) return;
+        PVPCommand.getRunningGame().getGm().incrementPlayerDeaths(player);
+        if(player.getKiller() == null){
             return;
         }
-        e.setDeathMessage(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getName()) + e.getEntity().getName() + ChatColor.GRAY + " was killed by " + com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName());
+        PVPCommand.getRunningGame().getGm().incrementPlayerKills(player.getKiller());
+        playerDeathEvent.setDeathMessage(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(player.getName()) + player.getName() + ChatColor.GRAY + " was killed by " + com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(player.getKiller().getName()) + player.getKiller().getName());
     }
 
     @EventHandler
@@ -178,7 +182,7 @@ public class AllGameHandlers implements Listener{
     @EventHandler
     public void onPlayerToggleFlight(PlayerToggleFlightEvent playerToggleFlightEvent){
         Player player = playerToggleFlightEvent.getPlayer();
-        if(PVPCommand.getRunningGame() != null && BasePluginGamemode.isFrozen(player)){
+        if(PVPCommand.getRunningGame() != null && PVPCommand.getRunningGame().getGm().isFrozen(player)){
             playerToggleFlightEvent.setCancelled(true);
             player.teleport(player.getLocation());
             return;

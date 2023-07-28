@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
@@ -171,17 +172,16 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             pvpRegistered = true;
         }
         for(Player p : players) {//this distributes players evenly across teams
+            freezePlayer(p, 140);
             if (Team.getRed().size() <= Team.getBlue().size()) {
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-                freezePlayer(p, 140);
                 redTeam.add(p);
             }
 
             else if (Team.getBlue().size() < Team.getRed().size()) {
                 Team.getBlue().add(p);
                 p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
-                freezePlayer(p, 140);
                 blueTeam.add(p);
             }
         }
@@ -281,6 +281,26 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().getBlock().setType(Material.AIR);
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0).getBlock().setType(Material.AIR);
         m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 3, 0).getBlock().setType(Material.AIR);
+
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
         redTeam.clear();
         blueTeam.clear();
         deathList.clear();

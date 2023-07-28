@@ -22,6 +22,7 @@ import com.mcmiddleearth.mcme.pvp.maps.Map;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -44,5 +45,16 @@ public interface Gamemode {
     String requiresParameter();
     
     boolean isMidgameJoin();
-    
+
+    void incrementPlayerDeaths(Player player);
+
+    HashMap<Player, Integer> getTopKDMap();
+
+    HashMap<Player, Integer> getTopDeathsMap();
+
+    HashMap<Player, Integer> getTopKillsMap();
+
+    boolean isFrozen(Player player);
+
+    void incrementPlayerKills(Player player);
 }

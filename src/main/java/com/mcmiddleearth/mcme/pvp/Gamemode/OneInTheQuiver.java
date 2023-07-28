@@ -47,6 +47,7 @@ import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -204,107 +205,31 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         PlayerStat.addGameSpectatedAll();
         state = GameState.IDLE;
         hasPlayed.clear();
-        
-        ArrayList<String> mostDeaths = new ArrayList<>();
-        int mostDeathsNum = 0;
-        String killMessage = "";
-        
-        ArrayList<String> mostKills = new ArrayList<>();
-        int mostKillsNum = 0;
-        String deathMessage = "";
-        
-        ArrayList<String> highestKd = new ArrayList<>();
-        double highestKdNum = 0;
-        String kDMessage = "";
 
-        for(Player p : players){
-            
-            if(playerDeaths.containsKey(p.getName())){
-                if(Integer.parseInt(playerDeaths.get(p.getName())) > mostDeathsNum){
-                    mostDeaths.clear();
-                    mostDeathsNum = Integer.parseInt(playerDeaths.get(p.getName()));
-                    mostDeaths.add(p.getName());
-                }else if(Integer.parseInt(playerDeaths.get(p.getName())) == mostDeathsNum){
-                    mostDeaths.add(p.getName());
-                }
-            }
-            if(points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() > mostKillsNum){
-                mostKills.clear();
-                mostKillsNum = points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore();
-                mostKills.add(p.getName());
-            }else if(points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() == mostKillsNum){
-                mostKills.add(p.getName());
-            }
-            try{
-                if(Double.valueOf(points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) > highestKdNum && highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum =  points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() / Double.parseDouble(playerDeaths.get(p.getName()));
-                    highestKd.add(p.getName());
-                }else if(Double.valueOf(points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) == highestKdNum){
-                    highestKd.add(p.getName());
-                }
-            }catch(NullPointerException e){
-                if(highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum = -1;
-                    highestKd.add(p.getName());
-                }
-                else if (highestKdNum == -1){
-                    highestKd.add(p.getName());
-                }
-            }
-            
+        ArrayList<String> killMessages = new ArrayList<>();
+        for(Entry<Player, Integer> player : getTopKillsMap().entrySet()){
+            killMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " with " + player.getValue() + " kills!");
         }
-        
-        int loops = 0;
-        for(String playerName : mostDeaths){
-            if(mostDeaths.size() == 1 && loops == 0){
-                deathMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }else if(loops == (mostDeaths.size() - 1)){
-                deathMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }else{
-                deathMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(Entry<Player, Integer> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Winner: ");
+            player.sendMessage(killMessages.get(0));
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
             }
-        }
-        
-        loops = 0;
-        for(String playerName : mostKills){
-            PlayerStat.getPlayerStats().get(playerName).addGameWon();
-            if(mostKills.size() == 1 && loops == 0){
-                killMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN;
-            }else if(loops == (mostKills.size() - 1)){
-                killMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN;
-            }else{
-                killMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
             }
-        }
-        
-        loops = 0;
-        String highestKdNumString;
-        DecimalFormat df = new DecimalFormat("#0.00");
-        if(highestKdNum == -1.0){
-            highestKdNumString = "infinity";
-        }
-        else{
-            highestKdNumString = df.format(highestKdNum);
-        }
-        for(String playerName : highestKd){
-            if(highestKd.size() == 1 && loops == 0){
-                kDMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
-            }else if(loops == (highestKd.size() - 1)){
-                kDMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
-            }else{
-                kDMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
-        }
-        
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Winner: " + killMessage);
-            p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
-            p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
         
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -314,10 +239,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
         playerDeaths.clear();
-        
-        mostDeaths.clear();
-        mostKills.clear();
-        highestKd.clear();
+
         PVPCommand.queueNextGame();
         super.End(m);
     }
@@ -410,17 +332,6 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 if(spawn >= spawns.length){
                     spawn = 0;
                 }
-
-                /*
-                Random random = new Random();
-                e.getPlayer().getInventory().remove(Material.BOW);
-                e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
-                if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
-                    e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
-                }
-                e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
-
-                 */
             }
         }
     }

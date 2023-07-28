@@ -18,6 +18,7 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
@@ -114,27 +115,24 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         for(Player p : players){
+            freezePlayer(p, 140);
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
                 switch(lastRedSpawn){
                     case 1:
                         p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 2;
                         break;
                     case 2:
                         p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 3;
                         break;
                     case 3:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                     default:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                 }
@@ -215,6 +213,25 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     public void End(Map m){
         state = GameState.IDLE;
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
         m.playerLeaveAll();
         PVPCommand.queueNextGame();
         super.End(m);
