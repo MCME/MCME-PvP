@@ -215,7 +215,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
         ArrayList<String> KDMessages = new ArrayList<>();
-        for(Entry<Player, Integer> player : getTopKDMap().entrySet()){
+        for(Entry<Player, Double> player : getTopKDMap().entrySet()){
             KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
 

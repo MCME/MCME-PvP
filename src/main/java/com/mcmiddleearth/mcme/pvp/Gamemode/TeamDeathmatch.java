@@ -163,7 +163,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
         ArrayList<String> KDMessages = new ArrayList<>();
-        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
             KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
 

@@ -285,7 +285,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
         ArrayList<String> KDMessages = new ArrayList<>();
-        for(java.util.Map.Entry<Player, Integer> player : getTopKDMap().entrySet()){
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
             KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
 
@@ -309,7 +309,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
         playerDeaths.clear();
-        
+
         PVPCommand.queueNextGame();
         super.End(m);
     }
