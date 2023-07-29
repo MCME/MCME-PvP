@@ -1,7 +1,7 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
@@ -182,7 +182,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         p.setScoreboard(getScoreboard());
                     }
                     for (Player p : Team.getDeath().getMembers()) {
-                        GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.BLACK, GearType.STANDARD);
                     }
                     state = GameState.RUNNING;
                     count = -1;
@@ -306,7 +306,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if (state == GameState.RUNNING && players.contains(e.getPlayer())) {
                 if (Team.getDeath().getMembers().contains(p)) {
                     e.setRespawnLocation(map.getImportantPoints().get("DeathSpawn").toBukkitLoc());
-                    GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
+                    GearHandler.giveGear(p, ChatColor.BLACK, GearType.STANDARD);
                 } else {
                     e.setRespawnLocation(map.getSpawn().toBukkitLoc());
                     e.getPlayer().getInventory().clear();

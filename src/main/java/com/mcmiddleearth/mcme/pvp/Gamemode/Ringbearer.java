@@ -22,7 +22,7 @@ import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -188,7 +188,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         for(Player p : Team.getRed().getMembers()){
                             
                             if(!p.equals(redBearer)){
-                                GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                                GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                             }
                             
                         }
@@ -196,7 +196,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         for(Player p : Team.getBlue().getMembers()){
 
                             if(!p.equals(blueBearer)){
-                                GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                                GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                             }
                             
                         }
@@ -227,7 +227,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         
         if(t == Teams.BLUE){
             blueBearer = p;
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.RINGBEARER);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.RINGBEARER);
             
             blueBearer.sendMessage(ChatColor.BLUE + "You are Blue Team's Bearer!");
             blueBearer.sendMessage(ChatColor.BLUE + "Stay alive as long as you can!");
@@ -243,7 +243,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         else if(t == Teams.RED){
             redBearer = p;
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.RINGBEARER);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.RINGBEARER);
             
             redBearer.sendMessage(ChatColor.RED + "You are Red Team's Bearer!");
             redBearer.sendMessage(ChatColor.RED + "Stay alive as long as you can!");
@@ -336,13 +336,13 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             Team.getRed().add(p);
             p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
             Points.getScore(ChatColor.RED + "Red:").setScore(Points.getScore(ChatColor.RED + "Red:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
             p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
             Points.getScore(ChatColor.BLUE + "Blue:").setScore(Points.getScore(ChatColor.BLUE + "Blue:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
 
@@ -385,7 +385,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     
                     if(redBearer.equals(player) && redCanRespawn){
                         redCanRespawn = false;
-                        GearHandler.giveGear(player, ChatColor.RED, SpecialGear.NONE);
+                        GearHandler.giveGear(player, ChatColor.RED, GearType.STANDARD);
                         BukkitTeamHandler.addToBukkitTeam(player, ChatColor.RED);
                         if(blueCanRespawn){
                         getBlueBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));
@@ -412,7 +412,7 @@ public class Ringbearer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                     
                     if(blueBearer.equals(player) && blueCanRespawn){
                         blueCanRespawn = false;
-                        GearHandler.giveGear(player, ChatColor.BLUE, SpecialGear.NONE);
+                        GearHandler.giveGear(player, ChatColor.BLUE, GearType.STANDARD);
                         BukkitTeamHandler.addToBukkitTeam(player, ChatColor.BLUE);
                         if(redCanRespawn){
                             getRedBearer().addPotionEffect(new PotionEffect(GLOWING, Integer.MAX_VALUE, 1));

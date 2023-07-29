@@ -80,6 +80,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
         PVPCommand.toggleVoxel("true");
         for(Player p : players){
+            killCounter.put(p, 0);
+            deathCounter.put(p, 0);
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
         HashMap<Player, Location> lastLocation = new HashMap<>();

@@ -21,7 +21,7 @@ package com.mcmiddleearth.mcme.pvp.Gamemode;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -38,8 +38,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -131,10 +129,10 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         }
                         
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                         }
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -319,13 +317,13 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             Team.getRed().add(p);
             p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
             points.getScore(ChatColor.RED + "Red:").setScore(points.getScore(ChatColor.RED + "Red:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
             p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
             points.getScore(ChatColor.BLUE + "Blue:").setScore(points.getScore(ChatColor.BLUE + "Blue:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
 

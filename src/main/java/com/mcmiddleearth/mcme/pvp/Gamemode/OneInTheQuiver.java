@@ -22,7 +22,7 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -40,12 +40,10 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
-import java.text.DecimalFormat;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -175,7 +173,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         String newName = p.getName().substring(0,13);
                         p.setPlayerListName(chatColors[k] + newName);
                     }
-                    GearHandler.giveGear(p, chatColors[k], SpecialGear.ONEINTHEQUIVER);
+                    GearHandler.giveGear(p, chatColors[k], GearType.ONEINTHEQUIVER);
                     BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
 
                     if(chatColors.length == (k+1)){
@@ -278,7 +276,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         p.setScoreboard(getScoreboard());
         super.midgamePlayerJoin(p);
         
-        GearHandler.giveGear(p, color, SpecialGear.ONEINTHEQUIVER);
+        GearHandler.giveGear(p, color, GearType.ONEINTHEQUIVER);
         BukkitTeamHandler.addToBukkitTeam(p, color);
         
         return true;
