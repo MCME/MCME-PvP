@@ -107,6 +107,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     
     @Override
     public void End(Map m){
+        killCounter.clear();
+        deathCounter.clear();
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
         
@@ -154,6 +156,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     public boolean midgamePlayerJoin(Player p){
+        killCounter.putIfAbsent(p, 0);
+        deathCounter.putIfAbsent(p, 0);
         PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         String message = "";
         
@@ -217,23 +221,22 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     @Override
     public void incrementPlayerKills(Player player) {
-        this.killCounter.put(player, this.killCounter.getOrDefault(player, 0));
+        this.killCounter.put(player, this.killCounter.getOrDefault(player, 0) + 1);
     }
 
     @Override
     public void incrementPlayerDeaths(Player player) {
-        this.deathCounter.put(player, this.deathCounter.getOrDefault(player, 0));
+        this.deathCounter.put(player, this.deathCounter.getOrDefault(player, 0) + 1);
     }
 
     @Override
     public HashMap<Player, Double> getTopKDMap() {
         HashMap<Player, Double> kdMap = new HashMap<>();
-        DecimalFormat df = new DecimalFormat("#0.00");
-        for(Entry<Player, Integer> entry :  deathCounter.entrySet()){
-            double kills = killCounter.getOrDefault(entry.getKey(), 0);
-            double deaths = entry.getValue();
-            double kdRatio = (deaths == 0) ? kills : Math.round((kills / deaths) * 100.0) / 100.0;
-            kdMap.put(entry.getKey(), kdRatio);
+        for(Player player :  players){
+            double kills = killCounter.get(player);
+            double deaths = deathCounter.get(player);
+            double kdRatio = (deaths == 0) ? kills : Math.round((kills / deaths) * 100.00) / 100.00;
+            kdMap.put(player, kdRatio);
         }
         return getTopPlayerIntegerMap(kdMap, 3);
     }
