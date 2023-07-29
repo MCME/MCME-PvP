@@ -48,7 +48,7 @@ public interface Gamemode {
 
     void incrementPlayerDeaths(Player player);
 
-    HashMap<Player, Integer> getTopKDMap();
+    HashMap<Player, Double> getTopKDMap();
 
     HashMap<Player, Integer> getTopDeathsMap();
 

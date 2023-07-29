@@ -37,7 +37,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -227,10 +226,15 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     @Override
-    public HashMap<Player, Integer> getTopKDMap() {
-        HashMap<Player, Integer> kdMap = new HashMap<>();
+    public HashMap<Player, Double> getTopKDMap() {
+        HashMap<Player, Double> kdMap = new HashMap<>();
         DecimalFormat df = new DecimalFormat("#0.00");
-        this.killCounter.forEach((player, kills) -> kdMap.put(player, Integer.valueOf(df.format(kills / deathCounter.get(player)))));
+        for(Entry<Player, Integer> entry :  deathCounter.entrySet()){
+            double kills = killCounter.getOrDefault(entry.getKey(), 0);
+            double deaths = entry.getValue();
+            double kdRatio = (deaths == 0) ? kills : Math.round((kills / deaths) * 100.0) / 100.0;
+            kdMap.put(entry.getKey(), kdRatio);
+        }
         return getTopPlayerIntegerMap(kdMap, 3);
     }
 
@@ -250,33 +254,18 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
      * @param kdMap Map of players linked to integers.
      * @param amount amount of players to return.
      */
-    private HashMap<Player, Integer> getTopPlayerIntegerMap(HashMap<Player, Integer> kdMap, int amount) {
-        PriorityQueue<Player> pq = new PriorityQueue<>(new PlayerIntegerMapComparator(kdMap));
+    private <T extends Comparable<T>> HashMap<Player, T> getTopPlayerIntegerMap(HashMap<Player, T> kdMap, int amount) {
+        PriorityQueue<Player> pq = new PriorityQueue<>((p1, p2) -> kdMap.get(p2).compareTo(kdMap.get(p1)));
         pq.addAll(kdMap.keySet());
-        HashMap<Player, Integer> topThreePlayers = new LinkedHashMap<>();
+        HashMap<Player, T> topThreePlayers = new LinkedHashMap<>();
         while (topThreePlayers.size() < amount && !pq.isEmpty()) {
             Player player = pq.poll();
-            int kdValue = kdMap.get(player);
+            T kdValue = kdMap.get(player);
             topThreePlayers.put(player, kdValue);
         }
 
         return topThreePlayers;
     }
-
-    private class PlayerIntegerMapComparator implements Comparator<Player> {
-        private HashMap<Player, Integer> playerIntegerMap;
-
-        public PlayerIntegerMapComparator(HashMap<Player, Integer> kdMap) {
-            this.playerIntegerMap = kdMap;
-        }
-
-        @Override
-        public int compare(Player p1, Player p2) {
-            // Compare the KD values of the players in the map
-            return Integer.compare(playerIntegerMap.get(p2), playerIntegerMap.get(p1));
-        }
-    }
-
 
     public boolean isFrozen(Player p){
         return frozen.contains(p.getUniqueId());
