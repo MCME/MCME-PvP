@@ -79,7 +79,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public void Start(Map m, int parameter){
 
         PVPCommand.toggleVoxel("true");
-        for(Player p : players){
+        for(Player p : players) {
             killCounter.put(p, 0);
             deathCounter.put(p, 0);
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
@@ -108,7 +108,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
     
     @Override
-    public void End(Map m){
+    public void End(Map m) {
         killCounter.clear();
         deathCounter.clear();
         PVPCommand.setRunningGame(null);

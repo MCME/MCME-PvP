@@ -33,12 +33,19 @@ import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Tripwire;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -216,12 +223,12 @@ public class AllGameHandlers implements Listener{
             swapHandItemEvent.setCancelled(true);
     }
 
-    /**
-     * On playerInteractEvent with chest for all GM except OITQ the player gets new arrows.
-     * All other container interactions are blocked.
-     *
-     * @param playerInteractEvent represents player clicking a material
-     */
+        /**
+         * On playerInteractEvent with chest for all GM except OITQ the player gets new arrows.
+         * All other container interactions are blocked.
+         *
+         * @param playerInteractEvent represents player clicking a material
+         */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent playerInteractEvent){
         Player player = playerInteractEvent.getPlayer();
@@ -243,8 +250,8 @@ public class AllGameHandlers implements Listener{
                     public void run(){
                         if (countdown > 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + ChatColor.GOLD + "" + ChatColor.BOLD + countdown);
+                            countdown --;
                         }
-                        countdown --;
                         if (countdown == 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "" + ChatColor.BOLD + "Restocked!");
                             cancel();
