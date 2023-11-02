@@ -235,8 +235,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public HashMap<Player, Double> getTopKDMap() {
         HashMap<Player, Double> kdMap = new HashMap<>();
         for(Player player :  players){
-            double kills = killCounter.get(player);
-            double deaths = deathCounter.get(player);
+            double kills = killCounter.getOrDefault(player,0);
+            double deaths = deathCounter.getOrDefault(player,0);
             double kdRatio = (deaths == 0) ? kills : Math.round((kills / deaths) * 100.00) / 100.00;
             kdMap.put(player, kdRatio);
         }

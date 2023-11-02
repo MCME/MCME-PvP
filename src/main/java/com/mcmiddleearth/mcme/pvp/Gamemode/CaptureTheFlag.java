@@ -157,6 +157,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         super.Start(m, parameter);
         this.map = m;
         time = parameter;
+        goldenFlag = false;
 
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
@@ -515,6 +516,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         redFlagStolen = false;
                         redFlagCarrier = null;
                         if(goldenFlag) blueTeamWin();
+                        return;
                     }
                 }
 
@@ -529,6 +531,7 @@ public class CaptureTheFlag extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         blueFlagStolen = false;
                         blueFlagCarrier = null;
                         if(goldenFlag) redTeamWin();
+                        return;
                     }
                 }
 
