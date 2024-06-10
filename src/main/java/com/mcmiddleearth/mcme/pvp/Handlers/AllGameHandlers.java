@@ -33,11 +33,19 @@ import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Tripwire;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityCombustByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -59,11 +67,15 @@ import java.util.HashMap;
 public class AllGameHandlers implements Listener{
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent e){
-        if(e.getEntity().getKiller() == null){
+    public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
+        Player player = playerDeathEvent.getEntity().getPlayer();
+        if(player == null) return;
+        PVPCommand.getRunningGame().getGm().incrementPlayerDeaths(player);
+        if(player.getKiller() == null){
             return;
         }
-        e.setDeathMessage(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getName()) + e.getEntity().getName() + ChatColor.GRAY + " was killed by " + com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName());
+        PVPCommand.getRunningGame().getGm().incrementPlayerKills(player.getKiller());
+        playerDeathEvent.setDeathMessage(com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(player.getName()) + player.getName() + ChatColor.GRAY + " was killed by " + com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler.getPlayerColors().get(player.getKiller().getName()) + player.getKiller().getName());
     }
 
     @EventHandler
@@ -114,41 +126,28 @@ public class AllGameHandlers implements Listener{
     public void onPlayerDamageByEntity(EntityDamageByEntityEvent e){
         Player damagee;
         Player damager = null;
-        boolean doAction = false;
-
-        if (doAction) {
-            EntityType type = e.getDamager().getType();
-            if (e.getEntity() instanceof org.bukkit.entity.Player)
-                if (type == EntityType.SNOWBALL) {
-                    e.setDamage(50);
-                }
-        }
         if(PVPCommand.getRunningGame() == null){
             e.setCancelled(true);
             return;
         }
-        else{
-            if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING){
-                e.setCancelled(true);
-                return;
-            }
+        if (PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING) {
+            e.setCancelled(true);
+            return;
         }
-        if(e.getEntity() instanceof Player){
-            damagee = (Player) e.getEntity();
+        if(!(e.getEntity() instanceof Player)){
+            return;
         }
-        else return;
-
+        damagee = (Player) e.getEntity();
         if(e.getDamager() instanceof Player) {
             damager = (Player) e.getDamager();
         }
-        else if(e.getDamager() instanceof Arrow){
+        if(e.getDamager() instanceof Arrow){
             if(((Arrow) e.getDamager()).getShooter() instanceof Player) {
                 damager = (Player) ((Arrow) e.getDamager()).getShooter();
-                if (damager == damagee)
+                if (damager == damagee) {
+                    e.setCancelled(true);
                     return;
-                if(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)
-                    e.setDamage(50);
-
+                }
             }
         }
         if(e.getDamager() instanceof org.bukkit.entity.Snowball) {
@@ -190,7 +189,7 @@ public class AllGameHandlers implements Listener{
     @EventHandler
     public void onPlayerToggleFlight(PlayerToggleFlightEvent playerToggleFlightEvent){
         Player player = playerToggleFlightEvent.getPlayer();
-        if(PVPCommand.getRunningGame() != null && BasePluginGamemode.isFrozen(player)){
+        if(PVPCommand.getRunningGame() != null && PVPCommand.getRunningGame().getGm().isFrozen(player)){
             playerToggleFlightEvent.setCancelled(true);
             player.teleport(player.getLocation());
             return;
@@ -224,12 +223,12 @@ public class AllGameHandlers implements Listener{
             swapHandItemEvent.setCancelled(true);
     }
 
-    /**
-     * On playerInteractEvent with chest for all GM except OITQ the player gets new arrows.
-     * All other container interactions are blocked.
-     *
-     * @param playerInteractEvent represents player clicking a material
-     */
+        /**
+         * On playerInteractEvent with chest for all GM except OITQ the player gets new arrows.
+         * All other container interactions are blocked.
+         *
+         * @param playerInteractEvent represents player clicking a material
+         */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent playerInteractEvent){
         Player player = playerInteractEvent.getPlayer();
@@ -251,8 +250,8 @@ public class AllGameHandlers implements Listener{
                     public void run(){
                         if (countdown > 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.WHITE + "Restocking Supplies... " + ChatColor.GOLD + "" + ChatColor.BOLD + countdown);
+                            countdown --;
                         }
-                        countdown --;
                         if (countdown == 0) {
                             ActionBarHandler.sendActionBarMessage(player, ChatColor.GREEN + "" + ChatColor.BOLD + "Restocked!");
                             cancel();

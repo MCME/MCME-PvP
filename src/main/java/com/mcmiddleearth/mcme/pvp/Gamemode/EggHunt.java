@@ -4,7 +4,7 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -22,8 +22,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -222,7 +220,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
                             String newName = p.getName().substring(0,13);
                             p.setPlayerListName(chatColors[k] + newName);
                         }
-                        GearHandler.giveGear(p, chatColors[k], SpecialGear.NONE);
+                        GearHandler.giveGear(p, chatColors[k], GearType.STANDARD);
                         BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
 
                         if(chatColors.length == (k+1)){
@@ -412,7 +410,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
 
-        GearHandler.giveGear(p, color, SpecialGear.NONE);
+        GearHandler.giveGear(p, color, GearType.STANDARD);
         BukkitTeamHandler.addToBukkitTeam(p, color);
 
         super.midgamePlayerJoin(p);

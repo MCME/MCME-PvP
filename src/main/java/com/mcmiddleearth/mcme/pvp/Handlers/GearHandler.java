@@ -26,13 +26,11 @@ import java.util.Random;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -47,13 +45,13 @@ import org.bukkit.potion.PotionEffectType;
  */
 public class GearHandler {
 
-    public enum SpecialGear{
-        ONEINTHEQUIVER, INFECTED, RINGBEARER, SNOW, NONE
+    public enum GearType {
+        ONEINTHEQUIVER, INFECTED, RINGBEARER, SNOW, STANDARD
     }
 
-    public static void giveGear(Player p, ChatColor c, SpecialGear sg){
+    public static void giveGear(Player p, ChatColor c, GearType sg){
         ItemStack[] items;
-        if(sg == SpecialGear.ONEINTHEQUIVER){
+        if(sg == GearType.ONEINTHEQUIVER){
             items = new ItemStack[] {new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE),
                     new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS),
                     new ItemStack(Material.IRON_AXE), new ItemStack(Material.BOW)};
@@ -120,7 +118,7 @@ public class GearHandler {
         p.getInventory().setLeggings(new ItemStack(Material.AIR));
         p.getInventory().setBoots(new ItemStack(Material.AIR));
 
-        if(sg == SpecialGear.SNOW){
+        if(sg == GearType.SNOW){
             p.getInventory().setHelmet(items[0]);
             p.getInventory().setChestplate(items[1]);
             p.getInventory().setLeggings(items[2]);
@@ -130,7 +128,7 @@ public class GearHandler {
             return;
         }
 
-        if(sg == SpecialGear.RINGBEARER ){
+        if(sg == GearType.RINGBEARER ){
             p.getInventory().setHelmet(new ItemStack(Material.GLOWSTONE, 1));
             p.getInventory().setChestplate(items[1]);
             p.getInventory().setLeggings(items[2]);
@@ -138,12 +136,12 @@ public class GearHandler {
         }
 
 
-        if(sg != SpecialGear.INFECTED){
+        if(sg != GearType.INFECTED){
             p.getInventory().setHelmet(items[0]);
         }
 
 
-        if(sg == SpecialGear.INFECTED){
+        if(sg == GearType.INFECTED){
             p.getInventory().setChestplate(items[1]);
             p.getInventory().addItem(items[6]);
         }
@@ -157,7 +155,7 @@ public class GearHandler {
         p.getInventory().addItem(items[4]);
         p.getInventory().addItem(items[5]);
 
-        if(sg == SpecialGear.ONEINTHEQUIVER) {
+        if(sg == GearType.ONEINTHEQUIVER) {
             ItemStack Arrow = new ItemStack(Material.ARROW, 1);
             p.getInventory().setItem(8, Arrow);
         }
@@ -166,7 +164,7 @@ public class GearHandler {
             p.getInventory().setItem(8, Arrows);
         }
 
-        if(sg == SpecialGear.RINGBEARER){
+        if(sg == GearType.RINGBEARER){
             giveCustomItem(p, CustomItem.RING);
         }
 
@@ -260,10 +258,10 @@ public class GearHandler {
                                     p.getInventory().clear();
 
                                     if(Team.getRed().getMembers().contains(p)){
-                                        GearHandler.giveGear(p, ChatColor.RED, SpecialGear.RINGBEARER);
+                                        GearHandler.giveGear(p, ChatColor.RED, GearType.RINGBEARER);
                                     }
                                     else{
-                                        GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.RINGBEARER);
+                                        GearHandler.giveGear(p, ChatColor.BLUE, GearType.RINGBEARER);
                                     }
                                     p.getInventory().setHeldItemSlot(1);
                                 }

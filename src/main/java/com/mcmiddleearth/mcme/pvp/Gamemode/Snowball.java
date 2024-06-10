@@ -21,7 +21,7 @@ package com.mcmiddleearth.mcme.pvp.Gamemode;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
@@ -291,7 +291,7 @@ public class Snowball extends BasePluginGamemode {
                             String newName = p.getName().substring(0,13);
                             p.setPlayerListName(chatColors[k] + newName);
                         }
-                        GearHandler.giveGear(p, chatColors[k], SpecialGear.SNOW);
+                        GearHandler.giveGear(p, chatColors[k], GearType.SNOW);
                         BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
 
                         if(chatColors.length == (k+1)){
@@ -481,7 +481,7 @@ public class Snowball extends BasePluginGamemode {
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
 
-        GearHandler.giveGear(p, color, SpecialGear.SNOW);
+        GearHandler.giveGear(p, color, GearType.SNOW);
         BukkitTeamHandler.addToBukkitTeam(p, color);
 
         super.midgamePlayerJoin(p);

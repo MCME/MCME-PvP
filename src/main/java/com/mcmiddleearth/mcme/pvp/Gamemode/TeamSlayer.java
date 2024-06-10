@@ -18,9 +18,10 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -35,8 +36,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -114,27 +113,24 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         for(Player p : players){
+            freezePlayer(p, 140);
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
                 switch(lastRedSpawn){
                     case 1:
                         p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 2;
                         break;
                     case 2:
                         p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 3;
                         break;
                     case 3:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                     default:
                         p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-                        freezePlayer(p, 140);
                         lastRedSpawn = 1;
                         break;
                 }
@@ -188,10 +184,10 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                         }
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -215,6 +211,25 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     public void End(Map m){
         state = GameState.IDLE;
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
         m.playerLeaveAll();
         PVPCommand.queueNextGame();
         super.End(m);
@@ -255,12 +270,12 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         if(t == Teams.RED){
             Team.getRed().add(p);
             p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
             p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
     

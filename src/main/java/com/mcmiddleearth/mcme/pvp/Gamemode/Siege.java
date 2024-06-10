@@ -494,11 +494,11 @@ public class Siege extends BasePluginGamemode {
                     }
 
                     for(Player p : Team.getGreens().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.DARK_GREEN, GearHandler.SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.DARK_GREEN, GearHandler.GearType.STANDARD);
                         bar.addPlayer(p);
                     }
                     for(Player p : Team.getBlacks().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.BLACK, GearHandler.SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.BLACK, GearHandler.GearType.STANDARD);
                         bar.addPlayer(p);
                     }
                     state = GameState.RUNNING;
@@ -640,7 +640,7 @@ public class Siege extends BasePluginGamemode {
             }else if(map.getImportantPoints().containsKey("RedSpawn"+(area-1))){
                 player.teleport(map.getImportantPoints().get("RedSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
-            GearHandler.giveGear(player,ChatColor.DARK_GREEN, GearHandler.SpecialGear.NONE);
+            GearHandler.giveGear(player,ChatColor.DARK_GREEN, GearHandler.GearType.STANDARD);
             if(!redTeam.contains(player))redTeam.add(player);
         }else{
             Team.getBlacks().add(player);
@@ -649,7 +649,7 @@ public class Siege extends BasePluginGamemode {
             }else if(map.getImportantPoints().containsKey("BlueSpawn"+(area-1))){
                 player.teleport(map.getImportantPoints().get("BlueSpawn"+(area-1)).toBukkitLoc().add(0,1,0));
             }
-            GearHandler.giveGear(player,ChatColor.BLACK, GearHandler.SpecialGear.NONE);
+            GearHandler.giveGear(player,ChatColor.BLACK, GearHandler.GearType.STANDARD);
             if(!blueTeam.contains(player))blueTeam.add(player);
         }
     }

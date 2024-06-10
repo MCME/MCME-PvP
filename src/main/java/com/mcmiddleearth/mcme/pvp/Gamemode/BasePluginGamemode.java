@@ -38,10 +38,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.lang.Math.random;
 
 /**
  *
@@ -52,7 +52,11 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     @JsonIgnore
     ArrayList<Player> players = new ArrayList<>();
-    static HashSet<UUID> frozen = new HashSet<>();
+    HashSet<UUID> frozen = new HashSet<>();
+
+    HashMap<Player, Integer> killCounter = new HashMap<>();
+    HashMap<Player, Integer> deathCounter = new HashMap<>();
+
     /**
      * IDLE = /pvp game quickstart map-gm has been performed, players can now do /pvp join to join the game.
      * COUNTDOWN = /pvp game start has been performed, 5-second countdown before the game starts.
@@ -75,7 +79,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     public void Start(Map m, int parameter){
 
         PVPCommand.toggleVoxel("true");
-        for(Player p : players){
+        for(Player p : players) {
+            killCounter.put(p, 0);
+            deathCounter.put(p, 0);
             PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         }
         HashMap<Player, Location> lastLocation = new HashMap<>();
@@ -102,7 +108,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
     
     @Override
-    public void End(Map m){
+    public void End(Map m) {
+        killCounter.clear();
+        deathCounter.clear();
         PVPCommand.setRunningGame(null);
         PVPCommand.toggleVoxel("false");
         
@@ -140,8 +148,9 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
      */
     public void kdSort(){
         players.sort((Player p1, Player p2) -> {
-            double offset = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
-            if (PlayerStat.getKD(p1) + offset > PlayerStat.getKD(p2) + offset)
+            double offset1 = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            double offset2 = ThreadLocalRandom.current().nextDouble(-0.3, 0.3);
+            if (PlayerStat.getKD(p1) + offset1 > PlayerStat.getKD(p2) + offset2)
                 return 1;
             else
                 return -1;
@@ -149,6 +158,8 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
     }
 
     public boolean midgamePlayerJoin(Player p){
+        killCounter.putIfAbsent(p, 0);
+        deathCounter.putIfAbsent(p, 0);
         PlayerStat.getPlayerStats().get(p.getName()).addPlayedGame();
         String message = "";
         
@@ -210,7 +221,58 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
         frozen.remove(p.getUniqueId());
     }
 
-    public static boolean isFrozen(Player p){
+    @Override
+    public void incrementPlayerKills(Player player) {
+        this.killCounter.put(player, this.killCounter.getOrDefault(player, 0) + 1);
+    }
+
+    @Override
+    public void incrementPlayerDeaths(Player player) {
+        this.deathCounter.put(player, this.deathCounter.getOrDefault(player, 0) + 1);
+    }
+
+    @Override
+    public HashMap<Player, Double> getTopKDMap() {
+        HashMap<Player, Double> kdMap = new HashMap<>();
+        for(Player player :  players){
+            double kills = killCounter.getOrDefault(player,0);
+            double deaths = deathCounter.getOrDefault(player,0);
+            double kdRatio = (deaths == 0) ? kills : Math.round((kills / deaths) * 100.00) / 100.00;
+            kdMap.put(player, kdRatio);
+        }
+        return getTopPlayerIntegerMap(kdMap, 3);
+    }
+
+    @Override
+    public HashMap<Player, Integer> getTopDeathsMap() {
+        return getTopPlayerIntegerMap(deathCounter, 3);
+    }
+
+    @Override
+    public HashMap<Player, Integer> getTopKillsMap() {
+        return getTopPlayerIntegerMap(killCounter, 3);
+    }
+
+    /**
+     * Returns a Map of the top players given a HashMap of players linked to integers. The amount dictates the amount of
+     * players it will return. If multiple players share the top place they will all be returned, regardless of the amount specified.
+     * @param kdMap Map of players linked to integers.
+     * @param amount amount of players to return.
+     */
+    private <T extends Comparable<T>> HashMap<Player, T> getTopPlayerIntegerMap(HashMap<Player, T> kdMap, int amount) {
+        PriorityQueue<Player> pq = new PriorityQueue<>((p1, p2) -> kdMap.get(p2).compareTo(kdMap.get(p1)));
+        pq.addAll(kdMap.keySet());
+        HashMap<Player, T> topThreePlayers = new LinkedHashMap<>();
+        while (topThreePlayers.size() < amount && !pq.isEmpty()) {
+            Player player = pq.poll();
+            T kdValue = kdMap.get(player);
+            topThreePlayers.put(player, kdValue);
+        }
+
+        return topThreePlayers;
+    }
+
+    public boolean isFrozen(Player p){
         return frozen.contains(p.getUniqueId());
     }
 

@@ -21,7 +21,7 @@ package com.mcmiddleearth.mcme.pvp.Gamemode;
 import com.mcmiddleearth.mcme.pvp.Handlers.ActionBarHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -168,18 +168,16 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         int c = 0;
         int infected = rand.nextInt(players.size());
         for(Player p : players){
+            freezePlayer(p, 140);
             if(c == infected){
                 Team.getInfected().add(p);
                 p.teleport(m.getImportantPoints().get("InfectedSpawn").toBukkitLoc());
-                freezePlayer(p, 140);
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
             }
             else{
                 Team.getSurvivor().add(p);
                 p.teleport(m.getImportantPoints().get("SurvivorSpawn").toBukkitLoc());
-                freezePlayer(p, 140);
             }
-            
             c++;
         }
         
@@ -213,12 +211,12 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         
                         for(Player p : Team.getSurvivor().getMembers()){
                             p.setScoreboard(getScoreboard());
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                             }
                         for(Player p : Team.getInfected().getMembers()){
 
                             p.setScoreboard(getScoreboard());
-                            GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+                            GearHandler.giveGear(p, ChatColor.DARK_RED, GearType.INFECTED);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -337,7 +335,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                     points.getScore(ChatColor.BLUE + "Survivors:").setScore(Team.getSurvivor().size() - 1);
                     points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size() + 1);
 
-                    GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+                    GearHandler.giveGear(p, ChatColor.DARK_RED, GearType.INFECTED);
                     p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
                     if(time < 120){
                         ItemStack COMPASS = new ItemStack(Material.COMPASS, 1);
@@ -428,7 +426,7 @@ public class Infected extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             p.teleport(map.getImportantPoints().get("InfectedSpawn").toBukkitLoc().add(0, 1, 0));
             points.getScore(ChatColor.DARK_RED + "Infected:").setScore(Team.getInfected().size());
             super.midgamePlayerJoin(p);
-            GearHandler.giveGear(p, ChatColor.DARK_RED, SpecialGear.INFECTED);
+            GearHandler.giveGear(p, ChatColor.DARK_RED, GearType.INFECTED);
             return true;
         }else{
             return false;

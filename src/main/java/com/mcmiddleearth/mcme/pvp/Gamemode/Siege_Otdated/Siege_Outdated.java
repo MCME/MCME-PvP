@@ -145,10 +145,10 @@ public class Siege_Outdated extends BasePluginGamemode{
                         }
                         
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, GearHandler.SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearHandler.GearType.STANDARD);
                         }
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, GearHandler.SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearHandler.GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
