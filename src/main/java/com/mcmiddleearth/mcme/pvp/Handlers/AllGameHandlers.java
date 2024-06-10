@@ -60,6 +60,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 /**
  * @author Donovan <dallen@dallen.xyz>
@@ -169,7 +170,12 @@ public class AllGameHandlers implements Listener{
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent damageEvent){
         if(damageEvent.getEntity() instanceof Player){
-            if(PVPCommand.getRunningGame() == null)
+            if(PVPPlugin.getPlugin().getConfig().getBoolean("lavaDamage", false) &&
+                    (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.LAVA)
+                    || damageEvent.getCause().equals(EntityDamageEvent.DamageCause.FIRE_TICK)))
+                damageEvent.setCancelled(false);
+
+            else if(PVPCommand.getRunningGame() == null)
                 damageEvent.setCancelled(true);
 
             else if(PVPCommand.getRunningGame().getGm().getState() != GameState.RUNNING)
@@ -177,7 +183,6 @@ public class AllGameHandlers implements Listener{
 
             else if (damageEvent.getCause().equals(EntityDamageEvent.DamageCause.CONTACT))
                 damageEvent.setCancelled(true);
-
         }
     }
 
