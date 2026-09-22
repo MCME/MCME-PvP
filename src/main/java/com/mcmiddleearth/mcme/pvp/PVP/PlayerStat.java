@@ -19,6 +19,7 @@
 package com.mcmiddleearth.mcme.pvp.PVP;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.JoinLeaveHandler;
@@ -40,6 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Represents a player's stats.
  *
  * @author Donovan <dallen@dallen.xyz>
  */
@@ -60,26 +62,35 @@ public class PlayerStat {
     public PlayerStat(){}
     
     public PlayerStat(UUID uuid){this.uuid = uuid;}
-    
-    public static boolean loadStat(OfflinePlayer p){
-        File loc = new File(PVPPlugin.getStatDirectory() + PVPPlugin.getFileSep() + p.getUniqueId());
+
+    /**
+     * Checks if the player already has a playerstat file saved.
+     * If the file exists load the playerstat.
+     * If the file does not exist create the playerstat file using the player's uuid.
+     *
+     * @param player Represents a player.
+     */
+    public static void loadStat(OfflinePlayer player){
+        System.out.println(player);
+        File loc = new File(PVPPlugin.getStatDirectory() + PVPPlugin.getFileSep() + player.getUniqueId());
         if(loc.exists()){
             PlayerStat ps = (PlayerStat) DBmanager.loadObj(PlayerStat.class, loc);
-            ps.setUuid(p.getUniqueId());
+            ps.setUuid(player.getUniqueId());
             try {
                 System.out.println("Loaded: " + DBmanager.getJSonParser().writeValueAsString(ps));
             } catch (JsonProcessingException ex) {
                 Logger.getLogger(JoinLeaveHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
-            playerStats.put(p.getName(), ps);
-            return true;
+            playerStats.put(player.getName(), ps);
         }else{
-            playerStats.put(p.getName(), new PlayerStat(p.getUniqueId()));
-            
-            return false;
+            playerStats.put(player.getName(), new PlayerStat(player.getUniqueId()));
         }
     }
-        
+
+    /**
+     * Writes playerstats to existing playerstats file.
+     * The playerstats file is unique for each uuid.
+     */
     public void saveStat(){
         File loc = PVPPlugin.getStatDirectory();
         try {
@@ -95,18 +106,22 @@ public class PlayerStat {
     public void addKill(){Kills++;}
     public void addPlayedGame(){gamesPlayed++;}
     public void addGameWon(){gamesWon++;}
-    public void addGameLost(){gamesLost++;};
-    public void addGameSpectated(){gamesSpectated++;};
-    
-    public static void addGameWon(Teams t){
+    public void addGameLost(){gamesLost++;}
+    public void addGameSpectated(){gamesSpectated++;}
+
+    /**
+     * Increments gameswon stat for all players in the team.
+     *
+     * @param team Specifies the team.
+     */
+    public static void addGameWon(Teams team){
         
-        switch(t){
+        switch(team){
             case RED:
                 for(Player p : Team.getRed().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameWon();
                 }
                 break;
-                
             case BLUE:
                 for(Player p : Team.getBlue().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameWon();
@@ -133,17 +148,20 @@ public class PlayerStat {
                 }
                 break;
         }
-        
     }
-    
-    public static void addGameLost(Teams t){
-        switch(t){
+
+    /**
+     * Increments gameslost stat for all players in the team.
+     *
+     * @param team Specifies the team.
+     */
+    public static void addGameLost(Teams team){
+        switch(team){
             case RED:
                 for(Player p : Team.getRed().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameLost();
                 }
                 break;
-                
             case BLUE:
                 for(Player p : Team.getBlue().getMembers()){
                     PlayerStat.getPlayerStats().get(p.getName()).addGameLost();
@@ -170,38 +188,64 @@ public class PlayerStat {
                 }
                 break;
         }
-        
     }
+
+    /**
+     * Increments spectated stat by one for all online players in Team Spectator.
+     */
     public static void addGameSpectatedAll(){
-        for(Player p : Team.getSpectator().getMembers()){
-            if(p!=null && p.isOnline()) {
-                PlayerStat.getPlayerStats().get(p.getName()).addGameSpectated();
+        for(Player player : Team.getSpectator().getMembers()){
+            if(player!=null && player.isOnline()) {
+                PlayerStat.getPlayerStats().get(player.getName()).addGameSpectated();
             }
         }
     }
-    
+
+    /**
+     * Gets the player's KD ratio.
+     *
+     * @param player Represents a player.
+     * @return double representing the player's KD ratio
+     */
+    public static double getKD(Player player) {
+        double kills = PlayerStat.getPlayerStats().get(player.getName()).getKills();
+        double deaths = PlayerStat.getPlayerStats().get(player.getName()).getDeaths();
+        if (deaths == 0)
+            return kills;
+        else
+            return kills / deaths;
+    }
+
     public static class StatListener implements Listener{
-        
+
+
+        /**
+         * @EventHandler for player death/kill related stats.
+         * Increments death stat for player that died, if a player killed him, increment his kill stat.
+         *
+         * @param deathEvent Thrown whenever a player dies.
+         */
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+        public void onPlayerDeath(PlayerDeathEvent deathEvent){
             if(PVPCommand.getRunningGame() != null){
-                Player d = e.getEntity();
-                if(PVPCommand.getRunningGame().getGm().getPlayers().contains(d)){
-                    PlayerStat ps = PlayerStat.getPlayerStats().get(d.getName());
-                    if(d.getKiller() != null){
-                        Player k = d.getKiller();
-                        if(PVPCommand.getRunningGame().getGm().getPlayers().contains(k)){
-                            if(!PlayerStat.getPlayerStats().get(k.getName()).getPlayersKilled().contains(d.getName())){
-                                PlayerStat.getPlayerStats().get(k.getName()).addPlayerKilled(d.getName());
+                Player p1 = deathEvent.getEntity();
+                if(PVPCommand.getRunningGame().getGm().getPlayers().contains(p1)){
+                    PlayerStat ps = PlayerStat.getPlayerStats().get(p1.getName());
+                    if(p1.getKiller() != null){
+                        Player p2 = p1.getKiller();
+                        if(PVPCommand.getRunningGame().getGm().getPlayers().contains(p2)){
+                            if(!PlayerStat.getPlayerStats().get(p2.getName()).getPlayersKilled().contains(p1.getName())){
+                                PlayerStat.getPlayerStats().get(p2.getName()).addPlayerKilled(p1.getName());
                             }
                         }
-                        PlayerStat.getPlayerStats().get(k.getName()).addKill();
+                        PlayerStat.getPlayerStats().get(p2.getName()).addKill();
                     }
-                    ps.setDeaths(ps.getDeaths()+1);
+                    ps.addDeath();
                 }
             }
         }
     }
+
 
     public ArrayList<String> getPlayersKilled() {
         return playersKilled;

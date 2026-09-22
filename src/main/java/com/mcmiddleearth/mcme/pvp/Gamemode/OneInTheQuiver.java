@@ -22,7 +22,7 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -43,11 +43,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import lombok.Getter;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  *
@@ -58,9 +56,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private boolean pvpRegistered = false;
 
     @Getter
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "PlayerSpawn"
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("PlayerSpawn"));
     
     private GameState state;
     
@@ -68,11 +64,11 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     private int count;
     
-    private Objective Points;
-    
-    private Gamepvp pvp;
-    
-    private HashMap<String, String> playerDeaths = new HashMap<String, String>();
+    private Objective points;
+
+    private GamemodeHandlers OITQHandlers;
+
+    private HashMap<String, String> playerDeaths = new HashMap<>();
     
     private HashMap<String, ChatColor> hasPlayed = new HashMap<String, ChatColor>();
     
@@ -100,34 +96,18 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         state = GameState.IDLE;
     }
     
-    Runnable healer = new Runnable(){
-            
-        public void run(){
-            boolean healed = false;
-            
-            for(Player p : healing.keySet()){
-                
-                
-                if(System.currentTimeMillis() < healing.get(p)){
-                    p.setHealth(20);
-                    healed = true;
-                }
-                
-            }
-            if(!healed){
-                healing.clear();
-            }
-        }
-        
-    };
-    
     @Override
     public void Start(Map m, int parameter){
         super.Start(m, parameter);
         map = m;
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = spawnsTemp.toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -136,16 +116,17 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            OITQHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(OITQHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
+                freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
                 }else{
@@ -158,174 +139,95 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             
         }
         
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
-                @Override
-                public void run() {
-                    
-                    if(count == 0){
-                        if(state == GameState.RUNNING){
-                            return;
-                        }
-                        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), healer, 0, 20);
-                        int k = 0;
-                        
-                        Points = getScoreboard().registerNewObjective("Kills", "dummy");
-                        Points.setDisplayName("Kills");
-                        Points.setDisplaySlot(DisplaySlot.SIDEBAR);
-                        
-                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                            p.sendMessage(ChatColor.GREEN + "Game Start!");
-                            p.setScoreboard(getScoreboard());
-                        }
-                        
-                        for(Player p : players){
-                            
-                            p.setGameMode(GameMode.ADVENTURE);
-                            
-                            ChatHandler.getPlayerPrefixes().put(p.getName(), chatColors[k] + "Player");
-                            ChatHandler.getPlayerColors().put(p.getName(), chatColors[k]);
-                            hasPlayed.put(p.getName(), chatColors[k]);
-                            
-                            Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
-                            
-                            if(p.getName().length() < 14){
-                                p.setPlayerListName(chatColors[k] + p.getName());
-                            }else{
-                                String newName = p.getName().substring(0,13);
-                                p.setPlayerListName(chatColors[k] + newName);
-                            }
-                            GearHandler.giveGear(p, chatColors[k], SpecialGear.ONEINTHEQUIVER);
-                            BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
-                        
-                            if(chatColors.length == (k+1)){
-                                k = 0;
-                            }else{
-                                k++;
-                            }
-                        }
-                        state = GameState.RUNNING;
-                        count = -1;
-                        
-                        for(Player p : players){
-                            p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
-                        }
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), () -> {
+            if(count == 0){
+                if(state == GameState.RUNNING){
+                    return;
+                }
+                int k = 0;
 
+                points = getScoreboard().registerNewObjective("Kills", "dummy");
+                points.setDisplayName("Kills");
+                points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                OITQHandlers.spawn = new Random().nextInt(spawns.length-1);
+
+                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    p.sendMessage(ChatColor.GREEN + "Game Start!");
+                    p.setScoreboard(getScoreboard());
+                }
+
+                for(Player p : players){
+
+                    p.setGameMode(GameMode.ADVENTURE);
+
+                    ChatHandler.getPlayerPrefixes().put(p.getName(), chatColors[k] + "Player");
+                    ChatHandler.getPlayerColors().put(p.getName(), chatColors[k]);
+                    hasPlayed.put(p.getName(), chatColors[k]);
+
+                    points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
+
+                    if(p.getName().length() < 14){
+                        p.setPlayerListName(chatColors[k] + p.getName());
+                    }else{
+                        String newName = p.getName().substring(0,13);
+                        p.setPlayerListName(chatColors[k] + newName);
                     }
-                    else if(count != -1){
-                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                            p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
-                        }
-                        count--;
+                    GearHandler.giveGear(p, chatColors[k], GearType.ONEINTHEQUIVER);
+                    BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
+
+                    if(chatColors.length == (k+1)){
+                        k = 0;
+                    }else{
+                        k++;
                     }
                 }
-            }, 40, 20);
+                state = GameState.RUNNING;
+                count = -1;
+
+                for(Player p : players){
+                    p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
+                }
+
+            }
+            else if(count != -1){
+                for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
+                }
+                count--;
+            }
+        }, 40, 20);
     }
     
     public void End(Map m){
         PlayerStat.addGameSpectatedAll();
         state = GameState.IDLE;
         hasPlayed.clear();
-        
-        ArrayList<String> mostDeaths = new ArrayList<String>();
-        int mostDeathsNum = 0;
-        String killMessage = "";
-        
-        ArrayList<String> mostKills = new ArrayList<String>();
-        int mostKillsNum = 0;
-        String deathMessage = "";
-        
-        ArrayList<String> highestKd = new ArrayList<String>();
-        double highestKdNum = 0;
-        String kDMessage = "";
 
-        for(Player p : players){
-            
-            if(playerDeaths.containsKey(p.getName())){
-                if(Integer.parseInt(playerDeaths.get(p.getName())) > mostDeathsNum){
-                    mostDeaths.clear();
-                    mostDeathsNum = Integer.parseInt(playerDeaths.get(p.getName()));
-                    mostDeaths.add(p.getName());
-                }else if(Integer.parseInt(playerDeaths.get(p.getName())) == mostDeathsNum){
-                    mostDeaths.add(p.getName());
-                }
-            }
-            if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() > mostKillsNum){
-                mostKills.clear();
-                mostKillsNum = Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore();
-                mostKills.add(p.getName());
-            }else if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() == mostKillsNum){
-                mostKills.add(p.getName());
-            }
-            try{
-                if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) > highestKdNum && highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum =  Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() / Double.parseDouble(playerDeaths.get(p.getName()));
-                    highestKd.add(p.getName());
-                }else if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) == highestKdNum){
-                    highestKd.add(p.getName());
-                }
-            }catch(NullPointerException e){
-                if(highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum = -1;
-                    highestKd.add(p.getName());
-                }
-                else if (highestKdNum == -1){
-                    highestKd.add(p.getName());
-                }
-            }
-            
+        ArrayList<String> killMessages = new ArrayList<>();
+        for(Entry<Player, Integer> player : getTopKillsMap().entrySet()){
+            killMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " with " + player.getValue() + " kills!");
         }
-        
-        int loops = 0;
-        for(String playerName : mostDeaths){
-            if(mostDeaths.size() == 1 && loops == 0){
-                deathMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }else if(loops == (mostDeaths.size() - 1)){
-                deathMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }else{
-                deathMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(Entry<Player, Double> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Winner: ");
+            player.sendMessage(killMessages.get(0));
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
             }
-        }
-        
-        loops = 0;
-        for(String playerName : mostKills){
-            PlayerStat.getPlayerStats().get(playerName).addGameWon();
-            if(mostKills.size() == 1 && loops == 0){
-                killMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN;
-            }else if(loops == (mostKills.size() - 1)){
-                killMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN;
-            }else{
-                killMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
             }
-        }
-        
-        loops = 0;
-        String highestKdNumString;
-        DecimalFormat df = new DecimalFormat("#0.00");
-        if(highestKdNum == -1.0){
-            highestKdNumString = "infinity";
-        }
-        else{
-            highestKdNumString = df.format(highestKdNum);
-        }
-        for(String playerName : highestKd){
-            if(highestKd.size() == 1 && loops == 0){
-                kDMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
-            }else if(loops == (highestKd.size() - 1)){
-                kDMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
-            }else{
-                kDMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
-        }
-        
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Winner: " + killMessage);
-            p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
-            p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
         
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -335,10 +237,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
         playerDeaths.clear();
-        
-        mostDeaths.clear();
-        mostKills.clear();
-        highestKd.clear();
+
         PVPCommand.queueNextGame();
         super.End(m);
     }
@@ -353,7 +252,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             color = chatColors[random.nextInt(chatColors.length)];
             ChatHandler.getPlayerColors().put(p.getName(), color);
             ChatHandler.getPlayerPrefixes().put(p.getName(), color + "Player");
-            Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
+            if (state == GameState.RUNNING) points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
             hasPlayed.put(p.getName(), color);
             
         }
@@ -372,12 +271,12 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[OITQHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         super.midgamePlayerJoin(p);
         
-        GearHandler.giveGear(p, color, SpecialGear.ONEINTHEQUIVER);
+        GearHandler.giveGear(p, color, GearType.ONEINTHEQUIVER);
         BukkitTeamHandler.addToBukkitTeam(p, color);
         
         return true;
@@ -387,38 +286,33 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         return "none";
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
             int tempDeaths;
 
-            if(e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING){
-                
-                if(e.getEntity().getKiller() instanceof Player){
-                
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
-
-                    PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
-
-                    if(!killerInv.contains(new ItemStack(Material.ARROW,5))){
-                         killerInv.addItem(new ItemStack(Material.ARROW,1));
+            if(playerDeathEvent.getEntity().getKiller() != null && state == GameState.RUNNING){
+                    points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).setScore(points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() + 1);
+                    PlayerInventory killerInv = playerDeathEvent.getEntity().getKiller().getInventory();
+                    ItemStack Arrow = new ItemStack(Material.ARROW, 1);
+                    killerInv.remove(Arrow);
+                    if(!killerInv.contains(Arrow)){
+                        killerInv.setItem(8, Arrow);
                     }
-
-                    if(playerDeaths.containsKey(e.getEntity().getName())){
-                        tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
-                        playerDeaths.remove(e.getEntity().getName());
-                        playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
+                    if(playerDeaths.containsKey(playerDeathEvent.getEntity().getName())){
+                        tempDeaths = Integer.parseInt(playerDeaths.get(playerDeathEvent.getEntity().getName()));
+                        playerDeaths.remove(playerDeathEvent.getEntity().getName());
+                        playerDeaths.put(playerDeathEvent.getEntity().getName(), String.valueOf(tempDeaths + 1));
                     }else{
-                        playerDeaths.put(e.getEntity().getName(), "1");
+                        playerDeaths.put(playerDeathEvent.getEntity().getName(), "1");
                     }
-
-
-                    if(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() == 21){
+                    if(points.getScore(ChatHandler.getPlayerColors().get(playerDeathEvent.getEntity().getKiller().getName()) + playerDeathEvent.getEntity().getKiller().getName()).getScore() == 21){
                         End(map);
-                        e.getEntity().teleport(PVPPlugin.getSpawn());
+                        playerDeathEvent.getEntity().teleport(PVPPlugin.getLobby());
                     }
-                }
             }
         }
         
@@ -426,15 +320,16 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                Random random = new Random();
-                if(!e.getPlayer().getInventory().contains(Material.ARROW, 5)){
-                
+                e.getPlayer().getInventory().remove(Material.BOW);
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.BOW,1));
+                if(!e.getPlayer().getInventory().contains(Material.ARROW, 1)){
                     e.getPlayer().getInventory().addItem(new ItemStack(Material.ARROW,1));
-                
                 }
-                e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
-            
-                healing.put(e.getPlayer(), new Long(System.currentTimeMillis() + 7500));
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
             }
         }
     }
@@ -445,7 +340,7 @@ public class OneInTheQuiver extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     }
 
     public Objective getPoints() {
-        return Points;
+        return points;
     }
 
     @Override

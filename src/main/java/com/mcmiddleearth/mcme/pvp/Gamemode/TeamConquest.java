@@ -20,7 +20,7 @@ package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -70,12 +70,12 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn",
-        "BlueSpawn",
-        "CapturePoint1",
-        "CapturePoint2",
-        "CapturePoint3"
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(new String[]{
+            "RedSpawn",
+            "BlueSpawn",
+            "CapturePoint1",
+            "CapturePoint2",
+            "CapturePoint3"
     }));
     
     Map map;
@@ -86,9 +86,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     private GameState state;
     
-    private Gamepvp pvp;
-    
-    boolean hasTeams = false;
+    private GamemodeHandlers TCHandlers;
     
     private int goal;
     
@@ -98,6 +96,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     
     @Override
     public void Start(Map m, int parameter) {
+        kdSort();
         super.Start(m, parameter);
         goal = parameter;
         givenTnt = false;
@@ -113,13 +112,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            TCHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(TCHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
-        for(Location l : pvp.points){
+        for(Location l : TCHandlers.points){
             l.getBlock().setType(Material.BEACON);
             
             l.getBlock().getRelative(0, -1, -1).setType(Material.IRON_BLOCK);
@@ -137,17 +136,19 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
             if(players.contains(p)){
                 if(Team.getBlue().size() >= Team.getRed().size()){
                     Team.getRed().add(p);
-                    p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                    p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
+                    freezePlayer(p, 140);
                 }else if(Team.getBlue().size() < Team.getRed().size()){
                     Team.getBlue().add(p);
-                    p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                    p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
+                    freezePlayer(p, 140);
                 }
             }else{
                 Team.getSpectator().add(p);
-                p.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }
-        
+
         Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
                 @Override
                 public void run() {
@@ -169,10 +170,10 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
                         }
                         
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                         }
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -198,7 +199,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     public void End(Map m){
         state = GameState.IDLE;
         
-        for(Location l : pvp.points){
+        for(Location l : TCHandlers.points){
             l.getBlock().setType(Material.AIR);
             l.getBlock().getRelative(0, 1, 0).setType(Material.AIR);
         }
@@ -215,13 +216,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         return "point goal";
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         private ArrayList<Location> points = new ArrayList<>();
         
         HashMap<Location, Integer> capAmount = new HashMap<>();//red = +; blue = -
         
-        public Gamepvp(){
+        public GamemodeHandlers(){
             for(Entry<String, EventLocation> e : map.getImportantPoints().entrySet()){
                 if(e.getKey().contains("Point")){
                     points.add(e.getValue().toBukkitLoc());
@@ -232,7 +233,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         
         @EventHandler
         public void onPlayerInteract(PlayerInteractEvent e){
-            if(state == GameState.RUNNING && players.contains(e.getPlayer()) && 
+            if(state == GameState.RUNNING && players.contains(e.getPlayer()) &&
                     e.getAction().equals(Action.RIGHT_CLICK_BLOCK)){
                 if(e.getClickedBlock().getType().equals(Material.BEACON)){
                     e.setUseInteractedBlock(Event.Result.DENY);
@@ -376,12 +377,11 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                if(Team.getRed().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
-                }else if(Team.getBlue().getMembers().contains(e.getPlayer())){
-                    e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
-                }
+            if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())) {
+                e.setRespawnLocation(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
+            }
+            if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
+                e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
             }
         }
         
@@ -423,7 +423,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     @Override
     public boolean midgamePlayerJoin (Player p){
         
-        if(state == GameState.RUNNING){
+        if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
             
             if(Team.getRed().getAllMembers().contains(p)){
                 addToTeam(p, Teams.RED);
@@ -431,13 +431,7 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
             else if(Team.getBlue().getAllMembers().contains(p)){
                 addToTeam(p, Teams.BLUE);
             }
-            
-            if(Points.getScore(ChatColor.RED + "Red:").getScore() - Points.getScore(ChatColor.BLUE + "Blue:").getScore() >= midgameJoinPointThreshold){
-                addToTeam(p, Teams.BLUE);
-            }
-            else if(Points.getScore(ChatColor.RED + "Red:").getScore() - Points.getScore(ChatColor.BLUE + "Blue:").getScore() <= (-1 * midgameJoinPointThreshold)){
-                addToTeam(p, Teams.RED);
-            }
+
             else{
                 if(Team.getRed().size() >= Team.getBlue().size()){
                     addToTeam(p, Teams.BLUE);
@@ -458,13 +452,13 @@ public class TeamConquest extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlugin
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);  
-            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);  
-            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
 

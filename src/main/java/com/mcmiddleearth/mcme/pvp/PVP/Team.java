@@ -44,6 +44,8 @@ public class Team {
         private Teams t;
         @Getter private static Team red = new Team("Red", org.bukkit.ChatColor.RED, Teams.RED);
         @Getter private static Team blue = new Team("Blue", org.bukkit.ChatColor.BLUE, Teams.BLUE);
+        @Getter private static Team blacks = new Team("Blacks", ChatColor.BLACK, Teams.BLACKS);
+        @Getter private static Team greens = new Team("Greens", ChatColor.DARK_GREEN, Teams.GREENS);
         @Getter private static Team spectator = new Team("Spectator", org.bukkit.ChatColor.GRAY, Teams.SPECTATORS);
         @Getter private static Team survivor = new Team("Survivor", org.bukkit.ChatColor.BLUE, Teams.SURVIVORS);
         @Getter private static Team infected = new Team("Infected", org.bukkit.ChatColor.DARK_RED, Teams.INFECTED);
@@ -57,7 +59,7 @@ public class Team {
         }
         
         public enum Teams {
-            RED,BLUE,INFECTED,SURVIVORS,RUNNER,DEATH,SPECTATORS;
+            RED,BLUE,BLACKS,GREENS,INFECTED,SURVIVORS,RUNNER,DEATH,SPECTATORS;
         }
         
         public void add(Player p){
@@ -78,6 +80,12 @@ public class Team {
                     break;
                 case BLUE:
                     p.sendMessage(color + "You are on the Blue Team!");
+                    break;
+                case BLACKS:
+                    p.sendMessage(color+"You’ve joined the Blacks.");
+                    break;
+                case GREENS:
+                    p.sendMessage(color+"You´ve joined the Greens.");
                     break;
                 case SPECTATORS:
                     p.sendMessage(color + "You are Spectating!");
@@ -106,9 +114,11 @@ public class Team {
             
             if(t == Teams.SPECTATORS && p.getGameMode() != GameMode.SPECTATOR){
                 p.setGameMode(GameMode.SPECTATOR);
+                p.setFlying(true);
             }
             else if(p.getGameMode() != GameMode.ADVENTURE){
                 p.setGameMode(GameMode.ADVENTURE);
+                p.setFlying(false);
             }
             
             if(t == Teams.INFECTED){
@@ -126,6 +136,12 @@ public class Team {
             }
             else if(blue.getMembers().contains(p)){
                 blue.getMembers().remove(p);
+            }
+            else if(blacks.getMembers().contains(p)){
+                blacks.getMembers().remove(p);
+            }
+            else if(greens.getMembers().contains(p)){
+                greens.getMembers().remove(p);
             }
             else if(spectator.getMembers().contains(p)){
                 spectator.getMembers().remove(p);
@@ -159,6 +175,12 @@ public class Team {
         if(red.getMembers().contains(p1) && red.getMembers().contains(p2)){
             return true;
         }
+        else if(greens.getMembers().contains(p1) && greens.getMembers().contains(p2)){
+            return true;
+        }
+        else if(blacks.getMembers().contains(p1) && blacks.getMembers().contains(p2)){
+            return true;
+        }
         else if(blue.getMembers().contains(p1) && blue.getMembers().contains(p2)){
             return true;
         }
@@ -186,6 +208,8 @@ public class Team {
         
         red.getMembers().clear();
         blue.getMembers().clear();
+        greens.getMembers().clear();
+        blacks.getMembers().clear();
         spectator.getMembers().clear();
         survivor.getMembers().clear();
         infected.getMembers().clear();
@@ -197,6 +221,8 @@ public class Team {
         
         red.getAllMembers().clear();
         blue.getAllMembers().clear();
+        greens.getAllMembers().clear();
+        blacks.getAllMembers().clear();
         spectator.getAllMembers().clear();
         survivor.getAllMembers().clear();
         infected.getAllMembers().clear();

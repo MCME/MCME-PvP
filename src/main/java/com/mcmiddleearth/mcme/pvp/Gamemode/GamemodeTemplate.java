@@ -20,7 +20,7 @@ package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -40,7 +40,6 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {
 
@@ -70,7 +69,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
 
     private Objective Points;
 
-    private Gamepvp pvp;
+    private GamemodeHandlers GMHandlers;
 
     private boolean midgameJoin = true;
 
@@ -97,15 +96,16 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         }//if not all points are set this error pops up
 
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            GMHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(GMHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         for(Player p : players) {//this distributes players evenly across teams
             if (Team.getRed().size() <= Team.getBlue().size()) {
                 Team.getRed().add(p);
                 p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                freezePlayer(p, 140);
             }//case goes from 1 to x,where x is the number of spawns
             //cycles through different spawn points
 
@@ -143,10 +143,10 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
                     }
 
                     for(Player p : Team.getRed().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                     }
                     for(Player p : Team.getBlue().getMembers()){
-                        GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                     }
                     //gear distributors
                     state = GameState.RUNNING;
@@ -208,12 +208,12 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         if(t == Teams.RED){
             Team.getRed().add(p);
             p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
             p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
 
@@ -221,7 +221,7 @@ public class GamemodeTemplate extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePl
         return "whatever it is the gamemode needs to end, the goal basically, like kills or time";
     }
 
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         /*
         This is where the logic of the game goes. This example below is Team Slayer, but put your own work in
          */

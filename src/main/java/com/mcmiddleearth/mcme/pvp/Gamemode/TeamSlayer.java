@@ -18,9 +18,10 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -52,14 +53,15 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn1",
-        "RedSpawn2",
-        "RedSpawn3",
-        "BlueSpawn1",
-        "BlueSpawn2",
-        "BlueSpawn3",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(
+            "RedSpawn1",
+            "RedSpawn2",
+            "RedSpawn3",
+            "BlueSpawn1",
+            "BlueSpawn2",
+            "BlueSpawn3"
+    ));
+    
     
     private GameState state;
     
@@ -73,18 +75,20 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     private int count;
     
-    private Objective Points;
+    private Objective points;
     
-    private Gamepvp pvp;
-    
+    private GamemodeHandlers TSHandlers;
+
     private boolean midgameJoin = true;
-    
+
     public TeamSlayer(){
         state = GameState.IDLE;
     }
     
     @Override
     public void Start(Map m, int parameter){
+
+    	kdSort();
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
         givenTnt = false;
@@ -102,29 +106,31 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            TSHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(TSHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
+        
         for(Player p : players){
+            freezePlayer(p, 140);
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
                 switch(lastRedSpawn){
                     case 1:
-                        p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
                         lastRedSpawn = 2;
                         break;
                     case 2:
-                        p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
                         lastRedSpawn = 3;
                         break;
                     case 3:
-                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastRedSpawn = 1;
                         break;
                     default:
-                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastRedSpawn = 1;
                         break;
                 }
@@ -133,19 +139,19 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 Team.getBlue().add(p);
                 switch(lastBlueSpawn){
                     case 1:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 2;
                         break;
                     case 2:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 3;
                         break;
                     case 3:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 1;
                         break;
                     default:
-                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
+                        p.teleport(m.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
                         lastBlueSpawn = 1;
                         break;
                 }
@@ -154,7 +160,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }
             Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
@@ -165,12 +171,12 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                             return;
                         }
 
-                        Points = getScoreboard().registerNewObjective("Score", "dummy");
-                        Points.setDisplayName("Score");
-                        Points.getScore(ChatColor.WHITE + "Goal:").setScore(target);
-                        Points.getScore(ChatColor.BLUE + "Blue:").setScore(0);
-                        Points.getScore(ChatColor.RED + "Red:").setScore(0);
-                        Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+                        points = getScoreboard().registerNewObjective("Score", "dummy");
+                        points.setDisplayName("Score");
+                        points.getScore(ChatColor.WHITE + "Goal:").setScore(target);
+                        points.getScore(ChatColor.BLUE + "Blue:").setScore(0);
+                        points.getScore(ChatColor.RED + "Red:").setScore(0);
+                        points.setDisplaySlot(DisplaySlot.SIDEBAR);
                         
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -178,10 +184,10 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                         }
                         
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                         }
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -204,8 +210,26 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     public void End(Map m){
         state = GameState.IDLE;
-
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
         m.playerLeaveAll();
         PVPCommand.queueNextGame();
         super.End(m);
@@ -224,12 +248,10 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         else if(Team.getBlue().getAllMembers().contains(p)){
             addToTeam(p, Teams.BLUE);
         }
-        
-        else if(Points.getScore(ChatColor.RED + "Red:").getScore() - Points.getScore(ChatColor.BLUE + "Blue:").getScore() >= midgameJoinPointThreshold){
+        else if(points.getScore(ChatColor.RED + "Red:").getScore() - points.getScore(ChatColor.BLUE + "Blue:").getScore() >= midgameJoinPointThreshold){
             addToTeam(p, Teams.BLUE);
-            
         }
-        else if(Points.getScore(ChatColor.BLUE + "Blue:").getScore() - Points.getScore(ChatColor.RED + "Red:").getScore() >= midgameJoinPointThreshold){
+        else if(points.getScore(ChatColor.BLUE + "Blue:").getScore() - points.getScore(ChatColor.RED + "Red:").getScore() >= midgameJoinPointThreshold){
             addToTeam(p, Teams.RED);
         }
         else{
@@ -247,13 +269,13 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);
-            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
-            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
     
@@ -261,73 +283,57 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         return "end kill number";
     }
     
-    private class Gamepvp implements Listener{
-        @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e){
+    private class GamemodeHandlers implements Listener{
 
+        @EventHandler
+        public void onPlayerDeath(PlayerDeathEvent playerDeathEvent){
             if(state == GameState.RUNNING){
-                Player p = null;
-                int redScore = Points.getScore(ChatColor.RED + "Red:").getScore();
-                int blueScore = Points.getScore(ChatColor.BLUE + "Blue:").getScore();
-                if(e.getEntity() instanceof Player){
-                    p = (Player) e.getEntity();
-                }
-                
-                if(p != null){
-                    if(Team.getRed().getMembers().contains(p)){
-                        Points.getScore(ChatColor.BLUE + "Blue:").setScore(blueScore + 1);
+                int redScore = points.getScore(ChatColor.RED + "Red:").getScore();
+                int blueScore = points.getScore(ChatColor.BLUE + "Blue:").getScore();
+                Player player = playerDeathEvent.getEntity();
+                    if(Team.getRed().getMembers().contains(player)){
+                        points.getScore(ChatColor.BLUE + "Blue:").setScore(blueScore + 1);
                     }
-                    if(Team.getBlue().getMembers().contains(p)){
-                        Points.getScore(ChatColor.RED + "Red:").setScore(redScore + 1);
+                    if(Team.getBlue().getMembers().contains(player)){
+                        points.getScore(ChatColor.RED + "Red:").setScore(redScore + 1);
                     }
-                }
             
                 if(PVPCommand.getRunningGame().getTitle().equals("Helms_Deep") &&
-                        Points.getScore(ChatColor.RED + "Red:").getScore() >= giveTntPointThreshold &&
+                        points.getScore(ChatColor.RED + "Red:").getScore() >= giveTntPointThreshold &&
                         !givenTnt){
                     Random r = new Random();
-                    
                     Player randomPlayer = (Player) Team.getRed().getMembers().toArray()[r.nextInt(Team.getRed().getMembers().size())];
-                    
                     GearHandler.giveCustomItem(randomPlayer, GearHandler.CustomItem.TNT);
                     givenTnt = true;
-                    
                 }
-                
-                if(Points.getScore(ChatColor.RED + "Red:").getScore() >= target){
-                                
-                    for(Player player : Bukkit.getOnlinePlayers()){
-                        player.sendMessage(ChatColor.RED + "Game over!");
-                        player.sendMessage(ChatColor.RED + "Red Team Wins!");
+                if(points.getScore(ChatColor.RED + "Red:").getScore() >= target){
+                    for(Player players : Bukkit.getOnlinePlayers()){
+                        players.sendMessage(ChatColor.RED + "Game over!");
+                        players.sendMessage(ChatColor.RED + "Red Team Wins!");
                     }
                     PlayerStat.addGameWon(Teams.RED);
                     PlayerStat.addGameLost(Teams.BLUE);
                     PlayerStat.addGameSpectatedAll();
                     End(map);
-                
                 }
-                else if(Points.getScore(ChatColor.BLUE + "Blue:").getScore() >= target){
-                
-                    for(Player player : Bukkit.getOnlinePlayers()){
-                        player.sendMessage(ChatColor.BLUE + "Game over!");
-                        player.sendMessage(ChatColor.BLUE + "Blue Team Wins!");
+                else if(points.getScore(ChatColor.BLUE + "Blue:").getScore() >= target){
+                    for(Player players : Bukkit.getOnlinePlayers()){
+                        players.sendMessage(ChatColor.BLUE + "Game over!");
+                        players.sendMessage(ChatColor.BLUE + "Blue Team Wins!");
                     }
                     PlayerStat.addGameWon(Teams.BLUE);
                     PlayerStat.addGameLost(Teams.RED);
                     PlayerStat.addGameSpectatedAll();
                     End(map);
-                
                 }
             }
         }
+
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e){
-
         if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
             Team.removeFromTeam(e.getPlayer());
-            
             if(Team.getRed().size() <= 0){
-                
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendMessage(ChatColor.BLUE + "Game over!");
                     p.sendMessage(ChatColor.BLUE + "Blue Team Wins!");
@@ -338,7 +344,6 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 End(map);
             }
             if(Team.getBlue().size() <= 0){
-                
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.sendMessage(ChatColor.RED + "Game over!");
                     p.sendMessage(ChatColor.RED + "Red Team Wins!");
@@ -347,49 +352,45 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                 PlayerStat.addGameLost(Teams.BLUE);
                 PlayerStat.addGameSpectatedAll();
                 End(map);
-                
             }
         }
     }
         @EventHandler
         public void onPlayerRespawn(PlayerRespawnEvent e){
-
-            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                Random random = new Random();
-                int spawn = random.nextInt(3) + 1;
-                if(Team.getRed().getMembers().contains(e.getPlayer())){
-                    switch(spawn){
-                        case 1:
-                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 2, 0));
-                            break;
+            Random random = new Random();
+            int spawn = random.nextInt(3) + 1;
+            if(state == GameState.RUNNING && Team.getRed().getMembers().contains(e.getPlayer())){
+                switch(spawn){
+                    case 1:
+                        e.setRespawnLocation(map.getImportantPoints().get("RedSpawn1").toBukkitLoc().add(0, 1, 0));
+                        break;
                         case 2:
-                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn2").toBukkitLoc().add(0, 1, 0));
                             break;
                         case 3:
-                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 2, 0));
+                            e.setRespawnLocation(map.getImportantPoints().get("RedSpawn3").toBukkitLoc().add(0, 1, 0));
                             break;
-                    }
-                }
-                if(Team.getBlue().getMembers().contains(e.getPlayer())){
-                    switch(spawn){
-                        case 1:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 2, 0));
-                            break;
-                        case 2:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 2, 0));
-                            break;
-                        case 3:
-                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 2, 0));
-                            break;
-                    }
                 }
             }
+                if(state == GameState.RUNNING && Team.getBlue().getMembers().contains(e.getPlayer())){
+                    switch(spawn){
+                        case 1:
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn1").toBukkitLoc().add(0, 1, 0));
+                            break;
+                        case 2:
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn2").toBukkitLoc().add(0, 1, 0));
+                            break;
+                        case 3:
+                            e.setRespawnLocation(map.getImportantPoints().get("BlueSpawn3").toBukkitLoc().add(0, 1, 0));
+                            break;
+                    }
+                }
         }
     }
 
     @Override
     public ArrayList<String> getNeededPoints() {
-        return NeededPoints;
+        return new ArrayList<>(this.NeededPoints);
     }
 
     @Override
@@ -398,7 +399,7 @@ public class TeamSlayer extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     }
 
     public Objective getPoints() {
-        return Points;
+        return points;
     }
 
     @Override

@@ -32,22 +32,29 @@ import java.util.HashMap;
 public class DBmanager {
     
     @Getter private static ObjectMapper JSonParser = new ObjectMapper();
-    
+
     public static boolean saveObj(Object obj, File loc, String name){
         if(!loc.exists()){
             loc.mkdirs();
         }
+        if(!(new File(loc + PVPPlugin.getFileSep()+ "backup").exists())){
+            new File(loc + PVPPlugin.getFileSep()+ "backup").mkdirs();
+        }
         boolean success = true;
         File locStart = new File(loc + PVPPlugin.getFileSep() + name + ".new");
+        File locBackup = new File(loc + PVPPlugin.getFileSep()+ "backup" + PVPPlugin.getFileSep() + name);
         File locEnd = new File(loc + PVPPlugin.getFileSep() + name);
         try {
-           JSonParser.writeValue(locStart, obj);
+            JSonParser.writeValue(locStart, obj);
         } catch (IOException ex) {
             success = false;
         } finally {
             if (success) {
                 if (locEnd.exists()) {
-                    locEnd.delete();
+                    if (locBackup.exists()) {
+                        locBackup.delete();
+                    }
+                    locEnd.renameTo(locBackup);
                 }
                 locStart.renameTo(locEnd);
             }

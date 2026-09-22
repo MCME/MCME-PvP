@@ -5,4 +5,5 @@ noHunger:
 PVP:
     Enabled: true
     Broadcast_minutes: 2
+lavaDamage: true
 

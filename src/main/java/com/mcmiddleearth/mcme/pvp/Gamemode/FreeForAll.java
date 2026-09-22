@@ -22,7 +22,7 @@ import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
@@ -37,14 +37,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -68,7 +65,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     
     private Objective Points;
     
-    private Gamepvp pvp;
+    private GamemodeHandlers FFAHandlers;
     
     private HashMap<String, String> playerDeaths = new HashMap<String, String>();
     
@@ -99,60 +96,61 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
     public FreeForAll(){
         state = GameState.IDLE;
     }
-    
-    Runnable tick = new Runnable(){
-            
-        public void run(){
-            time--;
-            
-            if(time % 60 == 0){
-                Points.setDisplayName("Time: " + (time/60) + "m");
-            }
-            else if(time < 60){
-                Points.setDisplayName("Time: " + time + "s");
-            }
-            
-            if(time == 30){
-                
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + "30 seconds remaining!");
+
+    public void timer(){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                time--;
+
+                if(time < 60 ){
+                    Points.setDisplayName("Time: "+ time + "s");
+                }else{
+                    Points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
                 }
-                
-            }
-            else if(time <= 10 && time > 1){
-                
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " seconds remaining!");
+
+                if(time == 30){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + "30 seconds remaining!");
+                    }
+
                 }
-                
-            }
-            else if(time == 1){
-                
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
+                else if(time <= 10 && time > 1){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " seconds remaining!");
+                    }
+
                 }
-                
-            }
-            
-            if(time <= 0){
-                End(map);
-            }
-            
-            boolean healed = false;
-            
-            for(Player p : healing.keySet()){
-                
-                if(System.currentTimeMillis() < healing.get(p)){
-                    p.setHealth(20);
-                    healed = true;
+                else if(time == 1){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
+                    }
+
                 }
-                
+
+                if(time <= 0){
+                    End(map);
+                }
+
+                boolean healed = false;
+
+                for(Player p : healing.keySet()){
+
+                    if(System.currentTimeMillis() < healing.get(p)){
+                        p.setHealth(20);
+                        healed = true;
+                    }
+
+                }
+                if(!healed){
+                    healing.clear();
+                }
             }
-            if(!healed){
-                healing.clear();
-            }
-        }
-    };
+        }.runTaskTimer(PVPPlugin.getPlugin(),0, 20);
+    }
     
     @Override
     public void Start(Map m, int parameter){
@@ -161,7 +159,12 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         count = PVPPlugin.getCountdownTime();
         time = parameter;
         state = GameState.COUNTDOWN;
-        spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
+        List<EventLocation> spawnsTemp = new ArrayList<>();
+        spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"));
+        for(int i = 1;i < map.getImportantPoints().size();i++){
+            spawnsTemp.add(map.getImportantPoints().get("PlayerSpawn"+i));
+        }
+        spawns = spawnsTemp.toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
                 p.sendMessage(ChatColor.RED + "Game cannot start! Not all needed points have been added!");
@@ -170,16 +173,17 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            FFAHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(FFAHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
+                freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
                 }
@@ -194,37 +198,37 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             
         }
         
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
+        new BukkitRunnable(){
                 @Override
                 public void run() {
-                    
+
                     if(count == 0){
                         if(state == GameState.RUNNING){
-                            return;
+                            cancel();
                         }
-                        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), tick, 0, 20);
+                        state = GameState.RUNNING;
                         int k = 0;
-                        
-                        Points = getScoreboard().registerNewObjective("Kills", "dummy");
-                        Points.setDisplayName("Time: " + time + "m");
+                        Points = getScoreboard().registerNewObjective("Kills", "dummy", "Time: " + time + "m");
                         time *= 60;
                         Points.setDisplaySlot(DisplaySlot.SIDEBAR);
-                        
+
+                        FFAHandlers.spawn = new Random().nextInt(spawns.length-1);
+
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
                             p.setScoreboard(getScoreboard());
                         }
-                        
+
                         for(Player p : players){
-                            
+
                             p.setGameMode(GameMode.ADVENTURE);
-                            
+
                             ChatHandler.getPlayerPrefixes().put(p.getName(), chatColors[k] + "Player");
                             ChatHandler.getPlayerColors().put(p.getName(), chatColors[k]);
                             hasPlayed.put(p.getName(), chatColors[k]);
-                            
+
                             Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
-                            
+
                             if(p.getName().length() < 14){
                                 p.setPlayerListName(chatColors[k] + p.getName());
                             }
@@ -232,9 +236,9 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                                 String newName = p.getName().substring(0,13);
                                 p.setPlayerListName(chatColors[k] + newName);
                             }
-                            GearHandler.giveGear(p, chatColors[k], SpecialGear.NONE);
+                            GearHandler.giveGear(p, chatColors[k], GearType.STANDARD);
                             BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
-                  
+
                             if(chatColors.length == (k+1)){
                                 k = 0;
                             }
@@ -242,138 +246,55 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
                                 k++;
                             }
                         }
-                        state = GameState.RUNNING;
                         count = -1;
-                        
+
                         for(Player p : players){
                             p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
                         }
-
+                        timer();
                     }
                     else if(count != -1){
-                        for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                        for(Player p : Bukkit.getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
                         }
                         count--;
                     }
+                    else{
+                        cancel();
+                    }
                 }
-            }, 40, 20);
+            }.runTaskTimer(PVPPlugin.getPlugin(),40, 20);
     }
     
     public void End(Map m){
         PlayerStat.addGameSpectatedAll();
         state = GameState.IDLE;
         hasPlayed.clear();
-        
-        ArrayList<String> mostDeaths = new ArrayList<String>();
-        int mostDeathsNum = 0;
-        String killMessage = "";
-        
-        ArrayList<String> mostKills = new ArrayList<String>();
-        int mostKillsNum = 0;
-        String deathMessage = "";
-        
-        ArrayList<String> highestKd = new ArrayList<String>();
-        double highestKdNum = 0;
-        String kDMessage = "";
 
-        for(Player p : players){
-            
-            if(playerDeaths.containsKey(p.getName())){
-                if(Integer.parseInt(playerDeaths.get(p.getName())) > mostDeathsNum){
-                    mostDeaths.clear();
-                    mostDeathsNum = Integer.parseInt(playerDeaths.get(p.getName()));
-                    mostDeaths.add(p.getName());
-                }
-                else if(Integer.parseInt(playerDeaths.get(p.getName())) == mostDeathsNum){
-                    mostDeaths.add(p.getName());
-                }
-            }
-            if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() > mostKillsNum){
-                mostKills.clear();
-                mostKillsNum = Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore();
-                mostKills.add(p.getName());
-            }
-            else if(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() == mostKillsNum){
-                mostKills.add(p.getName());
-            }
-            try{
-                if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) > highestKdNum && highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum =  Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore() / Double.parseDouble(playerDeaths.get(p.getName()));
-                    highestKd.add(p.getName());
-                }
-                else if(Double.valueOf(Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).getScore()) / Double.parseDouble(playerDeaths.get(p.getName())) == highestKdNum){
-                    highestKd.add(p.getName());
-                }
-            }catch(NullPointerException e){
-                if(highestKdNum != -1){
-                    highestKd.clear();
-                    highestKdNum = -1;
-                    highestKd.add(p.getName());
-                }
-                else if (highestKdNum == -1){
-                    highestKd.add(p.getName());
-                }
-            }
-            
+        ArrayList<String> killMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopKillsMap().entrySet()){
+            killMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " with " + player.getValue() + " kills!");
         }
-        
-        int loops = 0;
-        for(String playerName : mostDeaths){
-            if(mostDeaths.size() == 1 && loops == 0){
-                deathMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }
-            else if(loops == (mostDeaths.size() - 1)){
-                deathMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostDeathsNum;
-            }
-            else{
-                deathMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
-        
-        loops = 0;
-        for(String playerName : mostKills){
-            PlayerStat.getPlayerStats().get(playerName).addGameWon();
-            if(mostKills.size() == 1 && loops == 0){
-                killMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostKillsNum;
-            }
-            else if(loops == (mostKills.size() - 1)){
-                killMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + mostKillsNum;
-            }
-            else{
-                killMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
         }
-        
-        loops = 0;
-        String highestKdNumString;
-        DecimalFormat df = new DecimalFormat("#0.00");
-        if(highestKdNum == -1.0){
-            highestKdNumString = "infinity";
-        }
-        else{
-            highestKdNumString = df.format(highestKdNum);
-        }
-        for(String playerName : highestKd){
-            if(highestKd.size() == 1 && loops == 0){
-                kDMessage = ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Winner: ");
+            player.sendMessage(killMessages.get(0));
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
             }
-            else if(loops == (highestKd.size() - 1)){
-                kDMessage += ChatColor.GREEN + "and " + ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + " with " + highestKdNumString;
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
             }
-            else{
-                kDMessage += ChatHandler.getPlayerColors().get(playerName) + playerName + ChatColor.GREEN + ", ";
-                loops++;
-            }
-        }
-        
-        for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Most Kills: " + killMessage);
-            p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
-            p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
         
         for(Player p : Bukkit.getOnlinePlayers()){
@@ -383,10 +304,7 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
         m.playerLeaveAll();
         playerDeaths.clear();
-        
-        mostDeaths.clear();
-        mostKills.clear();
-        highestKd.clear();
+
         PVPCommand.queueNextGame();
         super.End(m);
     }
@@ -397,11 +315,10 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         ChatColor color;
         Team.removeFromTeam(p);
         if(!hasPlayed.containsKey(p.getName())){
-            
             color = chatColors[random.nextInt(chatColors.length)];
             ChatHandler.getPlayerColors().put(p.getName(), color);
             ChatHandler.getPlayerPrefixes().put(p.getName(), color + "Player");
-            Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
+            if (state == GameState.RUNNING) Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
             hasPlayed.put(p.getName(), color);
             
         }
@@ -418,11 +335,11 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
             p.setPlayerListName(color + newName);
         }
         
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[FFAHandlers.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
         
-        GearHandler.giveGear(p, color, SpecialGear.NONE);
+        GearHandler.giveGear(p, color, GearType.STANDARD);
         BukkitTeamHandler.addToBukkitTeam(p, color);
         
         super.midgamePlayerJoin(p);
@@ -434,7 +351,9 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         return "time in minutes";
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
+
+        int spawn = 0;
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
@@ -461,11 +380,19 @@ public class FreeForAll extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGa
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                /*
                 Random random = new Random();
 
                 e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+
+                 */
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0, 1, 0));
+
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
             
-                healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
+                //healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
             Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }

@@ -1,7 +1,7 @@
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
@@ -34,7 +34,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
     private boolean pvpRegistered = false;
 
     @Getter
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[]{
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList(new String[]{
             "RunnerSpawn",
             "DeathSpawn",
             "VictoryPoint"
@@ -48,7 +48,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
 
     private Objective Points;
 
-    private DeathRun.Gamepvp pvp;
+    private GamemodeHandlers DRHandlers;
 
     private int time;
     private ArrayList<Player> winners = new ArrayList<>();
@@ -62,10 +62,10 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         public void run() {
             time--;
 
-            if (time % 60 == 0) {
-                Points.setDisplayName("Time: " + (time / 60) + "m");
-            } else if (time < 60) {
-                Points.setDisplayName("Time: " + time + "s");
+            if(time < 60 ){
+                Points.setDisplayName("Time: "+ time + "s");
+            }else{
+                Points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
             }
 
             if (time == 30) {
@@ -126,13 +126,13 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         }
 
         if (!pvpRegistered) {
-            pvp = new DeathRun.Gamepvp();
+            DRHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(DRHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
 
-        for (Location l : pvp.points) {
+        for (Location l : DRHandlers.points) {
             l.getBlock().setType(Material.BEACON);
         }
 
@@ -142,10 +142,10 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if (c == death) {
                 Team.getDeath().add(p);
                 p.teleport(m.getImportantPoints().get("DeathSpawn").toBukkitLoc());
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
             } else {
                 Team.getRunner().add(p);
                 p.teleport(m.getImportantPoints().get("RunnerSpawn").toBukkitLoc());
+                freezePlayer(p, 140);
             }
             c++;
         }
@@ -161,6 +161,8 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             public void run() {
                 if (count == 0) {
                     if (state == GameState.RUNNING) {
+                        for(Player p : Team.getDeath().getMembers())
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 2));
                         return;
                     }
 
@@ -180,7 +182,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
                         p.setScoreboard(getScoreboard());
                     }
                     for (Player p : Team.getDeath().getMembers()) {
-                        GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
+                        GearHandler.giveGear(p, ChatColor.BLACK, GearType.STANDARD);
                     }
                     state = GameState.RUNNING;
                     count = -1;
@@ -223,11 +225,11 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
         }
     }
 
-    private class Gamepvp implements Listener {
+    private class GamemodeHandlers implements Listener {
 
         private ArrayList<Location> points = new ArrayList<>();
 
-        public Gamepvp() {
+        public GamemodeHandlers() {
             for (java.util.Map.Entry<String, EventLocation> e : map.getImportantPoints().entrySet()) {
                 if (e.getKey().contains("Point")) {
                     points.add(e.getValue().toBukkitLoc());
@@ -304,7 +306,7 @@ public class DeathRun extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGame
             if (state == GameState.RUNNING && players.contains(e.getPlayer())) {
                 if (Team.getDeath().getMembers().contains(p)) {
                     e.setRespawnLocation(map.getImportantPoints().get("DeathSpawn").toBukkitLoc());
-                    GearHandler.giveGear(p, ChatColor.BLACK, SpecialGear.NONE);
+                    GearHandler.giveGear(p, ChatColor.BLACK, GearType.STANDARD);
                 } else {
                     e.setRespawnLocation(map.getSpawn().toBukkitLoc());
                     e.getPlayer().getInventory().clear();

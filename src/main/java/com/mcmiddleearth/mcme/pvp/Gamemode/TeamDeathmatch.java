@@ -18,9 +18,10 @@
  */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
+import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
-import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.SpecialGear;
+import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.PVP.Team.Teams;
@@ -51,18 +52,16 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     private boolean pvpRegistered = false;
     
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-        "RedSpawn",
-        "BlueSpawn",
-    }));
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("RedSpawn",
+            "BlueSpawn"));
     
     private GameState state;
     
     Map map;
     
     private int count;
-    private Objective Points;
-    private Gamepvp pvp;
+    private Objective points;
+    private GamemodeHandlers TDMHandlers;
     private int startingRedNum;
     private int startingBlueNum;
     
@@ -72,6 +71,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     @Override
     public void Start(Map m, int parameter){
+        kdSort();
         count = PVPPlugin.getCountdownTime();
         state = GameState.COUNTDOWN;
         super.Start(m, parameter);
@@ -85,25 +85,26 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
         
         if(!pvpRegistered){
-            pvp = new Gamepvp();
+            TDMHandlers = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(pvp, PVPPlugin.getPlugin());
+            pm.registerEvents(TDMHandlers, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
         for(Player p : players){
+            freezePlayer(p, 140);
             if(Team.getRed().size() <= Team.getBlue().size()){
                 Team.getRed().add(p);
-                p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
             }
             else if(Team.getBlue().size() < Team.getRed().size()){
                 Team.getBlue().add(p);
-                p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
+                p.teleport(m.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
             }
         }
         for(Player player : Bukkit.getServer().getOnlinePlayers()){
             if(!Team.getBlue().getMembers().contains(player) && !Team.getRed().getMembers().contains(player)){
                 Team.getSpectator().add(player);
-                player.teleport(m.getSpawn().toBukkitLoc().add(0, 2, 0));
+                player.teleport(m.getSpawn().toBukkitLoc().add(0, 1, 0));
             }
         }
         startingRedNum = Team.getRed().size();
@@ -116,11 +117,11 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                             return;
                         }
 
-                        Points = getScoreboard().registerNewObjective("Remaining", "dummy");
-                        Points.setDisplayName("Remaining");
-                        Points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());
-                        Points.getScore(ChatColor.RED + "Red:").setScore(Team.getRed().size());
-                        Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+                        points = getScoreboard().registerNewObjective("Remaining", "dummy");
+                        points.setDisplayName("Remaining");
+                        points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());
+                        points.getScore(ChatColor.RED + "Red:").setScore(Team.getRed().size());
+                        points.setDisplaySlot(DisplaySlot.SIDEBAR);
                         
                         for(Player p : Bukkit.getServer().getOnlinePlayers()){
                             p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -128,10 +129,10 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                         }
                         
                         for(Player p : Team.getBlue().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
                         }
                         for(Player p : Team.getRed().getMembers()){
-                            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+                            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
                         }
                         state = GameState.RUNNING;
                         count = -1;
@@ -155,6 +156,26 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     public void End(Map m){
         state = GameState.IDLE;
 
+        ArrayList<String> deathMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Integer> player : getTopDeathsMap().entrySet()){
+            deathMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+        ArrayList<String> KDMessages = new ArrayList<>();
+        for(java.util.Map.Entry<Player, Double> player : getTopKDMap().entrySet()){
+            KDMessages.add(ChatHandler.getPlayerColors().get(player.getKey().getName()) + player.getKey().getName() + ChatColor.GREEN + " " + player.getValue());
+        }
+
+        for(Player player : Bukkit.getOnlinePlayers()){
+            player.sendMessage(ChatColor.GREEN + "Highest KD: ");
+            for (String message: KDMessages) {
+                player.sendMessage(message);
+            }
+            player.sendMessage(ChatColor.GREEN + "Most Deaths: ");
+            for (String message: deathMessages) {
+                player.sendMessage(message);
+            }
+        }
+
         for(Player p : Bukkit.getOnlinePlayers()){
             Team.removeFromTeam(p);
         }
@@ -177,7 +198,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         }
     }
     
-    private class Gamepvp implements Listener{
+    private class GamemodeHandlers implements Listener{
         
         @EventHandler
         public void onPlayerDeath(PlayerDeathEvent e){
@@ -186,15 +207,15 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 Player p = e.getEntity();
                 
                 if(Team.getRed().getMembers().contains(p)){
-                    Points.getScore(ChatColor.RED + "Red:").setScore(Points.getScore(ChatColor.RED + "Red:").getScore() - 1);
+                    points.getScore(ChatColor.RED + "Red:").setScore(points.getScore(ChatColor.RED + "Red:").getScore() - 1);
                 }
                 else if(Team.getBlue().getMembers().contains(p)){
-                    Points.getScore(ChatColor.BLUE + "Blue:").setScore(Points.getScore(ChatColor.BLUE + "Blue:").getScore() - 1);   
+                    points.getScore(ChatColor.BLUE + "Blue:").setScore(points.getScore(ChatColor.BLUE + "Blue:").getScore() - 1);
                 }
                 
                 Team.removeFromTeam(p);
                 
-                if(Points.getScore(ChatColor.RED + "Red:").getScore() <= 0){
+                if(points.getScore(ChatColor.RED + "Red:").getScore() <= 0){
                 
                 for(Player player : Bukkit.getServer().getOnlinePlayers()){
                     player.sendMessage(ChatColor.BLUE + "Game over!");
@@ -206,7 +227,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                 PlayerStat.addGameSpectatedAll();
                 End(map);
                 }
-                else if(Points.getScore(ChatColor.BLUE + "Blue:").getScore() <= 0){
+                else if(points.getScore(ChatColor.BLUE + "Blue:").getScore() <= 0){
                     for(Player player : Bukkit.getServer().getOnlinePlayers()){
                         player.sendMessage(ChatColor.RED + "Game over!");
                         player.sendMessage(ChatColor.RED + "Red Team Wins!");
@@ -216,7 +237,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
                     PlayerStat.addGameLost(Teams.BLUE);
                     PlayerStat.addGameSpectatedAll();
                     End(map);
-                    e.getEntity().teleport(PVPPlugin.getSpawn());
+                    e.getEntity().teleport(PVPPlugin.getLobby());
                 }
                 
                 if(state == GameState.RUNNING){
@@ -229,7 +250,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
         public void onPlayerRespawn(PlayerRespawnEvent e){
 
             if(state == GameState.RUNNING && players.contains(e.getPlayer())){
-                e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(map.getSpawn().toBukkitLoc().add(0, 1, 0));
             
                 e.getPlayer().getInventory().clear();
                 e.getPlayer().getInventory().setArmorContents(new ItemStack[] {new ItemStack(Material.AIR), new ItemStack(Material.AIR),
@@ -242,8 +263,8 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
 
             if(state == GameState.RUNNING || state == GameState.COUNTDOWN){
                 
-                Points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());
-                Points.getScore(ChatColor.RED + "Red:").setScore(Team.getRed().size());
+                points.getScore(ChatColor.BLUE + "Blue:").setScore(Team.getBlue().size());
+                points.getScore(ChatColor.RED + "Red:").setScore(Team.getRed().size());
                 Team.removeFromTeam(e.getPlayer());
                 
                 if(Team.getRed().size() <= 0){
@@ -275,16 +296,7 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     
     @Override
     public boolean midgamePlayerJoin(Player p){
-        if(Team.getRed().size() >= (.5 * startingRedNum) || Team.getBlue().size() >= (.5 * startingBlueNum)){
-            if(Team.getRed().getAllMembers().contains(p)){
-                addToTeam(p, Teams.RED);
-            }
-            else if(Team.getBlue().getAllMembers().contains(p)){
-                addToTeam(p, Teams.BLUE);
-            }
-        }
-        
-        if(Team.getRed().size() >= (0.75 * startingRedNum) || Team.getBlue().size() >= (0.75 * startingBlueNum)){
+        if(Team.getRed().size() >= (startingRedNum) && Team.getBlue().size() >= (startingBlueNum)){
             
             if(Team.getRed().size() >= Team.getBlue().size()){
                 addToTeam(p, Teams.BLUE);
@@ -303,15 +315,15 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     private void addToTeam(Player p, Teams t){
         if(t == Teams.RED){
             Team.getRed().add(p);
-            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 2, 0));
-            Points.getScore(ChatColor.RED + "Red:").setScore(Points.getScore(ChatColor.RED + "Red:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.RED, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("RedSpawn").toBukkitLoc().add(0, 1, 0));
+            points.getScore(ChatColor.RED + "Red:").setScore(points.getScore(ChatColor.RED + "Red:").getScore() + 1);
+            GearHandler.giveGear(p, ChatColor.RED, GearType.STANDARD);
         }
         else{
             Team.getBlue().add(p);
-            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 2, 0));
-            Points.getScore(ChatColor.BLUE + "Blue:").setScore(Points.getScore(ChatColor.BLUE + "Blue:").getScore() + 1);
-            GearHandler.giveGear(p, ChatColor.BLUE, SpecialGear.NONE);
+            p.teleport(map.getImportantPoints().get("BlueSpawn").toBukkitLoc().add(0, 1, 0));
+            points.getScore(ChatColor.BLUE + "Blue:").setScore(points.getScore(ChatColor.BLUE + "Blue:").getScore() + 1);
+            GearHandler.giveGear(p, ChatColor.BLUE, GearType.STANDARD);
         }
     }
 
@@ -326,6 +338,6 @@ public class TeamDeathmatch extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePlug
     }
 
     public Objective getPoints() {
-        return Points;
+        return points;
     }
 }

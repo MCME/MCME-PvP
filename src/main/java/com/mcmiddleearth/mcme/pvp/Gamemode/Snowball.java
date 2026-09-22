@@ -1,15 +1,34 @@
+/*
+ * This file is part of MCME-pvp.
+ *
+ * MCME-pvp is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * MCME-pvp is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with MCME-pvp.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ */
 package com.mcmiddleearth.mcme.pvp.Gamemode;
 
-import com.mcmiddleearth.mcme.pvp.PVPPlugin;
 import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.ChatHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler;
 import com.mcmiddleearth.mcme.pvp.Handlers.GearHandler.GearType;
 import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
+import com.mcmiddleearth.mcme.pvp.PVPPlugin;
+import com.mcmiddleearth.mcme.pvp.Util.EventLocation;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
-import com.mcmiddleearth.mcme.pvp.Util.EventLocation;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -17,11 +36,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 
@@ -33,19 +53,16 @@ import java.util.Random;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
-import static com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode.GameState.*;
-
 /**
  *
- * @author Blake
+ * @author Maski98
  */
-public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode {
+public class Snowball extends BasePluginGamemode {
 
     private boolean pvpRegistered = false;
 
-    private final ArrayList<String> NeededPoints = new ArrayList<String>(Arrays.asList(new String[] {
-            "PlayerSpawn"
-    }));
+    @Getter
+    private final ArrayList<String> NeededPoints = new ArrayList<>(Arrays.asList("PlayerSpawn"));
 
     private GameState state;
 
@@ -55,17 +72,19 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
     private Objective Points;
 
-    private GamemodeHandlers EHHandlers;
+    private GamemodeHandlers SnowBall;
 
-    private HashMap<String, String> playerDeaths = new HashMap<String, String>();
+    private HashMap<String, String> playerDeaths = new HashMap<>();
 
     private HashMap<String, ChatColor> hasPlayed = new HashMap<String, ChatColor>();
 
     private HashMap<Player, Long> healing = new HashMap<>();
 
-    private int time;
+    private final Integer snowBallTime = 5;
 
     private boolean midgameJoin = true;
+    private int time;
+
 
     private final ChatColor[] chatColors = new ChatColor[]{
             ChatColor.AQUA,
@@ -83,51 +102,77 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
     private EventLocation[] spawns;
 
-    public EggHunt(){
-        state = IDLE;
+    //TODO:
+    // teleport after game end  x
+    // spawn protection for 1 second
+    // add better spawn system for this x
+    // oitq remove and give arrow back in oitq to stop people from shooting (does that work?)
+
+    public Snowball(){
+        state = GameState.IDLE;
     }
 
-    Runnable tick = new Runnable(){
+
+    Runnable tickSB = new BukkitRunnable(){
+            @Override
+            public void run() {
+                time--;
+
+                if(time < 60 ){
+                    Points.setDisplayName("Time: "+ time + "s");
+                }else{
+                    Points.setDisplayName("Time: "+(time / 60) + "m "+time%60+"s");
+                }
+
+                if(time == 30){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + "30 seconds remaining!");
+                    }
+
+                }
+                else if(time <= 10 && time > 1){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " seconds remaining!");
+                    }
+
+                }
+                else if(time == 1){
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
+                    }
+
+                }
+
+                if(time <= 0){
+                    End(map);
+                }
+
+                boolean healed = false;
+
+                for(Player p : healing.keySet()){
+
+                    if(System.currentTimeMillis() < healing.get(p)){
+                        p.setHealth(20);
+                        healed = true;
+                    }
+
+                }
+                if(!healed){
+                    healing.clear();
+                }
+            }
+        };
+
+    Runnable healer = new Runnable(){
 
         public void run(){
-            time--;
-
-            if(time % 60 == 0){
-                Points.setDisplayName("Time: " + (time/60) + "m");
-            }
-            else if(time < 60){
-                Points.setDisplayName("Time: " + time + "s");
-            }
-
-            if(time == 30){
-
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + "30 seconds remaining!");
-                }
-
-            }
-            else if(time <= 10 && time > 1){
-
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " seconds remaining!");
-                }
-
-            }
-            else if(time == 1){
-
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.sendMessage(ChatColor.GREEN + String.valueOf(time) + " second remaining!");
-                }
-
-            }
-
-            if(time <= 0){
-                End(map);
-            }
-
             boolean healed = false;
 
             for(Player p : healing.keySet()){
+
 
                 if(System.currentTimeMillis() < healing.get(p)){
                     p.setHealth(20);
@@ -139,7 +184,29 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
                 healing.clear();
             }
         }
+
     };
+
+
+    Runnable snowballHandler = new Runnable() {
+        @Override
+        public void run() {
+            for(Player player : Bukkit.getOnlinePlayers()){
+                if(!Team.getSpectator().getMembers().contains(player)){
+                    if(!player.getInventory().contains(Material.SNOWBALL)){
+                        player.getInventory().setItem(0,new ItemStack(Material.SNOWBALL,3));
+                    }else if(player.getInventory().getItem(0) == null){
+                        player.getInventory().remove(Material.SNOWBALL);
+                        player.getInventory().setItem(0,new ItemStack(Material.SNOWBALL,3));
+                    }else {
+                        player.getInventory().addItem(new ItemStack(Material.SNOWBALL,3));
+                    }
+                }
+            }
+        }
+    };
+
+
 
     @Override
     public void Start(Map m, int parameter){
@@ -147,7 +214,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         map = m;
         count = PVPPlugin.getCountdownTime();
         time = parameter;
-        state = COUNTDOWN;
+        state = GameState.COUNTDOWN;
         spawns = map.getImportantPoints().values().toArray(new EventLocation[0]);
         if(!map.getImportantPoints().keySet().containsAll(NeededPoints)){
             for(Player p : players){
@@ -157,16 +224,16 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
 
         if(!pvpRegistered){
-            EHHandlers = new GamemodeHandlers();
+            SnowBall = new GamemodeHandlers();
             PluginManager pm = PVPPlugin.getServerInstance().getPluginManager();
-            pm.registerEvents(EHHandlers, PVPPlugin.getPlugin());
+            pm.registerEvents(SnowBall, PVPPlugin.getPlugin());
             pvpRegistered = true;
         }
 
         int c = 0;
         for(Player p : Bukkit.getServer().getOnlinePlayers()){
             if(players.contains(p)){
-                p.teleport(spawns[c].toBukkitLoc().add(0, 2, 0));
+                p.teleport(spawns[c].toBukkitLoc().add(0, 1, 0));
                 freezePlayer(p, 140);
                 if(spawns.length == (c + 1)){
                     c = 0;
@@ -182,21 +249,25 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
 
         }
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), new Runnable(){
+        new BukkitRunnable(){
             @Override
             public void run() {
 
                 if(count == 0){
-                    if(state == RUNNING){
-                        return;
+                    if(state == GameState.RUNNING){
+                        cancel();
                     }
-                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(), tick, 0, 20);
+                    state = GameState.RUNNING;
                     int k = 0;
-
-                    Points = getScoreboard().registerNewObjective("Kills", "dummy");
-                    Points.setDisplayName("Time: " + time + "m");
+                    Points = getScoreboard().registerNewObjective("Kills", "dummy", "Time: " + time + "m");
                     time *= 60;
                     Points.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),snowballHandler,0,20*snowBallTime);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),tickSB,0,20);
+                    Bukkit.getScheduler().scheduleSyncRepeatingTask(PVPPlugin.getPlugin(),healer,0,20);
+
+                    SnowBall.spawn = new Random().nextInt(spawns.length-1);
 
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game Start!");
@@ -220,7 +291,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
                             String newName = p.getName().substring(0,13);
                             p.setPlayerListName(chatColors[k] + newName);
                         }
-                        GearHandler.giveGear(p, chatColors[k], GearType.STANDARD);
+                        GearHandler.giveGear(p, chatColors[k], GearType.SNOW);
                         BukkitTeamHandler.addToBukkitTeam(p, chatColors[k]);
 
                         if(chatColors.length == (k+1)){
@@ -230,27 +301,28 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
                             k++;
                         }
                     }
-                    state = RUNNING;
                     count = -1;
 
                     for(Player p : players){
                         p.sendMessage(ChatColor.GRAY + "Use " + ChatColor.GREEN + "/unstuck" + ChatColor.GRAY + " if you're stuck in a block!");
                     }
-
                 }
                 else if(count != -1){
-                    for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                    for(Player p : Bukkit.getOnlinePlayers()){
                         p.sendMessage(ChatColor.GREEN + "Game begins in " + count);
                     }
                     count--;
                 }
+                else{
+                    cancel();
+                }
             }
-        }, 40, 20);
+        }.runTaskTimer(PVPPlugin.getPlugin(),40, 20);
     }
 
     public void End(Map m){
         PlayerStat.addGameSpectatedAll();
-        state = IDLE;
+        state = GameState.IDLE;
         hasPlayed.clear();
 
         ArrayList<String> mostDeaths = new ArrayList<String>();
@@ -359,7 +431,7 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         }
 
         for(Player p : Bukkit.getOnlinePlayers()){
-            p.sendMessage(ChatColor.GREEN + "Most Points: " + killMessage);
+            p.sendMessage(ChatColor.GREEN + "Most Kills: " + killMessage);
             p.sendMessage(ChatColor.GREEN + "Most Deaths: " + deathMessage);
             p.sendMessage(ChatColor.GREEN + "Highest KD: " + kDMessage);
         }
@@ -385,11 +457,10 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         ChatColor color;
         Team.removeFromTeam(p);
         if(!hasPlayed.containsKey(p.getName())){
-
             color = chatColors[random.nextInt(chatColors.length)];
             ChatHandler.getPlayerColors().put(p.getName(), color);
             ChatHandler.getPlayerPrefixes().put(p.getName(), color + "Player");
-            Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
+            if (state == GameState.RUNNING) Points.getScore(ChatHandler.getPlayerColors().get(p.getName()) + p.getName()).setScore(0);
             hasPlayed.put(p.getName(), color);
 
         }
@@ -406,11 +477,11 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
             p.setPlayerListName(color + newName);
         }
 
-        p.teleport(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+        p.teleport(spawns[SnowBall.spawn++].toBukkitLoc().add(0, 1, 0));
         p.setGameMode(GameMode.ADVENTURE);
         p.setScoreboard(getScoreboard());
 
-        GearHandler.giveGear(p, color, GearType.STANDARD);
+        GearHandler.giveGear(p, color, GearType.SNOW);
         BukkitTeamHandler.addToBukkitTeam(p, color);
 
         super.midgamePlayerJoin(p);
@@ -422,74 +493,60 @@ public class EggHunt extends com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamem
         return "time in minutes";
     }
 
-    private class GamemodeHandlers implements Listener {
+    private class GamemodeHandlers implements Listener{
 
-    //Red Wool = 1 points, Orange Wool = 2 points, Green Wool = 3 points, Blue Wool = 4 points, Pink Wool = 5 points
-
-        @EventHandler
-        public void onPlayerInteract(PlayerInteractEvent e) {
-
-            if (state == RUNNING && players.contains(e.getPlayer()) && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-
-                if (e.getClickedBlock().getType().equals(Material.RED_WOOL)) {
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 1);
-                    e.getClickedBlock().setType(Material.AIR);
-                }
-                else if (e.getClickedBlock().getType().equals(Material.ORANGE_WOOL)) {
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 2);
-                    e.getClickedBlock().setType(Material.AIR);
-                }
-                else if (e.getClickedBlock().getType().equals(Material.GREEN_WOOL)) {
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 3);
-                    e.getClickedBlock().setType(Material.AIR);
-                }
-                else if (e.getClickedBlock().getType().equals(Material.BLUE_WOOL)) {
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 4);
-                    e.getClickedBlock().setType(Material.AIR);
-                }
-                else if (e.getClickedBlock().getType().equals(Material.PINK_WOOL)) {
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getPlayer().getName()) + e.getPlayer().getName()).getScore() + 5);
-                    e.getClickedBlock().setType(Material.AIR);
-                }
-            }
-        }
-
+        int spawn = 0;
 
         @EventHandler
-        public void onPlayerDeath(PlayerDeathEvent e) {
-
-            if (e.getEntity() instanceof Player && e.getEntity().getKiller() != null && state == GameState.RUNNING) {
-
-                if (e.getEntity().getKiller() instanceof Player) {
-                    int tempDeaths;
-                    Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
-
-                    if (playerDeaths.containsKey(e.getEntity().getName())) {
-                        tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
-                        playerDeaths.remove(e.getEntity().getName());
-                        playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
-                    }
-                    else {
-                        playerDeaths.put(e.getEntity().getName(), "1");
-                    }
+        public void onPlayerDeath(PlayerDeathEvent e){
+            int tempDeaths;
+            if(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() == 100){
+                End(map);
+                e.getEntity().teleport(PVPPlugin.getLobby());
+            }
+            if(e.getEntity().getKiller() != null && state == GameState.RUNNING){
+                Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).setScore(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() + 1);
+                PlayerInventory killerInv = e.getEntity().getKiller().getInventory();
+                ItemStack Snowball = new ItemStack(Material.SNOWBALL, 3);
+                if(killerInv.contains(Snowball.getType())){
+                    killerInv.addItem(Snowball);
+                }else{
+                    killerInv.setItem(0,Snowball);
+                }
+                if(playerDeaths.containsKey(e.getEntity().getName())){
+                    tempDeaths = Integer.parseInt(playerDeaths.get(e.getEntity().getName()));
+                    playerDeaths.remove(e.getEntity().getName());
+                    playerDeaths.put(e.getEntity().getName(), String.valueOf(tempDeaths + 1));
+                }else{
+                    playerDeaths.put(e.getEntity().getName(), "1");
+                }
+                if(Points.getScore(ChatHandler.getPlayerColors().get(e.getEntity().getKiller().getName()) + e.getEntity().getKiller().getName()).getScore() == 100){
+                    End(map);
+                    e.getEntity().teleport(PVPPlugin.getLobby());
                 }
             }
+
         }
 
         @EventHandler
-        public void onPlayerRespawn(PlayerRespawnEvent e) {
+        public void onPlayerRespawn(PlayerRespawnEvent e){
 
-            if (state == GameState.RUNNING && players.contains(e.getPlayer())) {
-                Random random = new Random();
+            if(state == GameState.RUNNING && players.contains(e.getPlayer())){
+                //Random random = new Random();
+                e.getPlayer().getInventory().remove(Material.SNOWBALL);
+                e.getPlayer().getInventory().addItem(new ItemStack(Material.SNOWBALL, 8));
+                //e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 1, 0));
 
-                e.setRespawnLocation(spawns[random.nextInt(spawns.length)].toBukkitLoc().add(0, 2, 0));
+                e.setRespawnLocation(spawns[spawn++].toBukkitLoc().add(0,1,0));
+                if(spawn >= spawns.length){
+                    spawn = 0;
+                }
 
                 healing.put(e.getPlayer(), System.currentTimeMillis() + 7500);
             }
             Logger.getLogger("PVP").log(Level.INFO, e.getRespawnLocation().toString());
         }
     }
-
 
     @Override
     public ArrayList<String> getNeededPoints() {
