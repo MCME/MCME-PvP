@@ -9,6 +9,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Minecraft version this release targets; used for the GitHub Release title. -->
+        <minecraft.version>26.2</minecraft.version>
+        <!-- Build kind for the jar name: RELEASE | SNAPSHOT | DEV. Override with -Dbuild.type=DEV.
+             Do NOT declare git.commit.id.abbrev here: Maven interpolates finalName during model
+             building, before the git plugin runs, so a declared value would win and the commit id
+             would never reach the file name. -->
+        <build.type>RELEASE</build.type>
         <!-- Build with JDK 25 (paper-api 26.2 is Java 25 bytecode) but emit Java 21 bytecode,
              the same pattern as MCME-Connect. -->
         <maven.compiler.source>21</maven.compiler.source>
@@ -17,6 +24,9 @@
     </properties>
 
     <build>
+        <!-- MCME jar naming: {PluginName}-{A.B.C}-{SNAPSHOT|DEV|RELEASE}-{commit id}, so two jars
+             that declare the same version can still be told apart on a server. -->
+        <finalName>${project.artifactId}-${project.version}-${build.type}-${git.commit.id.abbrev}</finalName>
         <resources>
             <!-- Only plugin.yml is filtered, so its version: ${project.version} resolves. -->
             <resource>
@@ -35,6 +45,28 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.0.1</version>
+                <executions>
+                    <execution>
+                        <id>resolve-git-commit</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <abbrevLength>7</abbrevLength>
+                    <generateGitPropertiesFile>false</generateGitPropertiesFile>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.commit.id.abbrev$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -60,7 +92,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.5.3</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -69,6 +101,7 @@
                         </goals>
                         <configuration>
                             <minimizeJar>false</minimizeJar>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <artifactSet>
                                 <includes>
                                     <include>com.fasterxml.jackson.core:jackson-core</include>
