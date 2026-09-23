@@ -33,4 +33,8 @@ Port to Paper 26.2. Gameplay is unchanged from 1.1.2, the build that ran in prod
 
 ### Fixed
 
+- PvP failed to enable on Paper 26.2. The 12 color teams got their color from a console command in
+  pre-1.13 syntax (`scoreboard teams option <team> color <color>`), which has never worked since 1.13
+  and makes Paper 26.2 abort the plugin's startup. Team colors are now set through the API, so team
+  members' names show their team color.
 - `plugin.yml`: `/winter` and `/summer` declared `usages:` instead of `usage:`.
