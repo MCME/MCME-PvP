@@ -19,8 +19,8 @@
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
+import com.mcmiddleearth.mcme.pvp.Util.ScoreboardTeams;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -60,16 +60,13 @@ public class BukkitTeamHandler {
     }
 
     /**
-     * Returns the named team, registering it if it does not exist yet, with its color set.
-     * The color used to be set by dispatching "scoreboard teams option <team> color <color>": that
-     * syntax is from before 1.13, so the command never worked since, and on Paper 26.2 the failed
-     * dispatch throws and aborts onEnable.
+     * Returns the named team, registered if needed, with its color set on every start, so a team
+     * left over from an earlier start is recolored too. This used to be done by dispatching
+     * {@code scoreboard teams option <team> color <color>}, a pre-1.13 command that has not worked
+     * since 1.13; on Paper 26.2 the failed dispatch throws and aborts onEnable.
      */
     private static org.bukkit.scoreboard.Team colorTeam(String name, NamedTextColor color){
-        org.bukkit.scoreboard.Team team = BasePluginGamemode.getScoreboard().getTeam(name);
-        if(team == null){
-            team = BasePluginGamemode.getScoreboard().registerNewTeam(name);
-        }
+        org.bukkit.scoreboard.Team team = ScoreboardTeams.getOrRegister(BasePluginGamemode.getScoreboard(), name);
         team.color(color);
         return team;
     }

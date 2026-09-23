@@ -1,6 +1,7 @@
 package com.mcmiddleearth.mcme.pvp;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
+import com.mcmiddleearth.mcme.pvp.Handlers.BukkitTeamHandler;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.scoreboard.Team;
 import org.junit.jupiter.api.AfterEach;
@@ -71,6 +72,15 @@ class PluginEnableTest {
     void colorTeamsHaveTheirColor(String teamName, String colorName) {
         Team team = BasePluginGamemode.getScoreboard().getTeam(teamName);
         assertNotNull(team, "team not registered: " + teamName);
+        assertTrue(team.hasColor(), "team has no color: " + teamName);
         assertEquals(NamedTextColor.NAMES.value(colorName), team.color(), "wrong color for team " + teamName);
+    }
+
+    @Test
+    void recolorsATeamThatAlreadyExists() {
+        Team aqua = BasePluginGamemode.getScoreboard().getTeam("aqua");
+        aqua.color(NamedTextColor.RED);
+        BukkitTeamHandler.configureBukkitTeams();
+        assertEquals(NamedTextColor.AQUA, aqua.color());
     }
 }

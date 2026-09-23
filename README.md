@@ -7,6 +7,8 @@ MCME-PVP
 - PluginUtils 2.0.3 or newer, WorldEdit 7.4.5 or newer, PlaceholderAPI 2.12.3 or newer
 - On the Velocity proxy: `bungee-plugin-message-channel = true` in `velocity.toml`. PvP uses it to
   send players back to the main server and to announce games on other servers.
+- On Paper 26.2, set `gamerule locator_bar false` in the PvP world(s). Otherwise the locator bar shows
+  every player's direction, colored by team.
 
 ## Building
 
