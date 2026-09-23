@@ -248,7 +248,7 @@ public class AllGameHandlers implements Listener{
 
             if(material.equals(Material.CHEST) && !player.getInventory().contains(Material.ARROW, 24) && !(PVPCommand.getRunningGame().getGm() instanceof OneInTheQuiver)) {
                 playerInteractEvent.setCancelled(true);
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 5, true, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 5, true, false));
                 new BukkitRunnable(){
                     private int countdown = 3;
                     @Override
