@@ -43,6 +43,17 @@ class PluginEnableTest {
         assertTrue(plugin.getConfig().getBoolean("lavaDamage"));
     }
 
+    @Test
+    void pluginYmlVersionIsFiltered() {
+        String version = plugin.getPluginMeta().getVersion();
+        assertTrue(version.matches("\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?"), "unfiltered version: " + version);
+    }
+
+    @Test
+    void declaresApiVersion26_2() {
+        assertEquals("26.2", plugin.getPluginMeta().getAPIVersion());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"WorldJump", "World", "PlugUp", "locker", "event", "winter", "summer", "pvp", "t", "mapeditor"})
     void registersCommand(String name) {
