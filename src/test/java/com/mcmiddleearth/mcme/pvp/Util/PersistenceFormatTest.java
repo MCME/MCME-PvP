@@ -32,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * The fixtures are real 1.1.2 output, generated with the production jar. Production map files can
  * be copied into src/test/resources/fixtures/maps/ as they are (the plugin saves them without an
  * extension) and are picked up automatically. Check a new one on the commit before a Jackson change
- * first: a file that fails there was already unloadable in 1.1.2. Production stat files are NOT
- * committed, because they hold player UUIDs and names.
+ * first: if it no longer loads there, it was already unloadable in 1.1.2. Production stat files are
+ * NOT committed, because they hold player UUIDs and names.
  */
 class PersistenceFormatTest {
 
