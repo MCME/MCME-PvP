@@ -13,7 +13,6 @@
              the same pattern as MCME-Connect. -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <jackson.version>2.17.1</jackson.version>
         <lombok.version>1.18.42</lombok.version>
     </properties>
 
@@ -86,6 +85,19 @@
         </repository>
     </repositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Keeps jackson-core, -databind and -annotations on one release line. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.22.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Pinned to a concrete build: the Paper build the 26.2 servers run. -->
         <dependency>
@@ -112,21 +124,18 @@
             <version>2.12.3</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Shaded into the jar. -->
+        <!-- Shaded into the jar; versions come from jackson-bom. -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
