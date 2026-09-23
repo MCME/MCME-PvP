@@ -27,6 +27,7 @@ import com.mcmiddleearth.mcme.pvp.PVP.PlayerStat;
 import com.mcmiddleearth.mcme.pvp.PVP.Team;
 import com.mcmiddleearth.mcme.pvp.command.PVPCommand;
 import com.mcmiddleearth.mcme.pvp.maps.Map;
+import com.mcmiddleearth.mcme.pvp.Util.ScoreboardTeams;
 import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -68,7 +69,7 @@ public abstract class BasePluginGamemode implements com.mcmiddleearth.mcme.pvp.G
 
     private static Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-    private static org.bukkit.scoreboard.Team team = scoreboard.registerNewTeam("collision");
+    private static org.bukkit.scoreboard.Team team = ScoreboardTeams.getOrRegister(scoreboard, "collision");
     
     public void playerLeave(Player p){
         players.remove(p);

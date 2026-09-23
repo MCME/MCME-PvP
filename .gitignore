@@ -1,0 +1,22 @@
+# Maven build output
+target/
+dependency-reduced-pom.xml
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+nbproject/
+nbactions.xml
+nb-configuration.xml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Production stat files hold player UUIDs and names: never commit them as fixtures
+src/test/resources/fixtures/stats/*
+!src/test/resources/fixtures/stats/sample-1.1.2.json

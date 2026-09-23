@@ -238,7 +238,7 @@ public class GearHandler {
                             p.sendMessage(ChatColor.GRAY + "Don't hold anything in your hand, or you'll be seen!");
                             p.getInventory().setHeldItemSlot(5);
 
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 500, 0, true, false));
+                            p.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 500, 0, true, false));
                             p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 500, 0, true, true));
 
                             p.getInventory().setHelmet(new ItemStack(Material.AIR));

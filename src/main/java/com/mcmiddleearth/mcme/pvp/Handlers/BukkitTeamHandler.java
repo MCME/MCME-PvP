@@ -19,7 +19,8 @@
 package com.mcmiddleearth.mcme.pvp.Handlers;
 
 import com.mcmiddleearth.mcme.pvp.Gamemode.BasePluginGamemode;
-import org.bukkit.Bukkit;
+import com.mcmiddleearth.mcme.pvp.Util.ScoreboardTeams;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -44,67 +45,30 @@ public class BukkitTeamHandler {
      
     
     public static void configureBukkitTeams(){
-        aqua = BasePluginGamemode.getScoreboard().getTeam("aqua");
-        blue = BasePluginGamemode.getScoreboard().getTeam("blue");
-        darkAqua = BasePluginGamemode.getScoreboard().getTeam("darkaqua");
-        darkGreen = BasePluginGamemode.getScoreboard().getTeam("darkgreen");
-        darkPurple = BasePluginGamemode.getScoreboard().getTeam("darkpurple");
-        darkRed = BasePluginGamemode.getScoreboard().getTeam("darkred");
-        gold = BasePluginGamemode.getScoreboard().getTeam("gold");
-        gray = BasePluginGamemode.getScoreboard().getTeam("gray");
-        green = BasePluginGamemode.getScoreboard().getTeam("green");
-        lightPurple = BasePluginGamemode.getScoreboard().getTeam("lightpurple");
-        red = BasePluginGamemode.getScoreboard().getTeam("red");
-        yellow = BasePluginGamemode.getScoreboard().getTeam("yellow");
-        
-        if(aqua == null){
-            aqua = BasePluginGamemode.getScoreboard().registerNewTeam("aqua");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option aqua color aqua");
-        }
-        if(blue == null){
-            blue = BasePluginGamemode.getScoreboard().registerNewTeam("blue");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option blue color blue");
-        }
-        if(darkAqua == null){
-            darkAqua = BasePluginGamemode.getScoreboard().registerNewTeam("darkaqua");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option darkaqua color darkaqua");
-        }
-        if(darkGreen == null){
-            darkGreen = BasePluginGamemode.getScoreboard().registerNewTeam("darkgreen");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option darkgreen color darkgreen");
-        }
-        if(darkPurple == null){
-            darkPurple = BasePluginGamemode.getScoreboard().registerNewTeam("darkpurple");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option darkpurple color darkpurple");
-        }
-        if(darkRed == null){
-            darkRed = BasePluginGamemode.getScoreboard().registerNewTeam("darkred");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option darkred color darkred");
-        }
-        if(gold == null){
-            gold = BasePluginGamemode.getScoreboard().registerNewTeam("gold");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option gold color gold");
-        }
-        if(gray == null){
-            gray = BasePluginGamemode.getScoreboard().registerNewTeam("gray");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option gray color gray");
-        }
-        if(green == null){
-            green = BasePluginGamemode.getScoreboard().registerNewTeam("green");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option green color green");
-        }
-        if(lightPurple == null){
-            lightPurple = BasePluginGamemode.getScoreboard().registerNewTeam("lightpurple");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option lightpurple color lightpurple");
-        }
-        if(red == null){
-            red = BasePluginGamemode.getScoreboard().registerNewTeam("red");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option red color red");
-        }
-        if(yellow == null){
-            yellow = BasePluginGamemode.getScoreboard().registerNewTeam("yellow");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "scoreboard teams option yellow color yellow");
-        }
+        aqua = colorTeam("aqua", NamedTextColor.AQUA);
+        blue = colorTeam("blue", NamedTextColor.BLUE);
+        darkAqua = colorTeam("darkaqua", NamedTextColor.DARK_AQUA);
+        darkGreen = colorTeam("darkgreen", NamedTextColor.DARK_GREEN);
+        darkPurple = colorTeam("darkpurple", NamedTextColor.DARK_PURPLE);
+        darkRed = colorTeam("darkred", NamedTextColor.DARK_RED);
+        gold = colorTeam("gold", NamedTextColor.GOLD);
+        gray = colorTeam("gray", NamedTextColor.GRAY);
+        green = colorTeam("green", NamedTextColor.GREEN);
+        lightPurple = colorTeam("lightpurple", NamedTextColor.LIGHT_PURPLE);
+        red = colorTeam("red", NamedTextColor.RED);
+        yellow = colorTeam("yellow", NamedTextColor.YELLOW);
+    }
+
+    /**
+     * Returns the named team, registered if needed, with its color set on every start, so a team
+     * left over from an earlier start is recolored too. This used to be done by dispatching
+     * {@code scoreboard teams option <team> color <color>}, a pre-1.13 command that has not worked
+     * since 1.13; on Paper 26.2 the failed dispatch throws and aborts onEnable.
+     */
+    private static org.bukkit.scoreboard.Team colorTeam(String name, NamedTextColor color){
+        org.bukkit.scoreboard.Team team = ScoreboardTeams.getOrRegister(BasePluginGamemode.getScoreboard(), name);
+        team.color(color);
+        return team;
     }
     
     public static void addToBukkitTeam(Player p, ChatColor c){
