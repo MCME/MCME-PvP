@@ -78,7 +78,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           jar="${{ steps.version.outputs.jar }}"
-          sha256sum "$jar" > "$jar.sha256"
+          (cd target && sha256sum "$(basename "$jar")" > "$(basename "$jar").sha256")
           gh release create "$GITHUB_REF_NAME" "$jar" "$jar.sha256" \
             --title "version ${GITHUB_REF_NAME#v} for mc ${{ steps.version.outputs.minecraft }}" \
             --notes-file release-notes.md
