@@ -23,10 +23,10 @@ commands:
     usage: /event <sub-command> [args]
   winter:
     description: Umbrella for all winter event commands
-    usages: /winter <sub-command> [args]
+    usage: /winter <sub-command> [args]
   summer:
     description: Umbrella for all summer event commands
-    usages: /summer <sub-command> [args]
+    usage: /summer <sub-command> [args]
   pvp:
     description: PVP commands go to the read-me for more info
     usage: /pvp <some shit>
