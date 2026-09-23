@@ -1,9 +1,6 @@
 MCME-PVP
 ===========
 
-## PVP for MCME
-This project is once again in development!
-
 ## Requirements
 
 - Paper 26.2 and Java 25
@@ -19,6 +16,9 @@ Requires JDK 25 and Maven 3.9 or newer.
 
 The jar is written to `target/MCME-PVP-{version}-RELEASE-{commit}.jar`. For a development build, run
 `mvn clean verify -Dbuild.type=DEV`.
+
+## PVP for MCME
+This project is once again in development!
 
 ### Bug fixes
 * Team Conquest - apparently it's bugged, but I don't know what specifically

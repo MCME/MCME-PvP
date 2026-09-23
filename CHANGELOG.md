@@ -27,8 +27,9 @@ Port to Paper 26.2. Gameplay is unchanged from 1.1.2, the build that ran in prod
   that does not exist. Kicking players to the main server and cross-server game announcements still
   work through the proxy's built-in `BungeeCord` channel, which Velocity provides when
   `bungee-plugin-message-channel = true`.
-- Unused dependencies: json-simple, org.json, spigot-command-api, and the bundled Brigadier (Paper
-  provides it).
+- Unused dependencies: json-simple, org.json, spigot-command-api and bungeecord-api.
+- The explicit Brigadier dependency. The command parser still uses Brigadier, which the server has
+  always provided; the jar never bundled it, and `paper-api` now brings it in for compiling.
 
 ### Fixed
 
