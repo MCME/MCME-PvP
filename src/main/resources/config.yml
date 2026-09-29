@@ -1,9 +1,52 @@
+# MCME-PvP 3 configuration. A 1.1.2/2.0.0 config.yml is migrated to this layout on the first start.
+configVersion: 1
+
+# Where players go when they leave a game.
+lobby:
+  world: world
+  x: 344.47
+  y: 39.0
+  z: 521.58
+  yaw: 0.3
+  pitch: -24.15
+
+# Worlds to load at startup, so arenas in them are available. Immediate respawn is switched on in these worlds.
 worlds:
-- world
-noHunger:
-- world
-PVP:
-    Enabled: true
-    Broadcast_minutes: 2
+  - world
+
+# The proxy server that /pvpadmin kick, kickall and lock send players to.
+mainServer: world
+
+# PvP starts locked after every restart, as in 1.1.2; staff unlock it with /pvpadmin unlock.
+startLocked: true
+
+# Lava and fire damage also hurt players while their game waits, counts down or ends
+# (and players outside games, when lobbyProtection is on).
 lavaDamage: true
 
+# Protect players who are not in a game, as 1.1.2 did: they take no damage (except from the void, /kill, and
+# lava or fire when lavaDamage is on), cannot hurt players, mobs or anything else (staff in Creative mode can
+# still break decorations and hit mobs), and do not get hungry. Turn it off if another plugin on this server
+# needs players to fight or take damage outside PvP games.
+lobbyProtection: true
+
+# Seconds between /pvpadmin countdown and the fight; players are frozen meanwhile.
+countdownSeconds: 7
+
+# Seconds the result stays on screen before everyone returns to the lobby.
+endingSeconds: 10
+
+# Default settings per mode, used by /pvpadmin start and the Start game form. A value outside its range is moved
+# to the nearest end.
+#   teamCount (Team Deathmatch): 2 to 4 teams, and at most the arena's team spawn sets.
+#   timeLimit (Free For All): minutes, 1 to 60.
+#   scoreGoal (Free For All): the score that wins, 0 to 100; 0 means no goal.
+#   midgameJoin: true lets players join a game that has started, by the mode's rule; false makes them spectate.
+modes:
+  tdm:
+    teamCount: 2
+    midgameJoin: true
+  ffa:
+    timeLimit: 10
+    scoreGoal: 0
+    midgameJoin: true

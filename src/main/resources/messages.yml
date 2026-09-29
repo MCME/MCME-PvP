@@ -1,0 +1,262 @@
+# MCME-PvP 3 messages. MiniMessage format: https://docs.advntr.dev/minimessage/format.html
+# Placeholders are written <name>. The theme colors below are also tags: <accent>text</accent>.
+# A missing key falls back to the plugin's built-in text, so this file can be partial.
+
+theme:
+  accent: "gold"
+  muted: "gray"
+  success: "green"
+  danger: "red"
+  button: "aqua"
+  button-danger: "red"
+
+# ----- errors (shown when a command or button is refused)
+error:
+  no-permission: "<danger>You don't have permission to do that."
+  players-only: "<danger>Only players can do that."
+  unknown-arena: "<danger>There is no arena called <arena>."
+  arena-unassigned: "<danger><arena> can't be played: <reason>"
+  arena-blocked: "<danger><arena> is in use: the game on <holder> covers the same area."
+  arena-teams: "<danger><arena> supports up to <max> teams."
+  arena-teams-one: "<danger><arena> supports up to <max> team."
+  arena-spawns: "<danger><arena> has no spawn points named <points>."
+  setting-unknown: "<danger><setting> is not a setting of <mode>. Settings: <settings>."
+  setting-invalid: "<danger><setting>=<value> is not valid."
+  setting-form: "<danger><word> has no value: write settings as setting=value."
+  setting-twice: "<danger><setting> is given twice."
+  setting-range: "<danger><setting> must be between <min> and <max>."
+  already-in-game: "<danger><player> is already in a game. Use /pvp leave first."
+  not-in-game: "<danger>You're not in a game."
+  left-that-game: "<danger>You already left that game."
+  no-game-on-arena: "<danger>There is no game on <arena>."
+  no-open-game: "<danger>There is no open game to join."
+  choose-game: "<muted>Several games are open. Use /pvp join <arena>, or pick one in /pvp."
+  game-full: "<danger>That game is full (<max> players)."
+  game-ended: "<danger>That game has ended."
+  countdown-phase: "<danger>The countdown only starts while the game is waiting for players."
+  not-enough-players: "<danger>At least <min> players are needed to start; <count> joined."
+  unknown-player: "<danger>No online player is called <player>."
+  unknown-mode: "<danger>There is no game mode called <mode>."
+  server-locked: "<danger>PvP is locked right now."
+  no-team: "<danger>You're not on a team."
+  button-stale: "<danger>That button is out of date. Open the menu again with /pvp."
+  button-failed: "<danger>Something went wrong with that button. Open the menu again with /pvp."
+
+# ----- joining and leaving
+join:
+  joined: "<success>You joined <accent><arena></accent> (<mode>)."
+  team: "You're on team <team>."
+  spectating: "<muted>You're spectating <arena>."
+  midgame-spectating: "<muted>The game has already started."
+  full-spectating: "<muted>The game is full."
+leave:
+  left: "<muted>You left the game."
+  kicked: "<danger>You were removed from PvP by staff."
+lobby:
+  teleported: "<muted>You're back in the lobby."
+
+# ----- game flow (sent to the game's players and spectators)
+game:
+  created: "<accent><player></accent> opened <accent><mode></accent> on <accent><arena></accent> (<max> players). Use <accent>/pvp</accent> to join!"
+  # Sent to every server through the proxy, as legacy text (no buttons there).
+  proxy-announcement: "<gray><player> has opened a game of <green><mode></green> on <green><arena></green>. Use <green>/pvp</green> on the PvP server to join!"
+  player-joined: "<muted><player> joined (<count>/<max>)."
+  player-joined-team: "<player> <muted>joined the fight on</muted> <team>."
+  player-left: "<muted><player> left."
+  countdown-started: "<accent>The game starts in <seconds> seconds!"
+  countdown-started-one: "<accent>The game starts in <seconds> second!"
+  countdown-tick: "<accent>Game begins in <seconds>"
+  countdown-cancelled: "<danger>Countdown cancelled: not enough players."
+  started: "<success>Game Start!"
+  time-warning: "<success><time> remaining!"
+  death: "<victim><muted> was killed by </muted><killer>"
+  # Leaving or logging out within 10 seconds of being hurt by another player counts as a death; fled-alone is
+  # used when the player who hurt them has left the game since, so nobody gets the kill.
+  fled: "<danger><player> left the fight and counts as killed by <killer>."
+  fled-alone: "<danger><player> left the fight and counts as dead."
+  eliminated: "<danger>You're out! You're spectating until the game ends."
+  # To an eliminated player who joins the same game again: elimination is final, so they watch it.
+  rejoin-eliminated: "<muted>You're out of this game, so you watch it."
+  stopped: "<danger>The game on <arena> was stopped by staff."
+  shutdown: "<danger>The game on <arena> ended because the server is stopping."
+  abandoned: "<muted>Everyone left, so the game on <arena> ended."
+  boundary: "<danger>You aren't allowed to leave the map!"
+  restocking: "<success>Restocking supplies… <seconds>"
+  restocked: "<success><bold>Restocked!"
+
+# ----- singular/plural helper texts
+time:
+  second: "<seconds> second"
+  seconds: "<seconds> seconds"
+
+# ----- end-of-game summary
+summary:
+  header: "<accent><bold>Game over</bold></accent> <muted>— <mode> on <arena></muted>"
+  team-won: "<team> <accent>won!"
+  player-won: "<player> <accent>won with <score> kills!"
+  player-won-one: "<player> <accent>won with <score> kill!"
+  draw: "<muted>It's a draw."
+  best-kd: "<success>Highest K/D:</success> <entries>"
+  most-kills: "<success>Most kills:</success> <entries>"
+  most-deaths: "<success>Most deaths:</success> <entries>"
+  entry: "<player> <muted>(<value>)</muted>"
+  separator: "<muted>, </muted>"
+
+# ----- titles and HUD
+title:
+  countdown: "<accent><seconds>"
+  fight: "<success>Fight!"
+  victory: "<success>Victory"
+  defeat: "<danger>Defeat"
+  draw: "<muted>Draw"
+  eliminated: "<danger>You're out"
+hud:
+  sidebar-title: "<accent><bold><mode></bold>"
+  # Not used yet: changing it has no effect.
+  sidebar-arena: "<muted><arena>"
+  sidebar-waiting: "Waiting <muted><count>/<max>"
+  sidebar-countdown: "Starting in <accent><seconds>s"
+  sidebar-time: "Time <accent><time>"
+  # The Teams and scores screen uses this line; the sidebar builds its own.
+  sidebar-team-alive: "<team> <muted><alive> left"
+  # Not used yet: changing it has no effect.
+  sidebar-team-score: "<team> <accent><score>"
+  # The Teams and scores screen uses this line; the sidebar builds its own.
+  sidebar-player: "<player> <accent><score>"
+  bossbar-countdown: "Starting in <seconds>s"
+  bossbar-time: "<mode> · <time> left"
+  actionbar-score: "Kills <accent><kills></accent> · Deaths <accent><deaths></accent>"
+  actionbar-out: "<danger>You're out</danger> <muted>· spectating"
+  actionbar-spectating: "<muted>Spectating <arena> · /pvp leave"
+  actionbar-locked: "<danger>Server Locked"
+
+# ----- modes and settings
+mode:
+  tdm:
+    name: "Team Deathmatch"
+    rules: "Two to four teams, and no respawns. The last team with players left wins."
+  ffa:
+    name: "Free For All"
+    rules: "Everyone for themselves, madly killing everyone! Highest number of kills wins."
+setting:
+  teamCount: "Teams"
+  timeLimit: "Time limit (minutes)"
+  scoreGoal: "Score goal (0 = none)"
+  maxPlayers: "Max players"
+  midgameJoin: "Allow joining after the start"
+phase:
+  waiting: "waiting"
+  countdown: "starting"
+  running: "running"
+  ending: "ending"
+
+# ----- /pvp stats, /pvp rules, /pvp games, /t
+stats:
+  header: "<success>Stats for <player>"
+  kills: "<muted>Kills:</muted> <kills> <muted>· Deaths:</muted> <deaths> <muted>· K/D:</muted> <kd>"
+  games: "<muted>Games played:</muted> <played> <muted>· Won:</muted> <won> <muted>· Lost:</muted> <lost> <muted>· Spectated:</muted> <spectated>"
+  none: "<muted>No PvP stats for <player>."
+rules:
+  header: "<success><mode> rules"
+  list-header: "<accent>Game modes:"
+  list-entry: "<accent><mode></accent> <muted>— /pvp rules <id>"
+games:
+  header: "<accent>PvP games"
+  none: "<muted>No games right now."
+  entry: "<accent><arena></accent> <muted>·</muted> <mode> <muted>·</muted> <count>/<max> <muted>·</muted> <status>"
+team-chat:
+  format: "<color>[TEAM] <player></color><muted>:</muted> <message>"
+
+# ----- staff
+admin:
+  opened: "<success>Opened <mode> on <arena>."
+  countdown: "<success>Countdown started on <arena>."
+  stopped: "<success>Stopped the game on <arena>."
+  kicked: "<success>Kicked <player> from the PvP server!"
+  kicked-all: "<success>Sent <count> players to the main server."
+  kicked-all-one: "<success>Sent <count> player to the main server."
+  kicked-all-notice: "A PvP manager kicked all players"
+  locked: "<success>PvP is locked. Only players with pvp.join.locked can stay."
+  unlocked: "<success>PvP is unlocked."
+  locked-notice: "PvP-server Locked"
+  arena-list-header: "<accent>Arenas (<count>)"
+  arena-list-entry: "<accent><arena></accent> <muted>·</muted> <mode>"
+  arena-list-unassigned: "<accent><arena></accent> <muted>· unassigned: <reason>"
+  arena-info-title: "<accent><arena></accent> <muted>—</muted> <title>"
+  arena-info-mode: "<muted>Mode:</muted> <mode> <muted>· Max players:</muted> <max> <muted>· World:</muted> <world>"
+  arena-info-spawns: "<muted>Spawns:</muted> <spawns>"
+  arena-info-region: "<muted>Region:</muted> <region>"
+  arena-info-unassigned: "<muted>Unassigned:</muted> <reason>"
+  arena-imported: "<success>Re-imported <arena> from maps/<file>."
+  start-usage: "<muted>Usage: /pvpadmin start <arena> [setting=value ...]. Settings for <mode>: <settings>."
+help: "<accent>/pvp</accent> <muted>join [arena] · leave · spectate <arena> · games [page] · rules [mode] · stats [player] · lobby"
+admin-help: "<accent>/pvpadmin</accent> <muted>start [arena] [setting=value …] · countdown <arena> · stop <arena> · kick <player> · kickall · lock · unlock · arena list · arena info <id> · arena import <id>"
+usage: "<muted>Usage:</muted> <usage>"
+
+# ----- menus and chat buttons
+ui:
+  header: "<accent><bold><title></bold>"
+  close: "Close"
+  back: "Back"
+  main-title: "PvP"
+  main-body: "Pick a game to join, or spectate one."
+  main-body-empty: "No games are open right now."
+  main-body-watch: "No game takes players right now, but you can spectate one."
+  main-join: "Join <arena> · <mode> · <count>/<max> · <status>"
+  main-spectate: "Spectate"
+  main-rules: "Rules"
+  main-stats: "My stats"
+  main-lobby: "Lobby"
+  main-start: "Start a game"
+  main-leave: "Leave game"
+  main-scores: "Teams and scores"
+  main-kickall: "Kick all"
+  ingame-title: "<mode> on <arena>"
+  spectate-title: "Spectate a game"
+  spectate-entry: "<arena> · <mode> · <count> players"
+  spectate-entry-one: "<arena> · <mode> · <count> player"
+  rules-title: "Rules"
+  stats-title: "Stats"
+  scores-title: "Teams and scores"
+  scores-waiting: "<muted>Waiting:</muted> <players>"
+  pick-title: "Start a game"
+  pick-mode-body: "Pick a mode."
+  start-mode: "<mode> (<count> free)"
+  pick-mode-busy: "<mode>: all arenas busy"
+  pick-arena-body: "Pick a <mode> arena."
+  pick-entry: "<arena>"
+  pick-blocked: "<arena> is busy (game on <holder>)."
+  pick-none: "No arena is free to start a game on."
+  form-title: "<mode> on <arena>"
+  form-fixed: "<setting>: <value>"
+  form-start: "Start"
+  confirm-stop-title: "Stop the game on <arena>?"
+  confirm-stop-body: "Everyone in it goes back to the lobby."
+  confirm-kickall-title: "Send everyone to the main server?"
+  confirm-kickall-body: "Only players with pvp.join.locked stay."
+  confirm-yes: "Yes"
+  confirm-no: "No"
+  chat-join: "Join"
+  chat-spectate: "Spectate"
+  chat-rules: "Rules"
+  chat-countdown: "Countdown"
+  chat-stop: "Stop"
+  chat-games: "Games"
+  chat-stats: "My stats"
+  chat-prev: "‹ Prev"
+  chat-next: "Next ›"
+  chat-page: "<muted>Page <page>/<pages>"
+  chat-page-next: "<muted>Next page: /pvp games <next>"
+  tooltip-join: "Join <arena>"
+  tooltip-spectate: "Spectate <arena>"
+  tooltip-rules: "Rules of <mode>"
+  tooltip-countdown: "Start the countdown on <arena>"
+  tooltip-stop: "Stop the game on <arena>"
+  tooltip-games: "Show the open games"
+  tooltip-stats: "Show your stats"
+  arrival: "<accent>PvP games open:"
+  arrival-more: "<muted>More games: /pvp games"
+  # Chat buttons: <label> is the button text, framed in the theme color of the button style.
+  button: "<button>[<label>]</button>"
+  button-primary: "<success>[<label>]</success>"
+  button-danger: "<button-danger>[<label>]</button-danger>"

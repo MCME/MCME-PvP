@@ -1,72 +1,76 @@
 name: MCME-PVP
-main: com.mcmiddleearth.mcme.pvp.PVPPlugin
+main: com.mcmiddleearth.pvp.PvpPlugin
 version: ${project.version}
-authors: [DonoA, aaldim, lizzehface, meggawatts, Eriol_Eandur, NicoviçTheSixth, barteldvn, Jubo]
-depend: [WorldEdit,PlaceholderAPI, PluginUtils]
 api-version: '26.2'
+description: PvP game modes for MCME; several games can run at once.
+authors: [DonoA, aaldim, lizzehface, meggawatts, Eriol_Eandur, NicoviçTheSixth, barteldvn, Jubo]
+# Multiverse-Core, when present, loads the arena worlds first, with its own generator and environment settings;
+# WorldSetup then only switches immediate respawn on. A softdepend on a plugin that isn't installed is ignored.
+softdepend: [PlaceholderAPI, Multiverse-Core]
 
-commands:
-  WorldJump:
-    description: jump worlds
-    usage: /WorldJump <world>
-  World:
-    description: world commands
-    usage: /world <save|load|list> <args>
-  PlugUp:
-    description: Self updates
-    usage: /PlugUp <step>
-  locker:
-    description: Lock commands
-    usage: /locker <some shit>
-  event:
-    description: Get get commands from current event also redirects to current event if only one is enabled
-    usage: /event <sub-command> [args]
-  winter:
-    description: Umbrella for all winter event commands
-    usage: /winter <sub-command> [args]
-  summer:
-    description: Umbrella for all summer event commands
-    usage: /summer <sub-command> [args]
-  pvp:
-    description: PVP commands go to the read-me for more info
-    usage: /pvp <some shit>
-  t:
-    description: Send a message to players on your team
-    usage: /t <message>
-  mapeditor:
-    description: A map editor GUI to help you edit maps more easily
-    usage: /mapeditor <map> <variable> <edit>
+# /pvp, /pvpadmin and /t are registered at runtime through Paper's Brigadier API.
 permissions:
+  pvp.play:
+    description: Join, leave and spectate games; see rules and stats; team chat.
+    default: true
+  pvp.join.locked:
+    description: Stay on the server while PvP is locked.
+    default: op
+  pvp.staff.run:
+    description: Open, count down and stop games; lock and unlock PvP; send everyone to the main server.
+    default: op
+  pvp.staff.kick:
+    description: Send one player to the main server.
+    default: op
+  pvp.staff.arena:
+    description: List, inspect and re-import arenas.
+    default: op
+  pvp.admin:
+    description: Everything. Also shows the "PvP Staff" chat prefix.
+    default: op
+    children:
+      pvp.play: true
+      pvp.join.locked: true
+      pvp.staff.run: true
+      pvp.staff.kick: true
+      pvp.staff.arena: true
+  # 1.1.2 nodes: kept as parents of the new ones, so existing LuckPerms grants and groups keep working.
   pvp.join:
-    description: Can join even when server is locked.
+    description: 1.1.2 node; grants pvp.join.locked.
     default: op
+    children:
+      pvp.join.locked: true
   pvp.gameKick:
-    description: Can kick players from pvp server.
+    description: 1.1.2 node; grants pvp.staff.kick.
     default: op
+    children:
+      pvp.staff.kick: true
   pvp.gameCanRun:
-    description: Can run games on pvp server.
+    description: 1.1.2 node; grants pvp.staff.run.
     default: op
+    children:
+      pvp.staff.run: true
   pvp.mapCreate:
-    description: Can create maps on pvp server.
+    description: 1.1.2 node; grants pvp.staff.arena.
     default: op
+    children:
+      pvp.staff.arena: true
   pvp.adminPermission:
-    description: Can do everything with the pvp plugin.
+    description: 1.1.2 node; grants pvp.admin.
     default: op
+    children:
+      pvp.admin: true
   pvp.builder:
+    description: 1.1.2 group node.
     children:
       pvp.join: true
   pvp.moderator:
+    description: 1.1.2 group node.
     children:
       pvp.gameKick: true
   pvp.manager:
+    description: 1.1.2 group node.
     children:
       pvp.gameCanRun: true
       pvp.join: true
       pvp.moderator: true
-  pvp.admin:
-    children:
-      pvp.builder: true
-      pvp.mapCreate: true
-      pvp.manager: true
-      pvp.moderator: true
-      pvp.adminPermission: true
